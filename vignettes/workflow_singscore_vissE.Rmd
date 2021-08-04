@@ -19,10 +19,13 @@ author:
     email: davis.m@wehi.edu.au
 date: "`r format(Sys.time(), '%b %Y')`"
 output:
-  BiocStyle::html_document:
-    toc_float: true
-    fig_caption: true
-    number_sections: true
+  prettydoc::html_pretty:
+    theme: cayman
+    toc: yes
+    toc_depth: 2
+    number_sections: yes
+    fig_caption: yes
+    df_print: paged
 nocite: | 
   @R-ggplot2, @R-knitr, @R-BiocWorkflowTools, @R-rmarkdown, @R-prettydoc
 bibliography: [bibliography.bib, packages.bib]
