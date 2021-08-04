@@ -1,0 +1,64 @@
+Package: GenesetAnalysisWorkflow
+Title: Using singscore to predict mutations in AML from transcriptomic signatures
+Version: 0.0.99
+Authors@R: 
+    c(
+      person(
+        "Dharmesh",
+        "Bhuva",
+        "D.",
+        email = "bhuva.d@wehi.edu.au",
+        role = c("aut", "cre"),
+        comment = c(ORCID = '0000-0002-6398-9157')
+      ),
+      person(
+        "Chin Wee",
+        "Tan",
+        email = "cwtan@wehi.edu.au",
+        role = c("aut"),
+        comment = c(ORCID = '')
+      ),
+      person(
+        "Melissa",
+        "Davis",
+        "J.",
+        email = "davis.m@wehi.edu.au",
+        role = c("aut"),
+        comment = c(ORCID = '0000-0003-4864-7033')
+      )
+    )
+Description: This workflow package shows how transcriptomic signatures can be used
+  to infer phenotypes. The workflow begins by showing how the TCGA AML transcriptomic
+  data can be downloaded and processed using the TCGAbiolinks packages. It then shows
+  how samples can be scored using the singscore package and signatures from the 
+  MSigDB. Finally, the predictive capacity of scores in the context of predicting
+  a specific mutation in AML is shown.The workflow exhibits the interplay of
+  Bioconductor packages to achieve a gene-set level analysis.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: false
+Workflow: True
+biocViews: GeneExpressionWorkflow, Workflow
+VignetteBuilder: knitr
+Depends: 
+    R (>= 4.1.0)
+Imports: 
+    emtdata,
+    edgeR,
+    ggplot2,
+    GSEABase,
+    msigdb,
+    singscore,
+    SummarizedExperiment,
+    vissE
+Suggests: 
+    BiocStyle,
+    BiocWorkflowTools,
+    knitr,
+    prettydoc,
+    rmarkdown,
+    spelling
+RoxygenNote: 7.1.1
+Language: en-US
+URL: https://github.com/DavisLaboratory/GenesetAnalysisWorkflow
+BugReports: https://github.com/DavisLaboratory/GenesetAnalysisWorkflow/issues
