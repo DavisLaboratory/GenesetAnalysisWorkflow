@@ -16,7 +16,7 @@ Authors@R:
         "Tan",
         email = "cwtan@wehi.edu.au",
         role = c("aut"),
-        comment = c(ORCID = '')
+        comment = c(ORCID = '0000-0001-9695-7218')
       ),
       person(
         "Melissa",
@@ -43,6 +43,7 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 4.1.0)
 Imports: 
+    Biobase,
     emtdata,
     edgeR,
     ggplot2,
@@ -52,13 +53,16 @@ Imports:
     SummarizedExperiment,
     vissE
 Suggests: 
+    pkgdown,
     BiocStyle,
     BiocWorkflowTools,
     knitr,
     prettydoc,
     rmarkdown,
     spelling
-RoxygenNote: 7.1.1
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
 Language: en-US
 URL: https://github.com/DavisLaboratory/GenesetAnalysisWorkflow
 BugReports: https://github.com/DavisLaboratory/GenesetAnalysisWorkflow/issues
+DockerImage: bhuvad/genesetanalysisworkflow:latest
