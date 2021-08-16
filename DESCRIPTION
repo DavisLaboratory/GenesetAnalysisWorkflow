@@ -28,12 +28,7 @@ Authors@R:
       )
     )
 Description: This workflow package shows how transcriptomic signatures can be used
-  to infer phenotypes. The workflow begins by showing how the TCGA AML transcriptomic
-  data can be downloaded and processed using the TCGAbiolinks packages. It then shows
-  how samples can be scored using the singscore package and signatures from the 
-  MSigDB. Finally, the predictive capacity of scores in the context of predicting
-  a specific mutation in AML is shown.The workflow exhibits the interplay of
-  Bioconductor packages to achieve a gene-set level analysis.
+  to infer phenotypes. 
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: false
