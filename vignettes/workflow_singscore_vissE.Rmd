@@ -117,7 +117,7 @@ emt_dge = asDGEList(emt_se)
 
 ```{r}
 #read Thiery et al. signatures
-thiery_path = system.file('data/Thiery_EMTsignatures.txt', package = 'GenesetAnalysisWorkflow')
+thiery_path = system.file('extdata/Thiery_EMTsignatures.txt', package = 'GenesetAnalysisWorkflow')
 thiery_data = read.table(thiery_path, header = TRUE)
 head(thiery_data)
 ```
