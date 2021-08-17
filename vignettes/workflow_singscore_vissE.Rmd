@@ -30,7 +30,7 @@ nocite: |
   @R-ggplot2, @R-knitr, @R-BiocWorkflowTools, @R-rmarkdown, @R-prettydoc
 bibliography: [bibliography.bib, packages.bib]
 vignette: >
-  %\VignetteIndexEntry{Visualising molecular phenotypes inferred from individual samples using singscore, vissE and msigdb.}
+  %\VignetteIndexEntry{Molecular phenotyping and visualisation from individual samples using singscore, vissE and msigdb.}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 keywords: single sample, gene set scoring, signature scoring, visualisation
@@ -52,11 +52,14 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 suppressPackageStartupMessages({library(GenesetAnalysisWorkflow)})
 library(ggplot2)
 library(SummarizedExperiment)
+library(ExperimentHub)
 library(edgeR)
 library(GSEABase)
+library(emtdata)
 library(singscore)
 library(msigdb)
 library(vissE)
+library(ggpubr)
 
 #automatically create a bib database for R packages
 knitr::write_bib(c(
@@ -70,7 +73,256 @@ knitr::write_bib(c(
 
 # Molecular phenotyping of individual samples
 
+## Load data
+
+```{r}
+library(ExperimentHub)
+
+eh = ExperimentHub()
+query(eh, 'emtdata')
+```
+
+```{r}
+library(SummarizedExperiment)
+library(emtdata)
+
+#load using object ID
+emt_se = eh[['EH5441']]
+
+#alternatively
+emt_se = cursons2015_se()
+emt_se
+```
+
+Convert Ensembl IDs to Symbols
+
+```{r}
+#identify duplicated mappings
+all_genes = rowData(emt_se)$gene_name
+dups = unique(all_genes[duplicated(all_genes)])
+dups
+#remove duplicated genes
+emt_se = emt_se[!all_genes %in% dups, ]
+rownames(emt_se) = rowData(emt_se)$gene_name
+emt_se
+```
+
+```{r}
+#create a DGEList object
+emt_dge = asDGEList(emt_se)
+# emt_dge
+```
+
+## Load gene-sets
+
+```{r}
+#read Thiery et al. signatures
+thiery_path = system.file('data/Thiery_EMTsignatures.txt', package = 'GenesetAnalysisWorkflow')
+thiery_data = read.table(thiery_path, header = TRUE)
+head(thiery_data)
+```
+
+```{r}
+library(GSEABase)
+
+#create epithelial gene-set
+epi_genes = thiery_data$officialSymbol[thiery_data$epiMes_cellLine %in% 'epi']
+#select unique genes
+epi_genes = unique(epi_genes)
+epi_sig = GeneSet(epi_genes, setName = 'THIERY_EPITHELIAL_CELLLINE', geneIdType = SymbolIdentifier())
+epi_sig
+
+#create mesenchymal gene-set
+mes_genes = thiery_data$genes[thiery_data$epiMes_cellLine %in% 'mes']
+mes_genes = unique(mes_genes)
+mes_sig = GeneSet(mes_genes, setName = 'THIERY_MESENCHYMAL_CELLLINE', geneIdType = SymbolIdentifier())
+mes_sig
+```
+
+need to add KEGG separately due to licensing.
+
+```{r}
+library(msigdb)
+
+#load MSigDB gene-sets
+msigdb.hs = getMsigdb(org = 'hs', id = 'SYM', version = '7.2')
+#add KEGG gene-sets
+msigdb.hs = appendKEGG(msigdb.hs)
+msigdb.hs
+```
+
+## Singscore
+
+```{r}
+library(singscore)
+
+#rank genes based on expression
+eranks = rankGenes(assay(emt_se, 'logRPKM'))
+#compute epithelial scores
+epi_score = simpleScore(eranks, epi_sig)
+head(epi_score)
+#compute mesenchymal scores
+mes_score = simpleScore(eranks, mes_sig)
+head(mes_score)
+```
+
+Plot individual epithelial scores
+
+```{r}
+plotDispersion(
+  epi_score,
+  annot = emt_se$Subline,
+  annot_name = 'Subline',
+  size = 5,
+  alpha = 0.5,
+  isInteractive = FALSE
+)
+```
+
+Plot individual mesenchymal scores using an interactive plot
+
+```{r}
+plotDispersion(
+  mes_score,
+  annot = emt_se$Subline,
+  annot_name = 'Subline',
+  size = 5,
+  alpha = 0.5,
+  isInteractive = FALSE
+)
+```
+
+```{r}
+#load pre-computed TCGA breast cancer EMT scores
+data("scoredf_tcga_epi")
+data("scoredf_tcga_mes")
+
+#plot an EMT landscape
+p_tcga = plotScoreLandscape(
+  scoredf1 = scoredf_tcga_epi,
+  scoredf2 = scoredf_tcga_mes,
+  scorenames = c('Epithelial score', 'Mesenchymal score')
+)
+```
+
+```{r}
+projectScoreLandscape(
+  p_tcga,
+  scoredf1 = epi_score,
+  scoredf2 = mes_score,
+  annot = emt_se$Subline,
+  annot_name = 'Subline',
+  isInteractive = FALSE
+)
+```
+
+```{r}
+projectScoreLandscape(
+  p_tcga,
+  scoredf1 = epi_score,
+  scoredf2 = mes_score,
+  annot = emt_se$Treatment,
+  annot_name = 'Treatment',
+  isInteractive = FALSE
+)
+```
+
+Score using the Hallmark EMT signature
+
+```{r}
+hemt_sig = msigdb.hs[['HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION']]
+hemt_score = simpleScore(eranks, hemt_sig)
+
+#plot Hallmark EMT signature
+projectScoreLandscape(
+  p_tcga,
+  scoredf1 = epi_score,
+  scoredf2 = mes_score,
+  annot = hemt_score$TotalScore,
+  annot_name = 'Hallmark EMT score',
+  isInteractive = FALSE
+)
+```
+
+We can see that ET vs LA is a strong difference. We can investigate individual samples.
+
+```{r}
+plotRankDensity(eranks[, 'PMC42LA_Ctrl_Rep1', drop = FALSE], epi_sig, isInteractive = FALSE)
+plotRankDensity(eranks[, 'PMC42ET_Ctrl_Rep1', drop = FALSE], epi_sig, isInteractive = FALSE)
+```
+
+## Stingscore
+
+```{r}
+#simulate data by sub-sampling
+sample_genes = union(geneIds(epi_sig), geneIds(mes_sig))
+sample_genes = union(sample_genes, getStableGenes(5))
+#subset genes with measurements in the data
+sample_genes = intersect(sample_genes, rownames(emt_se))
+#subset data
+targeted_se = emt_se[sample_genes, ]
+targeted_se
+```
+
+```{r}
+st_genes = getStableGenes(5)
+st_genes
+
+#rank genes using stably expressed genes
+st_eranks = rankGenes(targeted_se, stableGenes = st_genes)
+
+#score samples using the simulated targeted sequencing data
+epi_score_st = simpleScore(st_eranks, epi_sig)
+mes_score_st = simpleScore(st_eranks, mes_sig)
+
+#plot scores computed using singscore vs stingscore
+colmap = c('MDA-MB-468' = '#1B9E77', 'PMC42-ET' = '#D95F02', 'PMC42-LA' = '#7570B3')
+par(mfrow = c(1, 2))
+plot(
+  epi_score$TotalScore,
+  epi_score_st$TotalScore,
+  col = colmap[targeted_se$Subline],
+  main = 'Epithelial score',
+  xlab = 'Singscore',
+  ylab = 'Stingscore (stable genes)'
+)
+abline(coef = c(0, 1), col = 2, lty = 2)
+plot(
+  mes_score$TotalScore,
+  mes_score_st$TotalScore,
+  col = colmap[targeted_se$Subline],
+  main = 'Mesenchymal score',
+  xlab = 'Singscore',
+  ylab = 'Stingscore (stable genes)'
+)
+abline(coef = c(0, 1), col = 2, lty = 2)
+```
+
+## Multiscore
+
+```{r}
+genesigs = c(
+  epi_sig,
+  mes_sig,
+  subsetCollection(msigdb.hs, 'h'),
+  subsetCollection(msigdb.hs, 'c2', c('CP:KEGG', 'CP:REACTOME', 'CP:BIOCARTA')),
+  subsetCollection(msigdb.hs, 'c5', c('GO:BP', 'GO:MF', 'GO:CC'))
+)
+genesigs = GeneSetCollection(genesigs)
+```
+
+```{r}
+eranks = rankGenes(emt_se)
+msigdb_scores = multiScore(eranks, genesigs)
+lapply(msigdb_scores, function(x) x[1:5, 1:2])
+```
+
+
 # Identifying and visualising higher-order phenotypes
+
+## vissE + singscore
+
+## vissE + DE
 
 # Summary
 

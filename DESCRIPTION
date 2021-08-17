@@ -1,6 +1,6 @@
 Package: GenesetAnalysisWorkflow
-Title: Using singscore to predict mutations in AML from transcriptomic signatures
-Version: 0.0.99
+Title: Molecular phenotyping and visualisation from individual samples using singscore, vissE and msigdb.
+Version: 0.9.1
 Authors@R: 
     c(
       person(
@@ -46,7 +46,10 @@ Imports:
     msigdb,
     singscore,
     SummarizedExperiment,
-    vissE
+    vissE,
+    ExperimentHub,
+    hexbin,
+    ggpubr
 Suggests: 
     pkgdown,
     BiocStyle,
@@ -58,6 +61,6 @@ Suggests:
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Language: en-US
-URL: https://github.com/DavisLaboratory/GenesetAnalysisWorkflow
+URL: https://davislaboratory.github.io/GenesetAnalysisWorkflow/
 BugReports: https://github.com/DavisLaboratory/GenesetAnalysisWorkflow/issues
 DockerImage: bhuvad/genesetanalysisworkflow:latest
