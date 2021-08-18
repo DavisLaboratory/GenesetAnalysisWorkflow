@@ -1,5 +1,5 @@
 Package: GenesetAnalysisWorkflow
-Title: Molecular phenotyping and visualisation from individual samples using singscore, vissE and msigdb.
+Title: Molecular phenotyping and visualisation from individual samples using singscore, vissE and msigdb
 Version: 0.9.1
 Authors@R: 
     c(
@@ -49,7 +49,10 @@ Imports:
     vissE,
     ExperimentHub,
     hexbin,
-    ggpubr
+    ggpubr,
+    igraph,
+    graphics,
+    KernSmooth
 Suggests: 
     pkgdown,
     BiocStyle,
@@ -59,7 +62,7 @@ Suggests:
     rmarkdown,
     spelling
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Language: en-US
 URL: https://davislaboratory.github.io/GenesetAnalysisWorkflow/
 BugReports: https://github.com/DavisLaboratory/GenesetAnalysisWorkflow/issues

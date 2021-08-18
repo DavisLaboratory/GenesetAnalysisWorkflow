@@ -284,7 +284,7 @@ plot(
   col = colmap[targeted_se$Subline],
   main = 'Epithelial score',
   xlab = 'Singscore',
-  ylab = 'Stingscore (stable genes)'
+  ylab = 'Stingscore (targeted)'
 )
 abline(coef = c(0, 1), col = 2, lty = 2)
 plot(
@@ -293,7 +293,7 @@ plot(
   col = colmap[targeted_se$Subline],
   main = 'Mesenchymal score',
   xlab = 'Singscore',
-  ylab = 'Stingscore (stable genes)'
+  ylab = 'Stingscore (targeted)'
 )
 abline(coef = c(0, 1), col = 2, lty = 2)
 ```
@@ -301,6 +301,7 @@ abline(coef = c(0, 1), col = 2, lty = 2)
 ## Multiscore
 
 ```{r}
+#subset collections and subcollections of interest
 genesigs = c(
   epi_sig,
   mes_sig,
@@ -312,11 +313,22 @@ genesigs = GeneSetCollection(genesigs)
 ```
 
 ```{r}
-eranks = rankGenes(emt_se)
+eranks = rankGenes(assay(emt_se, 'logRPKM'))
 msigdb_scores = multiScore(eranks, genesigs)
 lapply(msigdb_scores, function(x) x[1:5, 1:2])
 ```
 
+```{r}
+smoothScatter(msigdb_scores$Scores, msigdb_scores$Dispersions, xlab = 'Score', ylab = 'Dispersion', main = 'Score vs Dispersion')
+```
+
+```{r}
+#select scores for a single Hypoxic sample
+et_la_scores = msigdb_scores$Scores[, 'PMC42ET_Ctrl_Rep1'] - msigdb_scores$Scores[, 'PMC42LA_Ctrl_Rep1']
+et_la_scores = sort(et_la_scores)
+head(et_la_scores)
+tail(et_la_scores)
+```
 
 # Identifying and visualising higher-order phenotypes
 
