@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">GenesetAnalysisWorkflow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.99</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.1</span>
       </span>
     </div>
 
@@ -111,7 +111,7 @@
     
 <p>
 </p>
-<p><strong>R version</strong>: R version 4.1.0 (2021-05-18) <br><strong>Bioconductor version</strong>: 3.14 <br><strong>Package version</strong>: 0.0.99</p>
+<p><strong>R version</strong>: R version 4.1.0 (2021-05-18) <br><strong>Bioconductor version</strong>: 3.14 <br><strong>Package version</strong>: 0.9.1</p>
 
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
@@ -124,10 +124,381 @@
 <div id="molecular-phenotyping-of-individual-samples" class="section level1">
 <h1 class="hasAnchor">
 <a href="#molecular-phenotyping-of-individual-samples" class="anchor"></a>Molecular phenotyping of individual samples</h1>
+<div id="load-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#load-data" class="anchor"></a>Load data</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">ExperimentHub</span><span class="op">)</span>
+
+<span class="va">eh</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/ExperimentHub/man/ExperimentHub-class.html">ExperimentHub</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu">query</span><span class="op">(</span><span class="va">eh</span>, <span class="st">'emtdata'</span><span class="op">)</span></code></pre></div>
+<pre><code>## ExperimentHub with 3 records
+## # snapshotDate(): 2021-08-09
+## # $dataprovider: Walter and Eliza Hall Institute of Medical Research, Queens...
+## # $species: Homo sapiens
+## # $rdataclass: GSEABase::SummarizedExperiment
+## # additional mcols(): taxonomyid, genome, description,
+## #   coordinate_1_based, maintainer, rdatadateadded, preparerclass, tags,
+## #   rdatapath, sourceurl, sourcetype 
+## # retrieve records with, e.g., 'object[["EH5439"]]' 
+## 
+##            title          
+##   EH5439 | foroutan2017_se
+##   EH5440 | cursons2018_se 
+##   EH5441 | cursons2015_se</code></pre>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment">SummarizedExperiment</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/DavisLaboratory/emtdata">emtdata</a></span><span class="op">)</span>
+
+<span class="co">#load using object ID</span>
+<span class="va">emt_se</span> <span class="op">=</span> <span class="va">eh</span><span class="op">[[</span><span class="st">'EH5441'</span><span class="op">]</span><span class="op">]</span>
+
+<span class="co">#alternatively</span>
+<span class="va">emt_se</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/emtdata/man/cursons2015_se.html">cursons2015_se</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">emt_se</span></code></pre></div>
+<pre><code>## class: SummarizedExperiment 
+## dim: 29866 21 
+## metadata(0):
+## assays(2): counts logRPKM
+## rownames(29866): ENSG00000223972 ENSG00000227232 ... ENSG00000271254
+##   ENSG00000275405
+## rowData names(7): Chr Start ... gene_name gene_biotype
+## colnames(21): MDA468_Ctrl_Rep1 MDA468_Ctrl_Rep2 ... PMC42LA_EGF_Rep2
+##   PMC42LA_EGF_Rep3
+## colData names(14): group lib.size ... Organism SRA.Study</code></pre>
+<p>Convert Ensembl IDs to Symbols</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#identify duplicated mappings</span>
+<span class="va">all_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span><span class="op">$</span><span class="va">gene_name</span>
+<span class="va">dups</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">all_genes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="va">all_genes</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
+<span class="va">dups</span></code></pre></div>
+<pre><code>##  [1] "Y_RNA"       "RGS5"        "TBCE"        "LINC00486"   "Metazoa_SRP"
+##  [6] "LINC01238"   "CYB561D2"    "POLR2J4"     "POLR2J3"     "5S_rRNA"    
+## [11] "TMSB15B"     "ALG1L9P"     "DNAJC9-AS1"  "BMS1P4"      "SNORA70"    
+## [16] "HERC2P7"     "U2"          "U3"          "ELFN2"       "5_8S_rRNA"  
+## [21] "U1"</code></pre>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#remove duplicated genes</span>
+<span class="va">emt_se</span> <span class="op">=</span> <span class="va">emt_se</span><span class="op">[</span><span class="op">!</span><span class="va">all_genes</span> <span class="op">%in%</span> <span class="va">dups</span>, <span class="op">]</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span><span class="op">$</span><span class="va">gene_name</span>
+<span class="va">emt_se</span></code></pre></div>
+<pre><code>## class: SummarizedExperiment 
+## dim: 29752 21 
+## metadata(0):
+## assays(2): counts logRPKM
+## rownames(29752): DDX11L1 WASH7P ... AC004556.3 AC240274.1
+## rowData names(7): Chr Start ... gene_name gene_biotype
+## colnames(21): MDA468_Ctrl_Rep1 MDA468_Ctrl_Rep2 ... PMC42LA_EGF_Rep2
+##   PMC42LA_EGF_Rep3
+## colData names(14): group lib.size ... Organism SRA.Study</code></pre>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#create a DGEList object</span>
+<span class="va">emt_dge</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/emtdata/man/asDGEList.html">asDGEList</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span>
+<span class="co"># emt_dge</span></code></pre></div>
+</div>
+<div id="load-gene-sets" class="section level2">
+<h2 class="hasAnchor">
+<a href="#load-gene-sets" class="anchor"></a>Load gene-sets</h2>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#read Thiery et al. signatures</span>
+<span class="va">thiery_path</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">'extdata/Thiery_EMTsignatures.txt'</span>, package <span class="op">=</span> <span class="st">'GenesetAnalysisWorkflow'</span><span class="op">)</span>
+<span class="va">thiery_data</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span><span class="op">(</span><span class="va">thiery_path</span>, header <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">thiery_data</span><span class="op">)</span></code></pre></div>
+<pre><code>##   officialSymbol     genes epiMes_tumor epiMes_cellLine Ensembl.Gene.ID
+## 1          ABCC3     ABCC3          epi             epi ENSG00000108846
+## 2         ABHD11    ABHD11          epi            &lt;NA&gt; ENSG00000106077
+## 3          ADAP1     ADAP1         &lt;NA&gt;             epi ENSG00000105963
+## 4          ADIRF C10orf116         &lt;NA&gt;             epi ENSG00000148671
+## 5           AGR2      AGR2          epi             epi ENSG00000106541
+## 6           AIM1      AIM1         &lt;NA&gt;             epi ENSG00000112297
+##   HGNC.symbol EntrezGene.ID
+## 1       ABCC3          8714
+## 2      ABHD11         83451
+## 3       ADAP1         11033
+## 4       ADIRF         10974
+## 5        AGR2         10551
+## 6        AIM1           202</code></pre>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">GSEABase</span><span class="op">)</span>
+
+<span class="co">#create epithelial gene-set</span>
+<span class="va">epi_genes</span> <span class="op">=</span> <span class="va">thiery_data</span><span class="op">$</span><span class="va">officialSymbol</span><span class="op">[</span><span class="va">thiery_data</span><span class="op">$</span><span class="va">epiMes_cellLine</span> <span class="op">%in%</span> <span class="st">'epi'</span><span class="op">]</span>
+<span class="co">#select unique genes</span>
+<span class="va">epi_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">epi_genes</span><span class="op">)</span>
+<span class="va">epi_sig</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-methods.html">GeneSet</a></span><span class="op">(</span><span class="va">epi_genes</span>, setName <span class="op">=</span> <span class="st">'THIERY_EPITHELIAL_CELLLINE'</span>, geneIdType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html">SymbolIdentifier</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="va">epi_sig</span></code></pre></div>
+<pre><code>## setName: THIERY_EPITHELIAL_CELLLINE 
+## geneIds: ABCC3, ADAP1, ..., ZNF165 (total: 170)
+## geneIdType: Symbol
+## collectionType: Null 
+## details: use 'details(object)'</code></pre>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#create mesenchymal gene-set</span>
+<span class="va">mes_genes</span> <span class="op">=</span> <span class="va">thiery_data</span><span class="op">$</span><span class="va">genes</span><span class="op">[</span><span class="va">thiery_data</span><span class="op">$</span><span class="va">epiMes_cellLine</span> <span class="op">%in%</span> <span class="st">'mes'</span><span class="op">]</span>
+<span class="va">mes_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">mes_genes</span><span class="op">)</span>
+<span class="va">mes_sig</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-methods.html">GeneSet</a></span><span class="op">(</span><span class="va">mes_genes</span>, setName <span class="op">=</span> <span class="st">'THIERY_MESENCHYMAL_CELLLINE'</span>, geneIdType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html">SymbolIdentifier</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="va">mes_sig</span></code></pre></div>
+<pre><code>## setName: THIERY_MESENCHYMAL_CELLLINE 
+## geneIds: AKAP12, ANK2, ..., ZEB1 (total: 48)
+## geneIdType: Symbol
+## collectionType: Null 
+## details: use 'details(object)'</code></pre>
+<p>need to add KEGG separately due to licensing.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://davislaboratory.github.io/msigdb">msigdb</a></span><span class="op">)</span>
+
+<span class="co">#load MSigDB gene-sets</span>
+<span class="va">msigdb.hs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/getMsigdb.html">getMsigdb</a></span><span class="op">(</span>org <span class="op">=</span> <span class="st">'hs'</span>, id <span class="op">=</span> <span class="st">'SYM'</span>, version <span class="op">=</span> <span class="st">'7.2'</span><span class="op">)</span>
+<span class="co">#add KEGG gene-sets</span>
+<span class="va">msigdb.hs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/appendKEGG.html">appendKEGG</a></span><span class="op">(</span><span class="va">msigdb.hs</span><span class="op">)</span>
+<span class="va">msigdb.hs</span></code></pre></div>
+<pre><code>## GeneSetCollection
+##   names: chr11q, chr6q, ..., KEGG_VIRAL_MYOCARDITIS (31508 total)
+##   unique identifiers: AP001767.2, SLC22A9, ..., AC023491.2 (40044 total)
+##   types in collection:
+##     geneIdType: SymbolIdentifier (1 total)
+##     collectionType: BroadCollection (1 total)</code></pre>
+</div>
+<div id="singscore" class="section level2">
+<h2 class="hasAnchor">
+<a href="#singscore" class="anchor"></a>Singscore</h2>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://davislaboratory.github.io/singscore">singscore</a></span><span class="op">)</span>
+
+<span class="co">#rank genes based on expression</span>
+<span class="va">eranks</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/rankGenes.html">rankGenes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay</a></span><span class="op">(</span><span class="va">emt_se</span>, <span class="st">'logRPKM'</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#compute epithelial scores</span>
+<span class="va">epi_score</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">epi_sig</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">epi_score</span><span class="op">)</span></code></pre></div>
+<pre><code>##                  TotalScore TotalDispersion
+## MDA468_Ctrl_Rep1  0.3230845        3992.642
+## MDA468_Ctrl_Rep2  0.3222157        4030.448
+## MDA468_Ctrl_Rep3  0.3214232        4120.145
+## MDA468_EGF_Rep1   0.3230362        4076.409
+## MDA468_EGF_Rep2   0.3218094        4169.812
+## MDA468_EGF_Rep3   0.3274617        3951.870</code></pre>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#compute mesenchymal scores</span>
+<span class="va">mes_score</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">mes_sig</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">mes_score</span><span class="op">)</span></code></pre></div>
+<pre><code>##                    TotalScore TotalDispersion
+## MDA468_Ctrl_Rep1 -0.027817504       10014.963
+## MDA468_Ctrl_Rep2 -0.032615987       10333.722
+## MDA468_Ctrl_Rep3 -0.030163516       10885.249
+## MDA468_EGF_Rep1   0.014965710       10068.337
+## MDA468_EGF_Rep2   0.008487366       10682.133
+## MDA468_EGF_Rep3   0.018875730        8914.874</code></pre>
+<p>Plot individual epithelial scores</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotDispersion.html">plotDispersion</a></span><span class="op">(</span>
+  <span class="va">epi_score</span>,
+  annot <span class="op">=</span> <span class="va">emt_se</span><span class="op">$</span><span class="va">Subline</span>,
+  annot_name <span class="op">=</span> <span class="st">'Subline'</span>,
+  size <span class="op">=</span> <span class="fl">5</span>,
+  alpha <span class="op">=</span> <span class="fl">0.5</span>,
+  isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
+<span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p>Plot individual mesenchymal scores using an interactive plot</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotDispersion.html">plotDispersion</a></span><span class="op">(</span>
+  <span class="va">mes_score</span>,
+  annot <span class="op">=</span> <span class="va">emt_se</span><span class="op">$</span><span class="va">Subline</span>,
+  annot_name <span class="op">=</span> <span class="st">'Subline'</span>,
+  size <span class="op">=</span> <span class="fl">5</span>,
+  alpha <span class="op">=</span> <span class="fl">0.5</span>,
+  isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
+<span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#load pre-computed TCGA breast cancer EMT scores</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"scoredf_tcga_epi"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"scoredf_tcga_mes"</span><span class="op">)</span>
+
+<span class="co">#plot an EMT landscape</span>
+<span class="va">p_tcga</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotScoreLandscape.html">plotScoreLandscape</a></span><span class="op">(</span>
+  scoredf1 <span class="op">=</span> <span class="va">scoredf_tcga_epi</span>,
+  scoredf2 <span class="op">=</span> <span class="va">scoredf_tcga_mes</span>,
+  scorenames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Epithelial score'</span>, <span class="st">'Mesenchymal score'</span><span class="op">)</span>
+<span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/projectScoreLandscape.html">projectScoreLandscape</a></span><span class="op">(</span>
+  <span class="va">p_tcga</span>,
+  scoredf1 <span class="op">=</span> <span class="va">epi_score</span>,
+  scoredf2 <span class="op">=</span> <span class="va">mes_score</span>,
+  annot <span class="op">=</span> <span class="va">emt_se</span><span class="op">$</span><span class="va">Subline</span>,
+  annot_name <span class="op">=</span> <span class="st">'Subline'</span>,
+  isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
+<span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/projectScoreLandscape.html">projectScoreLandscape</a></span><span class="op">(</span>
+  <span class="va">p_tcga</span>,
+  scoredf1 <span class="op">=</span> <span class="va">epi_score</span>,
+  scoredf2 <span class="op">=</span> <span class="va">mes_score</span>,
+  annot <span class="op">=</span> <span class="va">emt_se</span><span class="op">$</span><span class="va">Treatment</span>,
+  annot_name <span class="op">=</span> <span class="st">'Treatment'</span>,
+  isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
+<span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
+<p>Score using the Hallmark EMT signature</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">hemt_sig</span> <span class="op">=</span> <span class="va">msigdb.hs</span><span class="op">[[</span><span class="st">'HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION'</span><span class="op">]</span><span class="op">]</span>
+<span class="va">hemt_score</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">hemt_sig</span><span class="op">)</span>
+
+<span class="co">#plot Hallmark EMT signature</span>
+<span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/projectScoreLandscape.html">projectScoreLandscape</a></span><span class="op">(</span>
+  <span class="va">p_tcga</span>,
+  scoredf1 <span class="op">=</span> <span class="va">epi_score</span>,
+  scoredf2 <span class="op">=</span> <span class="va">mes_score</span>,
+  annot <span class="op">=</span> <span class="va">hemt_score</span><span class="op">$</span><span class="va">TotalScore</span>,
+  annot_name <span class="op">=</span> <span class="st">'Hallmark EMT score'</span>,
+  isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
+<span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<p>We can see that ET vs LA is a strong difference. We can investigate individual samples.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotRankDensity.html">plotRankDensity</a></span><span class="op">(</span><span class="va">eranks</span><span class="op">[</span>, <span class="st">'PMC42LA_Ctrl_Rep1'</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, <span class="va">epi_sig</span>, isInteractive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotRankDensity.html">plotRankDensity</a></span><span class="op">(</span><span class="va">eranks</span><span class="op">[</span>, <span class="st">'PMC42ET_Ctrl_Rep1'</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, <span class="va">epi_sig</span>, isInteractive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-15-2.png" width="700"></p>
+</div>
+<div id="stingscore" class="section level2">
+<h2 class="hasAnchor">
+<a href="#stingscore" class="anchor"></a>Stingscore</h2>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#simulate data by sub-sampling</span>
+<span class="va">sample_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">epi_sig</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">mes_sig</span><span class="op">)</span><span class="op">)</span>
+<span class="va">sample_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="va">sample_genes</span>, <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/getStableGenes.html">getStableGenes</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#subset genes with measurements in the data</span>
+<span class="va">sample_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">intersect</a></span><span class="op">(</span><span class="va">sample_genes</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#subset data</span>
+<span class="va">targeted_se</span> <span class="op">=</span> <span class="va">emt_se</span><span class="op">[</span><span class="va">sample_genes</span>, <span class="op">]</span>
+<span class="va">targeted_se</span></code></pre></div>
+<pre><code>## class: SummarizedExperiment 
+## dim: 214 21 
+## metadata(0):
+## assays(2): counts logRPKM
+## rownames(214): ABCC3 ADAP1 ... TARDBP HNRNPK
+## rowData names(7): Chr Start ... gene_name gene_biotype
+## colnames(21): MDA468_Ctrl_Rep1 MDA468_Ctrl_Rep2 ... PMC42LA_EGF_Rep2
+##   PMC42LA_EGF_Rep3
+## colData names(14): group lib.size ... Organism SRA.Study</code></pre>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">st_genes</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/getStableGenes.html">getStableGenes</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
+<span class="va">st_genes</span></code></pre></div>
+<pre><code>## [1] "RBM45"  "BRAP"   "CIAO1"  "TARDBP" "HNRNPK"</code></pre>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#rank genes using stably expressed genes</span>
+<span class="va">st_eranks</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/rankGenes.html">rankGenes</a></span><span class="op">(</span><span class="va">targeted_se</span>, stableGenes <span class="op">=</span> <span class="va">st_genes</span><span class="op">)</span>
+
+<span class="co">#score samples using the simulated targeted sequencing data</span>
+<span class="va">epi_score_st</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">st_eranks</span>, <span class="va">epi_sig</span><span class="op">)</span>
+<span class="va">mes_score_st</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">st_eranks</span>, <span class="va">mes_sig</span><span class="op">)</span>
+
+<span class="co">#plot scores computed using singscore vs stingscore</span>
+<span class="va">colmap</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'MDA-MB-468'</span> <span class="op">=</span> <span class="st">'#1B9E77'</span>, <span class="st">'PMC42-ET'</span> <span class="op">=</span> <span class="st">'#D95F02'</span>, <span class="st">'PMC42-LA'</span> <span class="op">=</span> <span class="st">'#7570B3'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span>
+  <span class="va">epi_score</span><span class="op">$</span><span class="va">TotalScore</span>,
+  <span class="va">epi_score_st</span><span class="op">$</span><span class="va">TotalScore</span>,
+  col <span class="op">=</span> <span class="va">colmap</span><span class="op">[</span><span class="va">targeted_se</span><span class="op">$</span><span class="va">Subline</span><span class="op">]</span>,
+  main <span class="op">=</span> <span class="st">'Epithelial score'</span>,
+  xlab <span class="op">=</span> <span class="st">'Singscore'</span>,
+  ylab <span class="op">=</span> <span class="st">'Stingscore (targeted)'</span>
+<span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/abline.html">abline</a></span><span class="op">(</span>coef <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span>
+  <span class="va">mes_score</span><span class="op">$</span><span class="va">TotalScore</span>,
+  <span class="va">mes_score_st</span><span class="op">$</span><span class="va">TotalScore</span>,
+  col <span class="op">=</span> <span class="va">colmap</span><span class="op">[</span><span class="va">targeted_se</span><span class="op">$</span><span class="va">Subline</span><span class="op">]</span>,
+  main <span class="op">=</span> <span class="st">'Mesenchymal score'</span>,
+  xlab <span class="op">=</span> <span class="st">'Singscore'</span>,
+  ylab <span class="op">=</span> <span class="st">'Stingscore (targeted)'</span>
+<span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/abline.html">abline</a></span><span class="op">(</span>coef <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+</div>
+<div id="multiscore" class="section level2">
+<h2 class="hasAnchor">
+<a href="#multiscore" class="anchor"></a>Multiscore</h2>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#subset collections and subcollections of interest</span>
+<span class="va">genesigs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
+  <span class="va">epi_sig</span>,
+  <span class="va">mes_sig</span>,
+  <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection</a></span><span class="op">(</span><span class="va">msigdb.hs</span>, <span class="st">'h'</span><span class="op">)</span>,
+  <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection</a></span><span class="op">(</span><span class="va">msigdb.hs</span>, <span class="st">'c2'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'CP:KEGG'</span>, <span class="st">'CP:REACTOME'</span>, <span class="st">'CP:BIOCARTA'</span><span class="op">)</span><span class="op">)</span>,
+  <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection</a></span><span class="op">(</span><span class="va">msigdb.hs</span>, <span class="st">'c5'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'GO:BP'</span>, <span class="st">'GO:MF'</span>, <span class="st">'GO:CC'</span><span class="op">)</span><span class="op">)</span>
+<span class="op">)</span>
+<span class="va">genesigs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSetCollection-methods.html">GeneSetCollection</a></span><span class="op">(</span><span class="va">genesigs</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">eranks</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/rankGenes.html">rankGenes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay</a></span><span class="op">(</span><span class="va">emt_se</span>, <span class="st">'logRPKM'</span><span class="op">)</span><span class="op">)</span>
+<span class="va">msigdb_scores</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">genesigs</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">msigdb_scores</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<pre><code>## $Scores
+##                                  MDA468_Ctrl_Rep1 MDA468_Ctrl_Rep2
+## THIERY_EPITHELIAL_CELLLINE              0.3230845       0.32221565
+## THIERY_MESENCHYMAL_CELLLINE            -0.0278175      -0.03261599
+## HALLMARK_TNFA_SIGNALING_VIA_NFKB        0.1893111       0.18454327
+## HALLMARK_HYPOXIA                        0.1549132       0.15766930
+## HALLMARK_CHOLESTEROL_HOMEOSTASIS        0.3035149       0.30298773
+## 
+## $Dispersions
+##                                  MDA468_Ctrl_Rep1 MDA468_Ctrl_Rep2
+## THIERY_EPITHELIAL_CELLLINE               3992.642         4030.448
+## THIERY_MESENCHYMAL_CELLLINE             10014.963        10333.722
+## HALLMARK_TNFA_SIGNALING_VIA_NFKB         7278.825         7191.351
+## HALLMARK_HYPOXIA                         7614.634         7633.907
+## HALLMARK_CHOLESTEROL_HOMEOSTASIS         4222.445         4188.345</code></pre>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/smoothScatter.html">smoothScatter</a></span><span class="op">(</span><span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Scores</span>, <span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Dispersions</span>, xlab <span class="op">=</span> <span class="st">'Score'</span>, ylab <span class="op">=</span> <span class="st">'Dispersion'</span>, main <span class="op">=</span> <span class="st">'Score vs Dispersion'</span><span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#select scores for a single Hypoxic sample</span>
+<span class="va">et_la_scores</span> <span class="op">=</span> <span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Scores</span><span class="op">[</span>, <span class="st">'PMC42ET_Ctrl_Rep1'</span><span class="op">]</span> <span class="op">-</span> <span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Scores</span><span class="op">[</span>, <span class="st">'PMC42LA_Ctrl_Rep1'</span><span class="op">]</span>
+<span class="va">et_la_scores</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">et_la_scores</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">et_la_scores</span><span class="op">)</span></code></pre></div>
+<pre><code>##                                                 GO_REGULATION_OF_EPINEPHRINE_SECRETION 
+##                                                                             -0.3560168 
+##                                           GO_POSITIVE_REGULATION_OF_MESODERM_FORMATION 
+##                                                                             -0.3180387 
+##                      GO_REGULATION_OF_VERY_LOW_DENSITY_LIPOPROTEIN_PARTICLE_REMODELING 
+##                                                                             -0.3061849 
+## GO_GAP_JUNCTION_CHANNEL_ACTIVITY_INVOLVED_IN_CELL_COMMUNICATION_BY_ELECTRICAL_COUPLING 
+##                                                                             -0.3041113 
+##                                           GO_INTERMEDIATE_DENSITY_LIPOPROTEIN_PARTICLE 
+##                                                                             -0.2954161 
+##                                                GO_NORADRENERGIC_NEURON_DIFFERENTIATION 
+##                                                                             -0.2788329</code></pre>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span><span class="op">(</span><span class="va">et_la_scores</span><span class="op">)</span></code></pre></div>
+<pre><code>##                            BIOCARTA_CYTOKINE_PATHWAY 
+##                                            0.2212715 
+## GO_POSITIVE_REGULATION_OF_T_CELL_TOLERANCE_INDUCTION 
+##                                            0.2223007 
+##  GO_CORTICOTROPIN_RELEASING_HORMONE_RECEPTOR_BINDING 
+##                                            0.2240487 
+##          GO_REGULATION_OF_LIPID_TRANSPORTER_ACTIVITY 
+##                                            0.2332605 
+##                            GO_11_CIS_RETINAL_BINDING 
+##                                            0.2378071 
+##                   GO_ESTROGEN_2_HYDROXYLASE_ACTIVITY 
+##                                            0.2410252</code></pre>
+</div>
 </div>
 <div id="identifying-and-visualising-higher-order-phenotypes" class="section level1">
 <h1 class="hasAnchor">
 <a href="#identifying-and-visualising-higher-order-phenotypes" class="anchor"></a>Identifying and visualising higher-order phenotypes</h1>
+<div id="visse-singscore" class="section level2">
+<h2 class="hasAnchor">
+<a href="#visse-singscore" class="anchor"></a>vissE + singscore</h2>
+</div>
+<div id="visse-de" class="section level2">
+<h2 class="hasAnchor">
+<a href="#visse-de" class="anchor"></a>vissE + DE</h2>
+</div>
 </div>
 <div id="summary" class="section level1">
 <h1 class="hasAnchor">
@@ -137,7 +508,7 @@
 <h1 class="hasAnchor">
 <a href="#packages-used" class="anchor"></a>Packages used</h1>
 <p>This workflow depends on various packages from version 3.14 of the Bioconductor project, running on R version 4.1.0 (2021-05-18) or higher. The complete list of the packages used for this workflow are shown below:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## R version 4.1.0 (2021-05-18)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
@@ -159,64 +530,78 @@
 ## [8] base     
 ## 
 ## other attached packages:
-##  [1] vissE_1.1.0                    msigdb_1.1.0                  
-##  [3] singscore_1.13.1               GSEABase_1.55.1               
-##  [5] graph_1.71.2                   annotate_1.71.0               
-##  [7] XML_3.99-0.6                   AnnotationDbi_1.55.1          
-##  [9] edgeR_3.35.0                   limma_3.49.4                  
-## [11] SummarizedExperiment_1.23.1    Biobase_2.53.0                
-## [13] GenomicRanges_1.45.0           GenomeInfoDb_1.29.3           
-## [15] IRanges_2.27.0                 S4Vectors_0.31.0              
-## [17] BiocGenerics_0.39.1            MatrixGenerics_1.5.3          
-## [19] matrixStats_0.60.0             ggplot2_3.3.5                 
-## [21] GenesetAnalysisWorkflow_0.0.99
+##  [1] ggpubr_0.4.0                  vissE_1.1.0                  
+##  [3] msigdb_1.1.0                  singscore_1.13.1             
+##  [5] emtdata_1.1.0                 GSEABase_1.55.1              
+##  [7] graph_1.71.2                  annotate_1.71.0              
+##  [9] XML_3.99-0.7                  AnnotationDbi_1.55.1         
+## [11] edgeR_3.35.0                  limma_3.49.4                 
+## [13] ExperimentHub_2.1.4           AnnotationHub_3.1.5          
+## [15] BiocFileCache_2.1.1           dbplyr_2.1.1                 
+## [17] SummarizedExperiment_1.23.1   Biobase_2.53.0               
+## [19] GenomicRanges_1.45.0          GenomeInfoDb_1.29.3          
+## [21] IRanges_2.27.0                S4Vectors_0.31.0             
+## [23] BiocGenerics_0.39.1           MatrixGenerics_1.5.3         
+## [25] matrixStats_0.60.0            ggplot2_3.3.5                
+## [27] GenesetAnalysisWorkflow_0.9.1
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] bitops_1.0-7                  fs_1.5.0                     
-##  [3] bit64_4.0.5                   filelock_1.0.2               
-##  [5] httr_1.4.2                    rprojroot_2.0.2              
-##  [7] tools_4.1.0                   bslib_0.2.5.1                
-##  [9] utf8_1.2.2                    R6_2.5.0                     
-## [11] DBI_1.1.1                     colorspace_2.0-2             
-## [13] withr_2.4.2                   tidyselect_1.1.1             
-## [15] curl_4.3.2                    bit_4.0.4                    
-## [17] compiler_4.1.0                textshaping_0.3.5            
-## [19] desc_1.3.0                    DelayedArray_0.19.1          
-## [21] sass_0.4.0                    scales_1.1.1                 
-## [23] rappdirs_0.3.3                pkgdown_1.6.1                
-## [25] systemfonts_1.0.2             stringr_1.4.0                
-## [27] digest_0.6.27                 rmarkdown_2.10               
-## [29] XVector_0.33.0                pkgconfig_2.0.3              
-## [31] htmltools_0.5.1.1             dbplyr_2.1.1                 
-## [33] fastmap_1.1.0                 rlang_0.4.11                 
-## [35] RSQLite_2.2.7                 shiny_1.6.0                  
-## [37] prettydoc_0.4.1               jquerylib_0.1.4              
-## [39] generics_0.1.0                jsonlite_1.7.2               
-## [41] dplyr_1.0.7                   RCurl_1.98-1.3               
-## [43] magrittr_2.0.1                GenomeInfoDbData_1.2.6       
-## [45] Matrix_1.3-4                  Rcpp_1.0.7                   
-## [47] munsell_0.5.0                 fansi_0.5.0                  
-## [49] lifecycle_1.0.0               stringi_1.7.3                
-## [51] yaml_2.2.1                    zlibbioc_1.39.0              
-## [53] BiocFileCache_2.1.1           AnnotationHub_3.1.5          
-## [55] plyr_1.8.6                    grid_4.1.0                   
-## [57] blob_1.2.2                    promises_1.2.0.1             
-## [59] ExperimentHub_2.1.4           crayon_1.4.1                 
-## [61] lattice_0.20-44               Biostrings_2.61.2            
-## [63] KEGGREST_1.33.0               locfit_1.5-9.4               
-## [65] knitr_1.33                    pillar_1.6.2                 
-## [67] igraph_1.2.6                  reshape2_1.4.4               
-## [69] BiocVersion_3.14.0            glue_1.4.2                   
-## [71] evaluate_0.14                 BiocManager_1.30.16          
-## [73] httpuv_1.6.1                  png_0.1-7                    
-## [75] vctrs_0.3.8                   gtable_0.3.0                 
-## [77] purrr_0.3.4                   tidyr_1.1.3                  
-## [79] assertthat_0.2.1              cachem_1.0.5                 
-## [81] xfun_0.25                     mime_0.11                    
-## [83] xtable_1.8-4                  later_1.2.0                  
-## [85] ragg_1.1.3                    tibble_3.1.3                 
-## [87] memoise_2.0.0                 interactiveDisplayBase_1.31.2
-## [89] ellipsis_0.3.2</code></pre>
+##   [1] colorspace_2.0-2              ggsignif_0.6.2               
+##   [3] rio_0.5.27                    ellipsis_0.3.2               
+##   [5] rprojroot_2.0.2               XVector_0.33.0               
+##   [7] fs_1.5.0                      hexbin_1.28.2                
+##   [9] farver_2.1.0                  ggrepel_0.9.1                
+##  [11] bit64_4.0.5                   interactiveDisplayBase_1.31.2
+##  [13] fansi_0.5.0                   cachem_1.0.5                 
+##  [15] knitr_1.33                    jsonlite_1.7.2               
+##  [17] broom_0.7.9                   png_0.1-7                    
+##  [19] shiny_1.6.0                   BiocManager_1.30.16          
+##  [21] compiler_4.1.0                httr_1.4.2                   
+##  [23] backports_1.2.1               assertthat_0.2.1             
+##  [25] Matrix_1.3-4                  fastmap_1.1.0                
+##  [27] later_1.2.0                   htmltools_0.5.1.1            
+##  [29] tools_4.1.0                   igraph_1.2.6                 
+##  [31] gtable_0.3.0                  glue_1.4.2                   
+##  [33] GenomeInfoDbData_1.2.6        reshape2_1.4.4               
+##  [35] dplyr_1.0.7                   rappdirs_0.3.3               
+##  [37] Rcpp_1.0.7                    carData_3.0-4                
+##  [39] cellranger_1.1.0              jquerylib_0.1.4              
+##  [41] pkgdown_1.6.1                 vctrs_0.3.8                  
+##  [43] Biostrings_2.61.2             xfun_0.25                    
+##  [45] stringr_1.4.0                 openxlsx_4.2.4               
+##  [47] mime_0.11                     lifecycle_1.0.0              
+##  [49] rstatix_0.7.0                 org.Hs.eg.db_3.13.0          
+##  [51] zlibbioc_1.39.0               scales_1.1.1                 
+##  [53] hms_1.1.0                     ragg_1.1.3                   
+##  [55] promises_1.2.0.1              RColorBrewer_1.1-2           
+##  [57] yaml_2.2.1                    curl_4.3.2                   
+##  [59] memoise_2.0.0                 sass_0.4.0                   
+##  [61] stringi_1.7.3                 RSQLite_2.2.7                
+##  [63] highr_0.9                     BiocVersion_3.14.0           
+##  [65] desc_1.3.0                    filelock_1.0.2               
+##  [67] zip_2.2.0                     rlang_0.4.11                 
+##  [69] pkgconfig_2.0.3               systemfonts_1.0.2            
+##  [71] bitops_1.0-7                  evaluate_0.14                
+##  [73] lattice_0.20-44               purrr_0.3.4                  
+##  [75] labeling_0.4.2                bit_4.0.4                    
+##  [77] tidyselect_1.1.1              plyr_1.8.6                   
+##  [79] magrittr_2.0.1                R6_2.5.0                     
+##  [81] generics_0.1.0                DelayedArray_0.19.1          
+##  [83] DBI_1.1.1                     haven_2.4.3                  
+##  [85] foreign_0.8-81                pillar_1.6.2                 
+##  [87] withr_2.4.2                   prettydoc_0.4.1              
+##  [89] abind_1.4-5                   KEGGREST_1.33.0              
+##  [91] RCurl_1.98-1.4                tibble_3.1.3                 
+##  [93] crayon_1.4.1                  car_3.0-11                   
+##  [95] KernSmooth_2.23-20            utf8_1.2.2                   
+##  [97] rmarkdown_2.10                readxl_1.3.1                 
+##  [99] locfit_1.5-9.4                grid_4.1.0                   
+## [101] data.table_1.14.0             blob_1.2.2                   
+## [103] forcats_0.5.1                 digest_0.6.27                
+## [105] xtable_1.8-4                  tidyr_1.1.3                  
+## [107] httpuv_1.6.1                  textshaping_0.3.5            
+## [109] munsell_0.5.0                 viridisLite_0.4.0            
+## [111] bslib_0.2.5.1</code></pre>
 </div>
 <div id="acknowledgments" class="section level1 unnumbered">
 <h1 class="hasAnchor">
@@ -225,6 +610,20 @@
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-R-rmarkdown" class="csl-entry">
+Allaire, JJ, Yihui Xie, Jonathan McPherson, Javier Luraschi, Kevin Ushey, Aron Atkins, Hadley Wickham, Joe Cheng, Winston Chang, and Richard Iannone. 2021. <em>Rmarkdown: Dynamic Documents for r</em>. <a href="https://CRAN.R-project.org/package=rmarkdown">https://CRAN.R-project.org/package=rmarkdown</a>.
+</div>
+<div id="ref-R-prettydoc" class="csl-entry">
+Qiu, Yixuan. 2021. <em>Prettydoc: Creating Pretty Documents from r Markdown</em>. <a href="https://github.com/yixuan/prettydoc">https://github.com/yixuan/prettydoc</a>.
+</div>
+<div id="ref-R-ggplot2" class="csl-entry">
+Wickham, Hadley, Winston Chang, Lionel Henry, Thomas Lin Pedersen, Kohske Takahashi, Claus Wilke, Kara Woo, Hiroaki Yutani, and Dewey Dunnington. 2021. <em>Ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics</em>. <a href="https://CRAN.R-project.org/package=ggplot2">https://CRAN.R-project.org/package=ggplot2</a>.
+</div>
+<div id="ref-R-knitr" class="csl-entry">
+Xie, Yihui. 2021. <em>Knitr: A General-Purpose Package for Dynamic Report Generation in r</em>. <a href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+</div>
 </div>
   </div>
 
