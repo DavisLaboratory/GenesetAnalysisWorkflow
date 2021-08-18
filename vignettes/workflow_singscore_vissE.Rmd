@@ -60,6 +60,7 @@ library(singscore)
 library(msigdb)
 library(vissE)
 library(ggpubr)
+library(graphics)
 
 #automatically create a bib database for R packages
 knitr::write_bib(c(
@@ -69,18 +70,44 @@ knitr::write_bib(c(
 
 # Introduction
 
+A standard bioinformatics analysis of 'omics data will produce a list of molecules following statistical analysis. In the context of transcriptomics, these molecules are genes or transcripts and the statistical approach used to identify them is mostly a differential expression analysis. Once genes have been identified as differentially expressed in an experiment, biologists are often interested in understanding their biological implications. This is done by understanding their functional role in the biological system being investigated. The role and function of many genes is known to some extent and this is an area of continued research. Knowledge on gene function is often encoded into knowledgebases such as the gene ontology and other pathway databases. Given these functional annotations, we are interested in identifying over-represented functions in our data.
+
+To do so, we use gene-set enrichment analysis, a group of methods designed to identify enriched functions represented by collections of genes known as gene-sets. This workflow will demonstrate functional analysis of transcriptomic data using the molecular signatures database (through the `msigdb` R/Bioconductor package) and a gene-set enrichment method, `singscore`. It will also demonstrate how higher order biological themes can be identified in data using the `vissE`package. It will begin by loading gene expression data and gene-sets from the `ExperimentHub` using the `emtdata` and `msigdb` R/Bioconductor packages. Molecular phenotypes representing the functional characterisitic of Samples will be identified using the single-sample gene-set enrichment method, singscore. Finally, higher-order functional themes will be identified using vissE.
+
 # Description of the biological problem
 
 # Molecular phenotyping of individual samples
 
+To preform molecular phenotyping of the data from [@cursons15], we need the RNA-seq counts and appropriate gene-sets that represent the molecular phenotypes of interest. We will use processed RNA-seq data from the `emtdata` package in this workflow. We will then score individual samples against custom gene signatures from [@tan14] and from the molecular signatures database (MSigDB) [@liberzon15,@subramanian05] using singscore [@foroutan18,@bhuva20].
+
 ## Load data
+
+The `emtdata` package contains multiple pre-processed RNA-seq data from experiments studying the epithelial to mesenchymal transition. The package contains the following processed datasets:
+
+1.  cursons2015_se - RNA-seq data from various breast cancer cell lines representing different degrees of epithelial and mesenchymal phenotypes [@cursons15].
+2.  cursons2018_se - RNA-seq data from the human mammary epithelial (HMLE) cell line treated with TGF$\beta$ to induce an epithelial to mesenchymal transition (EMT) which is followed by treatment with miR-200c to induce a mesenchymal to epothelial transition (MET) [@cursons18].
+3.  foroutan2017_se - A compendium of EMT induction experiments combined and corrected for batch effects [@foroutan17].
+
+The data used in this workflow is the [@cursons15] RNA-seq data. RNA-seq reads downloaded from the sequencing read archive (SRA) and processed using the Subread aligner [@liao13] and featureCounts [@liao14] to generate a counts matrix. Following this, genes with low expression were filtered out using `edgeR::filterByExpr()`. Normalisation factors were computed using TMM [@robinson10] and reads per kilobase per million (RPKM) values computed using function in the `edgeR` R/Bioconductor package [@R-edgeR]. Data were then stored in a SummarizedExperiment object that can be retrieved from the `ExperimentHub` using the `emtdata` R/Bioconductor package.
+
+Data from the `emtdata` package can be retireved by using accessors within the package or by querying the `ExperimentHub`. The query below searches for all objects in the hub associated with the search term "emtdata". Information about three datasets available in the `emtdata` package is retrieved.
 
 ```{r}
 library(ExperimentHub)
 
 eh = ExperimentHub()
-query(eh, 'emtdata')
+res = query(eh, 'emtdata')
+res
 ```
+
+We can view all metadata associated with each object using the `mcols()` function. This information links back to the original publication for each data. We can also see information on the species this data was generated from.
+
+```{r}
+#retrieve metadata for records
+mcols(res)
+```
+
+Objects can then be retrieved using the accession ID ("EH5441") or using the function `cursons2015_se()`. Data are stored as `SummarizedExperiment` objects and the functions `rowData()`, `colData()` and `assay()` can be used to interact with the object. We see that the data has measurements for approximately 30000 genes across 21 samples. Both count-level data and logRPKM measurements are stored in the object.
 
 ```{r}
 library(SummarizedExperiment)
@@ -89,31 +116,39 @@ library(emtdata)
 #load using object ID
 emt_se = eh[['EH5441']]
 
-#alternatively
+#alternative approach
 emt_se = cursons2015_se()
 emt_se
 ```
 
-Convert Ensembl IDs to Symbols
+The sample annotations show us that there are 3 cell lines in this data (PMC42-ET, PMC42-LA and MDA-MB-648). These cell lines have been treated with Hypoxia and EGF with measurements taken either 3 or 7 days post treatment. We also get metadata associated with each sample, including the original SRA identifier and their library sizes.
+
+```{r}
+#view sample annotations
+as.data.frame(colData(emt_se))
+```
+
+Gene identifiers in this data are Ensembl gene identifiers, however, gene symbols or Entrez IDs will be requried for the downstream analysis. We will convert Ensembl IDs to gene symbols as these are easier to interpret visually. The row annotations of `emt_se` contain mappings to other identifiers such as gene symbols. We can convert Ensembl IDs to gene symbols by using the mappings stored in the object. Due to the issue of multi-mapping between identifiers, we first have to deal with duplicate mappings. We can identify duplicates as below.
 
 ```{r}
 #identify duplicated mappings
 all_genes = rowData(emt_se)$gene_name
 dups = unique(all_genes[duplicated(all_genes)])
 dups
+```
+
+Most duplicates are arising from miscellaneous RNA therefore duplicated mappings can either be removed or resolved manually using other annotations such as their biotypes (for example, retaining protein coding genes). For simplicity, we discard multimapped genes in this analysis. Since the number of genes being discarded is relatively small and the genes being discarded are unrelated to the process we wish to study (EMT), the effect of their removal will be minimal and can be safely ignored.
+
+```{r}
 #remove duplicated genes
 emt_se = emt_se[!all_genes %in% dups, ]
 rownames(emt_se) = rowData(emt_se)$gene_name
 emt_se
 ```
 
-```{r}
-#create a DGEList object
-emt_dge = asDGEList(emt_se)
-# emt_dge
-```
-
 ## Load gene-sets
+
+Gene-sets representing the molecular phenotypes of interest need to be prepared to query individual samples against. We can either use signatures from the molecular signatures database made available through the `msigdb` R/Bioconductor package or we can use custom signatures from publications. @tan14 developed gene-sets that represent an epithelial and a mesenchymal phenotype. We will use these to explore the epithelial-mesenchymal landscape of samples. Data from the publication is organised in the *Thiery_EMTsignatures.txt* file that is stored in the package associated with this workflow.
 
 ```{r}
 #read Thiery et al. signatures
@@ -122,24 +157,29 @@ thiery_data = read.table(thiery_path, header = TRUE)
 head(thiery_data)
 ```
 
+Since gene symbols are used in the gene expression data, we will use create gene-sets using gene symbols. We will use signatures specific to cell lines from @tan14. Gene-sets are stored in the dedicated `GSEABase::GeneSet` object that allows storage of metadata associated with gene-sets. Singscore can work with gene-sets defined as a character vector or in GeneSet objects. Since the latter is more structured, we prefer to use them for our analysis. GeneSet objects are used in the following vissE analysis too, further motivating their use. Unique gene identifiers are required for GeneSet objects. It is good practice to specify a unique, well-defined setName for each gene-set. Additionally, to enable usage with the `vissE` package, we will specify the identifier type (i.e. `SymbolIdentifier()`).
+
 ```{r}
 library(GSEABase)
 
-#create epithelial gene-set
+#retrieve epithelial genes
 epi_genes = thiery_data$officialSymbol[thiery_data$epiMes_cellLine %in% 'epi']
 #select unique genes
 epi_genes = unique(epi_genes)
+#create GeneSet object
 epi_sig = GeneSet(epi_genes, setName = 'THIERY_EPITHELIAL_CELLLINE', geneIdType = SymbolIdentifier())
 epi_sig
 
-#create mesenchymal gene-set
+#retrieve mesenchymal genes
 mes_genes = thiery_data$genes[thiery_data$epiMes_cellLine %in% 'mes']
+#select unique genes
 mes_genes = unique(mes_genes)
+#create GeneSet object
 mes_sig = GeneSet(mes_genes, setName = 'THIERY_MESENCHYMAL_CELLLINE', geneIdType = SymbolIdentifier())
 mes_sig
 ```
 
-need to add KEGG separately due to licensing.
+If the gene-sets of interest are available in the molecular signatures database (MSigDB), the `msigdb` package can be used. This package uses the `ExperimentHub` to make MSigDB gene-sets available as GeneSet objects in a `GSEABase::GeneSetCollection` object. The GeneSetCollection object can be used to store multiple GeneSet objects. The `msigdb` package provides signatures for human and mouse (the version provided by the Smyth lab at WEHI) using either gene symbols or Entrez IDs. The package provides versions of MSigDB including and greater than 7.2.
 
 ```{r}
 library(msigdb)
@@ -153,10 +193,12 @@ msigdb.hs
 
 ## Singscore
 
+With the data and gene-sets ready, we can now score samples against gene-sets to explore molecular phenotypes using singscore [@foroutan18]. Singscore is a rank-based single sample scoring approach implemented in the `singscore` R/Bioconductor package. The core computation of scores can be summarised in two steps: computing within sample gene ranks and computing gene-set scores using ranks. Data used for singscore should be length bias corrected (e.g. TPM, RPKM, RSEM) and should have filtered out genes with low expression across most samples. The data used here has been processed as such therefore no further pre-processing is required. Further information on length-bias correction and filtering with respect to singscore can be found in @bhuva19.
+
 ```{r}
 library(singscore)
 
-#rank genes based on expression
+#rank genes based on expression (logRPKM)
 eranks = rankGenes(assay(emt_se, 'logRPKM'))
 #compute epithelial scores
 epi_score = simpleScore(eranks, epi_sig)
@@ -166,7 +208,7 @@ mes_score = simpleScore(eranks, mes_sig)
 head(mes_score)
 ```
 
-Plot individual epithelial scores
+Unlike other single-sample methods, the results from singscore contain two values, the score and the dispersion. We have found both to be useful in interpreting scores from gene-sets. The score is an indication of the median expression of all genes in the gene-set relative to all measured genes. The dispersion is a measure of the coordination of gene expression for genes in the signature. Lower dispersion indicates that genes in the gene-set are expressed at a similar level. The `plotDispersion()` function can be used to plot scores against their dispersions. Samples can be annotated using discrete or continous annotations. All plots in the `singscore` package can be turned into interactive plots by setting `isInteractive = TRUE`.
 
 ```{r}
 plotDispersion(
@@ -179,7 +221,7 @@ plotDispersion(
 )
 ```
 
-Plot individual mesenchymal scores using an interactive plot
+The plot above shows that the MDA-MB-468 cell line is more epithelial than the other cell lines as indicated by larger scores. Lower dispersion values for these samples indicate that epithelial genes are expressed at similar levels relative to other genes. The mesenchymal signature shows the inverse pattern with PMC42-ET and PMC42-LA cell lines having higher scores and lower dispersion values compared to MDA-MB-468.
 
 ```{r}
 plotDispersion(
@@ -191,6 +233,8 @@ plotDispersion(
   isInteractive = FALSE
 )
 ```
+
+It is often useful to investigate the association between gene-sets, especially when phenotypes are expected to be associated biologically. @cursons18 and @foroutan18 have used the epithelial-mesenchymal landscapes to better understand the behaviour of biological models across the epithelial mesenchymal transition. Additionally, it is often the case in biology that biological models are compared with patient data to enable translation of discoveries. Singscore enables this by plotting cell line data on a background dataset. In the plots below, we plot breast cancer patient data from The Cancer Genome Atlas (TCGA) in the background. We then project our cell line data onto the patient data to explore and explain various aspects of the epithelial mesenchymal landscape. Projecting cell line data onto the patient data enables transfer of discoveries made on cell lines to patients. We use pre-computed epithelial and mesenchymal scores of TCGA breast cancer patient data from the `singscore` package.
 
 ```{r}
 #load pre-computed TCGA breast cancer EMT scores
@@ -205,6 +249,8 @@ p_tcga = plotScoreLandscape(
 )
 ```
 
+The plot below shows that PMC42-ET and PMC42-LA have similar mesenchymal scores, but very distinct epithelial scores. MDA-MB-468 on the other hand is a very epithelial cell line and less mesenchymal. We would suspect that PMC42-LA has both epithelial and mesenchymal properties. Like other plots in singscore, the plots below can be made interactive setting `isInteractive = TRUE`.
+
 ```{r}
 projectScoreLandscape(
   p_tcga,
@@ -215,6 +261,8 @@ projectScoreLandscape(
   isInteractive = FALSE
 )
 ```
+
+Annotating samples using the treatment shows that hypoxic treatment of MDA-MB-468 results in increased mesenchymal properties of the cell line.
 
 ```{r}
 projectScoreLandscape(
@@ -227,10 +275,12 @@ projectScoreLandscape(
 )
 ```
 
-Score using the Hallmark EMT signature
+The Hallmark collection of the MSigDB represent key molecular processes associated with cancer progression. The HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION represents EMT in cancer therefore we could compute scores for samples using it. We can annotate samples using the hallmark EMT score to assess their relation with the EMT landscape. The plot below shows that the combined epithelial-mesenchymal axis is represented by the hallmark EMT signature.
 
 ```{r}
+#extract the hallmark EMT signature
 hemt_sig = msigdb.hs[['HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION']]
+#score samples using the hallmark EMT signature
 hemt_score = simpleScore(eranks, hemt_sig)
 
 #plot Hallmark EMT signature
@@ -244,7 +294,7 @@ projectScoreLandscape(
 )
 ```
 
-We can see that ET vs LA is a strong difference. We can investigate individual samples.
+The above plots show that the difference between PMC42-ET and PMC42-LA is mainly along the epithelial axis. We can investigate the contribution of each gene across individual samples using the `plotRankDensity()` function. The distribution of unit normalised ranks shows that most genes in the epithelial gene-set are expressed at higher levels that all other genes in PMC42-LA. In contrast, epithelial genes are more dispersed in PMC42-ET. Interactive versions of these plots can be used to explore individual genes.
 
 ```{r}
 plotRankDensity(eranks[, 'PMC42LA_Ctrl_Rep1', drop = FALSE], epi_sig, isInteractive = FALSE)
@@ -252,6 +302,10 @@ plotRankDensity(eranks[, 'PMC42ET_Ctrl_Rep1', drop = FALSE], epi_sig, isInteract
 ```
 
 ## Stingscore
+
+At times whole transcriptome measurements are not feasible either due to costs or due to availability of high quality genomic material (as is the case with FFPE samples). In such cases, we may wish to work with targeted transcriptomic panels. Most gene-set scoring methods, including singscore, require transcriptome-wide measurements therefore making them unusable in a targeted sequencing context. In such cases, the stingscore method [@bhuva20] implemented in the `singscore` package can be used. Stingscore makes use of stably expressed genes to estimate gene-set scores using a reduced set of measurements.
+
+To demonstrate usage of stingscore in a targeted seqencing context, we will simulate a targeted sequencing panel using epithelial genes, mesenchymal genes and a few stably expressed genes. We will use the top 5 stably expressed genes identified in @bhuva20 to score samples.
 
 ```{r}
 #simulate data by sub-sampling
@@ -263,6 +317,8 @@ sample_genes = intersect(sample_genes, rownames(emt_se))
 targeted_se = emt_se[sample_genes, ]
 targeted_se
 ```
+
+The data samples genes of interest from the full data matrix resulting in the measurement of 214 genes. In reality, a panel of this size could be measure using technologies such as NanoString's nCounter panel. The top 5 stably expressed genes used here could be used to score samples and to normalise expression measurements for additional analyses. The only difference between singscore and stingscore are in the way ranks are computed. In stingscore, ranks are estimated using stably expressed genes. Following rank estimation, scores can be computed as with singscore using the `simpleScore()` function.
 
 ```{r}
 st_genes = getStableGenes(5)
@@ -298,7 +354,13 @@ plot(
 abline(coef = c(0, 1), col = 2, lty = 2)
 ```
 
+The plots above show that both epithelial and mesenchymal scores computed using singscore and stingscore are highly correlated. Though the scores are correlated, their values are not an exact match as there is an offset. As the relative order of samples remains the same, biological inferences are unaffected by the offset in scores computed using stingscore.
+
 ## Multiscore
+
+When the hypothesis are not pre-determined, we may wish to perform an exploratory analysis using multiple gene-sets. In such a scenario, we would wish to score samples against 100s-1000s of gene-sets which we would then summarise using further downstream analysis. The `multiScore()` function can be used to score samples against multiple signatures simultaneously. This implementation is much faster than `simpleScore()` and is therefore the recommended function for scoring against multiple gene-sets.
+
+We will score samples against gene-sets from the hallmark collection, gene ontologies, KEGG pathways, Reactome pathways and Biocarta pathways. The `subsetCollection()` function in the `msigdb` package can be used to subset a GeneSetCollection based on MSigDB categories and sub-categories. The function returns GeneSetCollection objects which can be concatenated as normal lists. The resulting list needs to be converted back into a GeneSetCollection object before passing it to `multiScore()`.
 
 ```{r}
 #subset collections and subcollections of interest
@@ -312,15 +374,22 @@ genesigs = c(
 genesigs = GeneSetCollection(genesigs)
 ```
 
+The results of `multiScore()` is a list containing a matrix of scores and a matrix of dispersion values. As some gene-sets could be entirely composed of genes not measured in the data, there may be missing values in these matrices.
+
 ```{r}
 eranks = rankGenes(assay(emt_se, 'logRPKM'))
 msigdb_scores = multiScore(eranks, genesigs)
 lapply(msigdb_scores, function(x) x[1:5, 1:2])
+lapply(msigdb_scores, dim)
 ```
+
+Plotting scores against dispersion values across all signatures demonstrates the usual trend between these two values. The trend is expected since strong positive or negative scores can only be obtained if genes in gene-sets are coordinately expressed. The more interesting gene-sets are those that have low dispersion with scores close to 0; these gene-sets contain coordinately expressed genes with average expression relative to all measured genes.
 
 ```{r}
 smoothScatter(msigdb_scores$Scores, msigdb_scores$Dispersions, xlab = 'Score', ylab = 'Dispersion', main = 'Score vs Dispersion')
 ```
+
+We can assess gene-sets for individual samples to determine their phenotype composition. As transcriptomic measurements are more biologically meaningful when assessed relatively, we compute the difference in scores between one PMC42-ET control replicate and another PMC42-LA control replicate. The top positive and negative scores are listed below.
 
 ```{r}
 #select scores for a single Hypoxic sample
