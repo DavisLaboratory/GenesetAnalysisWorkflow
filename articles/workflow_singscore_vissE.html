@@ -116,6 +116,8 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
+<p>A standard bioinformatics analysis of ’omics data will produce a list of molecules following statistical analysis. In the context of transcriptomics, these molecules are genes or transcripts and the statistical approach used to identify them is mostly a differential expression analysis. Once genes have been identified as differentially expressed in an experiment, biologists are often interested in understanding their biological implications. This is done by understanding their functional role in the biological system being investigated. The role and function of many genes is known to some extent and this is an area of continued research. Knowledge on gene function is often encoded into knowledgebases such as the gene ontology and other pathway databases. Given these functional annotations, we are interested in identifying over-represented functions in our data.</p>
+<p>To do so, we use gene-set enrichment analysis, a group of methods designed to identify enriched functions represented by collections of genes known as gene-sets. This workflow will demonstrate functional analysis of transcriptomic data using the molecular signatures database (through the <code>msigdb</code> R/Bioconductor package) and a gene-set enrichment method, <code>singscore</code>. It will also demonstrate how higher order biological themes can be identified in data using the <code>vissE</code>package. It will begin by loading gene expression data and gene-sets from the <code>ExperimentHub</code> using the <code>emtdata</code> and <code>msigdb</code> R/Bioconductor packages. Molecular phenotypes representing the functional characterisitic of Samples will be identified using the single-sample gene-set enrichment method, singscore. Finally, higher-order functional themes will be identified using vissE.</p>
 </div>
 <div id="description-of-the-biological-problem" class="section level1">
 <h1 class="hasAnchor">
@@ -124,14 +126,24 @@
 <div id="molecular-phenotyping-of-individual-samples" class="section level1">
 <h1 class="hasAnchor">
 <a href="#molecular-phenotyping-of-individual-samples" class="anchor"></a>Molecular phenotyping of individual samples</h1>
+<p>To preform molecular phenotyping of the data from <span class="citation">(Cursons et al. 2015)</span>, we need the RNA-seq counts and appropriate gene-sets that represent the molecular phenotypes of interest. We will use processed RNA-seq data from the <code>emtdata</code> package in this workflow. We will then score individual samples against custom gene signatures from <span class="citation">(Tan et al. 2014)</span> and from the molecular signatures database (MSigDB) <span class="citation">Subramanian et al. (2005)</span> using singscore <span class="citation">Bhuva, Cursons, and Davis (2020)</span>.</p>
 <div id="load-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#load-data" class="anchor"></a>Load data</h2>
+<p>The <code>emtdata</code> package contains multiple pre-processed RNA-seq data from experiments studying the epithelial to mesenchymal transition. The package contains the following processed datasets:</p>
+<ol style="list-style-type: decimal">
+<li>cursons2015_se - RNA-seq data from various breast cancer cell lines representing different degrees of epithelial and mesenchymal phenotypes <span class="citation">(Cursons et al. 2015)</span>.</li>
+<li>cursons2018_se - RNA-seq data from the human mammary epithelial (HMLE) cell line treated with TGF<span class="math inline">\(\beta\)</span> to induce an epithelial to mesenchymal transition (EMT) which is followed by treatment with miR-200c to induce a mesenchymal to epothelial transition (MET) <span class="citation">(Cursons et al. 2018)</span>.</li>
+<li>foroutan2017_se - A compendium of EMT induction experiments combined and corrected for batch effects <span class="citation">(Foroutan et al. 2017)</span>.</li>
+</ol>
+<p>The data used in this workflow is the <span class="citation">(Cursons et al. 2015)</span> RNA-seq data. RNA-seq reads downloaded from the sequencing read archive (SRA) and processed using the Subread aligner <span class="citation">(Liao, Smyth, and Shi 2013)</span> and featureCounts <span class="citation">(Liao, Smyth, and Shi 2014)</span> to generate a counts matrix. Following this, genes with low expression were filtered out using <code><a href="https://rdrr.io/pkg/edgeR/man/filterByExpr.html">edgeR::filterByExpr()</a></code>. Normalisation factors were computed using TMM <span class="citation">(Robinson and Oshlack 2010)</span> and reads per kilobase per million (RPKM) values computed using function in the <code>edgeR</code> R/Bioconductor package <span class="citation">(Chen et al. 2021)</span>. Data were then stored in a SummarizedExperiment object that can be retrieved from the <code>ExperimentHub</code> using the <code>emtdata</code> R/Bioconductor package.</p>
+<p>Data from the <code>emtdata</code> package can be retireved by using accessors within the package or by querying the <code>ExperimentHub</code>. The query below searches for all objects in the hub associated with the search term “emtdata.” Information about three datasets available in the <code>emtdata</code> package is retrieved.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">ExperimentHub</span><span class="op">)</span>
 
 <span class="va">eh</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/ExperimentHub/man/ExperimentHub-class.html">ExperimentHub</a></span><span class="op">(</span><span class="op">)</span>
-<span class="fu">query</span><span class="op">(</span><span class="va">eh</span>, <span class="st">'emtdata'</span><span class="op">)</span></code></pre></div>
+<span class="va">res</span> <span class="op">=</span> <span class="fu">query</span><span class="op">(</span><span class="va">eh</span>, <span class="st">'emtdata'</span><span class="op">)</span>
+<span class="va">res</span></code></pre></div>
 <pre><code>## ExperimentHub with 3 records
 ## # snapshotDate(): 2021-08-09
 ## # $dataprovider: Walter and Eliza Hall Institute of Medical Research, Queens...
@@ -146,14 +158,45 @@
 ##   EH5439 | foroutan2017_se
 ##   EH5440 | cursons2018_se 
 ##   EH5441 | cursons2015_se</code></pre>
+<p>We can view all metadata associated with each object using the <code>mcols()</code> function. This information links back to the original publication for each data. We can also see information on the species this data was generated from.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#retrieve metadata for records</span>
+<span class="fu">mcols</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></code></pre></div>
+<pre><code>## DataFrame with 3 rows and 15 columns
+##                  title           dataprovider      species taxonomyid
+##            &lt;character&gt;            &lt;character&gt;  &lt;character&gt;  &lt;integer&gt;
+## EH5439 foroutan2017_se Walter and Eliza Hal.. Homo sapiens       9606
+## EH5440  cursons2018_se Queensland Universit.. Homo sapiens       9606
+## EH5441  cursons2015_se Center for Cancer Bi.. Homo sapiens       9606
+##             genome            description coordinate_1_based
+##        &lt;character&gt;            &lt;character&gt;          &lt;integer&gt;
+## EH5439          NA Gene expression data..                  1
+## EH5440          NA Gene expression data..                  1
+## EH5441          NA Gene expression data..                  1
+##                    maintainer rdatadateadded preparerclass
+##                   &lt;character&gt;    &lt;character&gt;   &lt;character&gt;
+## EH5439 Malvika D. Kharbanda..     2021-03-30       emtdata
+## EH5440 Malvika D. Kharbanda..     2021-03-30       emtdata
+## EH5441 Malvika D. Kharbanda..     2021-03-30       emtdata
+##                                             tags             rdataclass
+##                                           &lt;list&gt;            &lt;character&gt;
+## EH5439         Gene_Expression,Homo_sapiens_Data GSEABase::Summarized..
+## EH5440                    HMLE,Homo_sapiens_Data GSEABase::Summarized..
+## EH5441 Homo_sapiens_Data,MDA-MB-468,PMC42-ET,... GSEABase::Summarized..
+##                     rdatapath              sourceurl  sourcetype
+##                   &lt;character&gt;            &lt;character&gt; &lt;character&gt;
+## EH5439 emtdata/foroutan2017.. https://doi.org/10.4..         TXT
+## EH5440 emtdata/cursons2018_.. https://www.ncbi.nlm..         TXT
+## EH5441 emtdata/cursons2015_.. https://www.ncbi.nlm..         TXT</code></pre>
+<p>Objects can then be retrieved using the accession ID (“EH5441”) or using the function <code><a href="https://rdrr.io/pkg/emtdata/man/cursons2015_se.html">cursons2015_se()</a></code>. Data are stored as <code>SummarizedExperiment</code> objects and the functions <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData()</a></code>, <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData()</a></code> and <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay()</a></code> can be used to interact with the object. We see that the data has measurements for approximately 30000 genes across 21 samples. Both count-level data and logRPKM measurements are stored in the object.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment">SummarizedExperiment</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/DavisLaboratory/emtdata">emtdata</a></span><span class="op">)</span>
 
 <span class="co">#load using object ID</span>
 <span class="va">emt_se</span> <span class="op">=</span> <span class="va">eh</span><span class="op">[[</span><span class="st">'EH5441'</span><span class="op">]</span><span class="op">]</span>
 
-<span class="co">#alternatively</span>
+<span class="co">#alternative approach</span>
 <span class="va">emt_se</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/emtdata/man/cursons2015_se.html">cursons2015_se</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">emt_se</span></code></pre></div>
 <pre><code>## class: SummarizedExperiment 
@@ -166,8 +209,122 @@
 ## colnames(21): MDA468_Ctrl_Rep1 MDA468_Ctrl_Rep2 ... PMC42LA_EGF_Rep2
 ##   PMC42LA_EGF_Rep3
 ## colData names(14): group lib.size ... Organism SRA.Study</code></pre>
-<p>Convert Ensembl IDs to Symbols</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>The sample annotations show us that there are 3 cell lines in this data (PMC42-ET, PMC42-LA and MDA-MB-648). These cell lines have been treated with Hypoxia and EGF with measurements taken either 3 or 7 days post treatment. We also get metadata associated with each sample, including the original SRA identifier and their library sizes.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#view sample annotations</span>
+<span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<pre><code>##                   group  lib.size norm.factors                              Run
+## MDA468_Ctrl_Rep1      1 114794500    0.9743731 SRR3576739,SRR3576768,SRR3591405
+## MDA468_Ctrl_Rep2      1 114491243    0.9931838 SRR3576740,SRR3576770,SRR3591406
+## MDA468_Ctrl_Rep3      1 107923317    1.0358755 SRR3576751,SRR3576784,SRR3591417
+## MDA468_EGF_Rep1       1 120949415    0.9793903 SRR3576753,SRR3576786,SRR3591419
+## MDA468_EGF_Rep2       1 108830760    0.9865599 SRR3576754,SRR3576788,SRR3591420
+## MDA468_EGF_Rep3       1  95608850    0.9006452 SRR3576755,SRR3576790,SRR3591421
+## MDA468_HPX_Rep1       1 103636210    0.9782668 SRR3576756,SRR3576791,SRR3591422
+## MDA468_HPX_Rep2       1  99763188    1.0218358 SRR3576757,SRR3576792,SRR3591423
+## MDA468_HPX_Rep3       1 111820864    0.9914170 SRR3576758,SRR3576793,SRR3591424
+## PMC42ET_Ctrl_Rep1     1  71276286    1.0443833 SRR3576759,SRR3576795,SRR3591425
+## PMC42ET_Ctrl_Rep2     1  74625943    0.9957722 SRR3576741,SRR3576771,SRR3591407
+## PMC42ET_Ctrl_Rep3     1 104167668    1.0622063 SRR3576742,SRR3576772,SRR3591408
+## PMC42ET_EGF_Rep1      1  74711695    1.0303307 SRR3576743,SRR3576773,SRR3591409
+## PMC42ET_EGF_Rep2      1  87532741    1.0312069 SRR3576744,SRR3576775,SRR3591410
+## PMC42ET_EGF_Rep3      1 102691326    1.0485896 SRR3576745,SRR3576776,SRR3591411
+## PMC42LA_Ctrl_Rep1     1  66771046    0.9511911 SRR3576746,SRR3576777,SRR3591412
+## PMC42LA_Ctrl_Rep2     1  89935383    0.9872186 SRR3576747,SRR3576779,SRR3591413
+## PMC42LA_Ctrl_Rep3     1  74822017    0.9930820 SRR3576748,SRR3576781,SRR3591414
+## PMC42LA_EGF_Rep1      1  80151428    0.9440959 SRR3576749,SRR3576782,SRR3591415
+## PMC42LA_EGF_Rep2      1  88233254    1.0227524 SRR3576750,SRR3576783,SRR3591416
+## PMC42LA_EGF_Rep3      1  85941564    1.0437588 SRR3576752,SRR3576785,SRR3591418
+##                         Sample.Name    Subline    Treatment  BioProject
+## MDA468_Ctrl_Rep1   MDA468_Ctrl_Rep1 MDA-MB-468      control PRJNA322427
+## MDA468_Ctrl_Rep2   MDA468_Ctrl_Rep2 MDA-MB-468      control PRJNA322427
+## MDA468_Ctrl_Rep3   MDA468_Ctrl_Rep3 MDA-MB-468      control PRJNA322427
+## MDA468_EGF_Rep1     MDA468_EGF_Rep1 MDA-MB-468     EGF - 7d PRJNA322427
+## MDA468_EGF_Rep2     MDA468_EGF_Rep2 MDA-MB-468     EGF - 7d PRJNA322427
+## MDA468_EGF_Rep3     MDA468_EGF_Rep3 MDA-MB-468     EGF - 7d PRJNA322427
+## MDA468_HPX_Rep1     MDA468_HPX_Rep1 MDA-MB-468 Hypoxia - 7d PRJNA322427
+## MDA468_HPX_Rep2     MDA468_HPX_Rep2 MDA-MB-468 Hypoxia - 7d PRJNA322427
+## MDA468_HPX_Rep3     MDA468_HPX_Rep3 MDA-MB-468 Hypoxia - 7d PRJNA322427
+## PMC42ET_Ctrl_Rep1 PMC42ET_Ctrl_Rep1   PMC42-ET      control PRJNA322427
+## PMC42ET_Ctrl_Rep2 PMC42ET_Ctrl_Rep2   PMC42-ET      control PRJNA322427
+## PMC42ET_Ctrl_Rep3 PMC42ET_Ctrl_Rep3   PMC42-ET      control PRJNA322427
+## PMC42ET_EGF_Rep1   PMC42ET_EGF_Rep1   PMC42-ET     EGF - 3d PRJNA322427
+## PMC42ET_EGF_Rep2   PMC42ET_EGF_Rep2   PMC42-ET     EGF - 3d PRJNA322427
+## PMC42ET_EGF_Rep3   PMC42ET_EGF_Rep3   PMC42-ET     EGF - 3d PRJNA322427
+## PMC42LA_Ctrl_Rep1 PMC42LA_Ctrl_Rep1   PMC42-LA      control PRJNA322427
+## PMC42LA_Ctrl_Rep2 PMC42LA_Ctrl_Rep2   PMC42-LA      control PRJNA322427
+## PMC42LA_Ctrl_Rep3 PMC42LA_Ctrl_Rep3   PMC42-LA      control PRJNA322427
+## PMC42LA_EGF_Rep1   PMC42LA_EGF_Rep1   PMC42-LA     EGF - 3d PRJNA322427
+## PMC42LA_EGF_Rep2   PMC42LA_EGF_Rep2   PMC42-LA     EGF - 3d PRJNA322427
+## PMC42LA_EGF_Rep3   PMC42LA_EGF_Rep3   PMC42-LA     EGF - 3d PRJNA322427
+##                      BioSample                         Center.Name
+## MDA468_Ctrl_Rep1  SAMN05162532 Queensland University of Technology
+## MDA468_Ctrl_Rep2  SAMN05162533 Queensland University of Technology
+## MDA468_Ctrl_Rep3  SAMN05162534 Queensland University of Technology
+## MDA468_EGF_Rep1   SAMN05162535 Queensland University of Technology
+## MDA468_EGF_Rep2   SAMN05162536 Queensland University of Technology
+## MDA468_EGF_Rep3   SAMN05162537 Queensland University of Technology
+## MDA468_HPX_Rep1   SAMN05162538 Queensland University of Technology
+## MDA468_HPX_Rep2   SAMN05162539 Queensland University of Technology
+## MDA468_HPX_Rep3   SAMN05162540 Queensland University of Technology
+## PMC42ET_Ctrl_Rep1 SAMN05162541 Queensland University of Technology
+## PMC42ET_Ctrl_Rep2 SAMN05162542 Queensland University of Technology
+## PMC42ET_Ctrl_Rep3 SAMN05162543 Queensland University of Technology
+## PMC42ET_EGF_Rep1  SAMN05162544 Queensland University of Technology
+## PMC42ET_EGF_Rep2  SAMN05162545 Queensland University of Technology
+## PMC42ET_EGF_Rep3  SAMN05162546 Queensland University of Technology
+## PMC42LA_Ctrl_Rep1 SAMN05162547 Queensland University of Technology
+## PMC42LA_Ctrl_Rep2 SAMN05162548 Queensland University of Technology
+## PMC42LA_Ctrl_Rep3 SAMN05162549 Queensland University of Technology
+## PMC42LA_EGF_Rep1  SAMN05162550 Queensland University of Technology
+## PMC42LA_EGF_Rep2  SAMN05162551 Queensland University of Technology
+## PMC42LA_EGF_Rep3  SAMN05162552 Queensland University of Technology
+##                                         Experiment  Cell.Line     Organism
+## MDA468_Ctrl_Rep1  SRX1795037,SRX1795064,SRX1802009 MDA-MB-468 Homo sapiens
+## MDA468_Ctrl_Rep2  SRX1795038,SRX1795066,SRX1802010 MDA-MB-468 Homo sapiens
+## MDA468_Ctrl_Rep3  SRX1795049,SRX1795078,SRX1802021 MDA-MB-468 Homo sapiens
+## MDA468_EGF_Rep1   SRX1795051,SRX1795080,SRX1802023 MDA-MB-468 Homo sapiens
+## MDA468_EGF_Rep2   SRX1795052,SRX1795081,SRX1802024 MDA-MB-468 Homo sapiens
+## MDA468_EGF_Rep3   SRX1795053,SRX1795082,SRX1802025 MDA-MB-468 Homo sapiens
+## MDA468_HPX_Rep1   SRX1795054,SRX1795083,SRX1802026 MDA-MB-468 Homo sapiens
+## MDA468_HPX_Rep2   SRX1795055,SRX1795084,SRX1802027 MDA-MB-468 Homo sapiens
+## MDA468_HPX_Rep3   SRX1795056,SRX1795086,SRX1802028 MDA-MB-468 Homo sapiens
+## PMC42ET_Ctrl_Rep1 SRX1795057,SRX1795087,SRX1802029   PMC42-ET Homo sapiens
+## PMC42ET_Ctrl_Rep2 SRX1795039,SRX1795067,SRX1802011   PMC42-ET Homo sapiens
+## PMC42ET_Ctrl_Rep3 SRX1795040,SRX1795068,SRX1802012   PMC42-ET Homo sapiens
+## PMC42ET_EGF_Rep1  SRX1795041,SRX1795069,SRX1802013   PMC42-ET Homo sapiens
+## PMC42ET_EGF_Rep2  SRX1795042,SRX1795070,SRX1802014   PMC42-ET Homo sapiens
+## PMC42ET_EGF_Rep3  SRX1795043,SRX1795071,SRX1802015   PMC42-ET Homo sapiens
+## PMC42LA_Ctrl_Rep1 SRX1795044,SRX1795072,SRX1802016   PMC42-LA Homo sapiens
+## PMC42LA_Ctrl_Rep2 SRX1795045,SRX1795073,SRX1802017   PMC42-LA Homo sapiens
+## PMC42LA_Ctrl_Rep3 SRX1795046,SRX1795074,SRX1802018   PMC42-LA Homo sapiens
+## PMC42LA_EGF_Rep1  SRX1795047,SRX1795075,SRX1802019   PMC42-LA Homo sapiens
+## PMC42LA_EGF_Rep2  SRX1795048,SRX1795076,SRX1802020   PMC42-LA Homo sapiens
+## PMC42LA_EGF_Rep3  SRX1795050,SRX1795079,SRX1802022   PMC42-LA Homo sapiens
+##                   SRA.Study
+## MDA468_Ctrl_Rep1  SRP075592
+## MDA468_Ctrl_Rep2  SRP075592
+## MDA468_Ctrl_Rep3  SRP075592
+## MDA468_EGF_Rep1   SRP075592
+## MDA468_EGF_Rep2   SRP075592
+## MDA468_EGF_Rep3   SRP075592
+## MDA468_HPX_Rep1   SRP075592
+## MDA468_HPX_Rep2   SRP075592
+## MDA468_HPX_Rep3   SRP075592
+## PMC42ET_Ctrl_Rep1 SRP075592
+## PMC42ET_Ctrl_Rep2 SRP075592
+## PMC42ET_Ctrl_Rep3 SRP075592
+## PMC42ET_EGF_Rep1  SRP075592
+## PMC42ET_EGF_Rep2  SRP075592
+## PMC42ET_EGF_Rep3  SRP075592
+## PMC42LA_Ctrl_Rep1 SRP075592
+## PMC42LA_Ctrl_Rep2 SRP075592
+## PMC42LA_Ctrl_Rep3 SRP075592
+## PMC42LA_EGF_Rep1  SRP075592
+## PMC42LA_EGF_Rep2  SRP075592
+## PMC42LA_EGF_Rep3  SRP075592</code></pre>
+<p>Gene identifiers in this data are Ensembl gene identifiers, however, gene symbols or Entrez IDs will be requried for the downstream analysis. We will convert Ensembl IDs to gene symbols as these are easier to interpret visually. The row annotations of <code>emt_se</code> contain mappings to other identifiers such as gene symbols. We can convert Ensembl IDs to gene symbols by using the mappings stored in the object. Due to the issue of multi-mapping between identifiers, we first have to deal with duplicate mappings. We can identify duplicates as below.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#identify duplicated mappings</span>
 <span class="va">all_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span><span class="op">$</span><span class="va">gene_name</span>
 <span class="va">dups</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">all_genes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="va">all_genes</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
@@ -177,7 +334,8 @@
 ## [11] "TMSB15B"     "ALG1L9P"     "DNAJC9-AS1"  "BMS1P4"      "SNORA70"    
 ## [16] "HERC2P7"     "U2"          "U3"          "ELFN2"       "5_8S_rRNA"  
 ## [21] "U1"</code></pre>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<p>Most duplicates are arising from miscellaneous RNA therefore duplicated mappings can either be removed or resolved manually using other annotations such as their biotypes (for example, retaining protein coding genes). For simplicity, we discard multimapped genes in this analysis. Since the number of genes being discarded is relatively small and the genes being discarded are unrelated to the process we wish to study (EMT), the effect of their removal will be minimal and can be safely ignored.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#remove duplicated genes</span>
 <span class="va">emt_se</span> <span class="op">=</span> <span class="va">emt_se</span><span class="op">[</span><span class="op">!</span><span class="va">all_genes</span> <span class="op">%in%</span> <span class="va">dups</span>, <span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span><span class="op">$</span><span class="va">gene_name</span>
@@ -191,15 +349,12 @@
 ## colnames(21): MDA468_Ctrl_Rep1 MDA468_Ctrl_Rep2 ... PMC42LA_EGF_Rep2
 ##   PMC42LA_EGF_Rep3
 ## colData names(14): group lib.size ... Organism SRA.Study</code></pre>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#create a DGEList object</span>
-<span class="va">emt_dge</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/emtdata/man/asDGEList.html">asDGEList</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span>
-<span class="co"># emt_dge</span></code></pre></div>
 </div>
 <div id="load-gene-sets" class="section level2">
 <h2 class="hasAnchor">
 <a href="#load-gene-sets" class="anchor"></a>Load gene-sets</h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<p>Gene-sets representing the molecular phenotypes of interest need to be prepared to query individual samples against. We can either use signatures from the molecular signatures database made available through the <code>msigdb</code> R/Bioconductor package or we can use custom signatures from publications. <span class="citation">Tan et al. (2014)</span> developed gene-sets that represent an epithelial and a mesenchymal phenotype. We will use these to explore the epithelial-mesenchymal landscape of samples. Data from the publication is organised in the <em>Thiery_EMTsignatures.txt</em> file that is stored in the package associated with this workflow.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#read Thiery et al. signatures</span>
 <span class="va">thiery_path</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">'extdata/Thiery_EMTsignatures.txt'</span>, package <span class="op">=</span> <span class="st">'GenesetAnalysisWorkflow'</span><span class="op">)</span>
 <span class="va">thiery_data</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span><span class="op">(</span><span class="va">thiery_path</span>, header <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
@@ -218,13 +373,15 @@
 ## 4       ADIRF         10974
 ## 5        AGR2         10551
 ## 6        AIM1           202</code></pre>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<p>Since gene symbols are used in the gene expression data, we will use create gene-sets using gene symbols. We will use signatures specific to cell lines from <span class="citation">Tan et al. (2014)</span>. Gene-sets are stored in the dedicated <code><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-methods.html">GSEABase::GeneSet</a></code> object that allows storage of metadata associated with gene-sets. Singscore can work with gene-sets defined as a character vector or in GeneSet objects. Since the latter is more structured, we prefer to use them for our analysis. GeneSet objects are used in the following vissE analysis too, further motivating their use. Unique gene identifiers are required for GeneSet objects. It is good practice to specify a unique, well-defined setName for each gene-set. Additionally, to enable usage with the <code>vissE</code> package, we will specify the identifier type (i.e. <code><a href="https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html">SymbolIdentifier()</a></code>).</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">GSEABase</span><span class="op">)</span>
 
-<span class="co">#create epithelial gene-set</span>
+<span class="co">#retrieve epithelial genes</span>
 <span class="va">epi_genes</span> <span class="op">=</span> <span class="va">thiery_data</span><span class="op">$</span><span class="va">officialSymbol</span><span class="op">[</span><span class="va">thiery_data</span><span class="op">$</span><span class="va">epiMes_cellLine</span> <span class="op">%in%</span> <span class="st">'epi'</span><span class="op">]</span>
 <span class="co">#select unique genes</span>
 <span class="va">epi_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">epi_genes</span><span class="op">)</span>
+<span class="co">#create GeneSet object</span>
 <span class="va">epi_sig</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-methods.html">GeneSet</a></span><span class="op">(</span><span class="va">epi_genes</span>, setName <span class="op">=</span> <span class="st">'THIERY_EPITHELIAL_CELLLINE'</span>, geneIdType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html">SymbolIdentifier</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="va">epi_sig</span></code></pre></div>
 <pre><code>## setName: THIERY_EPITHELIAL_CELLLINE 
@@ -232,10 +389,12 @@
 ## geneIdType: Symbol
 ## collectionType: Null 
 ## details: use 'details(object)'</code></pre>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#create mesenchymal gene-set</span>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#retrieve mesenchymal genes</span>
 <span class="va">mes_genes</span> <span class="op">=</span> <span class="va">thiery_data</span><span class="op">$</span><span class="va">genes</span><span class="op">[</span><span class="va">thiery_data</span><span class="op">$</span><span class="va">epiMes_cellLine</span> <span class="op">%in%</span> <span class="st">'mes'</span><span class="op">]</span>
+<span class="co">#select unique genes</span>
 <span class="va">mes_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">mes_genes</span><span class="op">)</span>
+<span class="co">#create GeneSet object</span>
 <span class="va">mes_sig</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-methods.html">GeneSet</a></span><span class="op">(</span><span class="va">mes_genes</span>, setName <span class="op">=</span> <span class="st">'THIERY_MESENCHYMAL_CELLLINE'</span>, geneIdType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html">SymbolIdentifier</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="va">mes_sig</span></code></pre></div>
 <pre><code>## setName: THIERY_MESENCHYMAL_CELLLINE 
@@ -243,8 +402,8 @@
 ## geneIdType: Symbol
 ## collectionType: Null 
 ## details: use 'details(object)'</code></pre>
-<p>need to add KEGG separately due to licensing.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<p>If the gene-sets of interest are available in the molecular signatures database (MSigDB), the <code>msigdb</code> package can be used. This package uses the <code>ExperimentHub</code> to make MSigDB gene-sets available as GeneSet objects in a <code><a href="https://rdrr.io/pkg/GSEABase/man/GeneSetCollection-methods.html">GSEABase::GeneSetCollection</a></code> object. The GeneSetCollection object can be used to store multiple GeneSet objects. The <code>msigdb</code> package provides signatures for human and mouse (the version provided by the Smyth lab at WEHI) using either gene symbols or Entrez IDs. The package provides versions of MSigDB including and greater than 7.2.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://davislaboratory.github.io/msigdb">msigdb</a></span><span class="op">)</span>
 
 <span class="co">#load MSigDB gene-sets</span>
@@ -262,10 +421,11 @@
 <div id="singscore" class="section level2">
 <h2 class="hasAnchor">
 <a href="#singscore" class="anchor"></a>Singscore</h2>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<p>With the data and gene-sets ready, we can now score samples against gene-sets to explore molecular phenotypes using singscore <span class="citation">(Foroutan et al. 2018)</span>. Singscore is a rank-based single sample scoring approach implemented in the <code>singscore</code> R/Bioconductor package. The core computation of scores can be summarised in two steps: computing within sample gene ranks and computing gene-set scores using ranks. Data used for singscore should be length bias corrected (e.g. TPM, RPKM, RSEM) and should have filtered out genes with low expression across most samples. The data used here has been processed as such therefore no further pre-processing is required. Further information on length-bias correction and filtering with respect to singscore can be found in <span class="citation">Bhuva et al. (2019)</span>.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://davislaboratory.github.io/singscore">singscore</a></span><span class="op">)</span>
 
-<span class="co">#rank genes based on expression</span>
+<span class="co">#rank genes based on expression (logRPKM)</span>
 <span class="va">eranks</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/rankGenes.html">rankGenes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay</a></span><span class="op">(</span><span class="va">emt_se</span>, <span class="st">'logRPKM'</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#compute epithelial scores</span>
 <span class="va">epi_score</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">epi_sig</span><span class="op">)</span>
@@ -277,7 +437,7 @@
 ## MDA468_EGF_Rep1   0.3230362        4076.409
 ## MDA468_EGF_Rep2   0.3218094        4169.812
 ## MDA468_EGF_Rep3   0.3274617        3951.870</code></pre>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#compute mesenchymal scores</span>
 <span class="va">mes_score</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">mes_sig</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">mes_score</span><span class="op">)</span></code></pre></div>
@@ -288,8 +448,8 @@
 ## MDA468_EGF_Rep1   0.014965710       10068.337
 ## MDA468_EGF_Rep2   0.008487366       10682.133
 ## MDA468_EGF_Rep3   0.018875730        8914.874</code></pre>
-<p>Plot individual epithelial scores</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<p>Unlike other single-sample methods, the results from singscore contain two values, the score and the dispersion. We have found both to be useful in interpreting scores from gene-sets. The score is an indication of the median expression of all genes in the gene-set relative to all measured genes. The dispersion is a measure of the coordination of gene expression for genes in the signature. Lower dispersion indicates that genes in the gene-set are expressed at a similar level. The <code><a href="https://davislaboratory.github.io/singscore/reference/plotDispersion.html">plotDispersion()</a></code> function can be used to plot scores against their dispersions. Samples can be annotated using discrete or continous annotations. All plots in the <code>singscore</code> package can be turned into interactive plots by setting <code>isInteractive = TRUE</code>.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotDispersion.html">plotDispersion</a></span><span class="op">(</span>
   <span class="va">epi_score</span>,
   annot <span class="op">=</span> <span class="va">emt_se</span><span class="op">$</span><span class="va">Subline</span>,
@@ -298,9 +458,9 @@
   alpha <span class="op">=</span> <span class="fl">0.5</span>,
   isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
-<p>Plot individual mesenchymal scores using an interactive plot</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+<p>The plot above shows that the MDA-MB-468 cell line is more epithelial than the other cell lines as indicated by larger scores. Lower dispersion values for these samples indicate that epithelial genes are expressed at similar levels relative to other genes. The mesenchymal signature shows the inverse pattern with PMC42-ET and PMC42-LA cell lines having higher scores and lower dispersion values compared to MDA-MB-468.</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotDispersion.html">plotDispersion</a></span><span class="op">(</span>
   <span class="va">mes_score</span>,
   annot <span class="op">=</span> <span class="va">emt_se</span><span class="op">$</span><span class="va">Subline</span>,
@@ -309,8 +469,9 @@
   alpha <span class="op">=</span> <span class="fl">0.5</span>,
   isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
+<p>It is often useful to investigate the association between gene-sets, especially when phenotypes are expected to be associated biologically. <span class="citation">Cursons et al. (2018)</span> and <span class="citation">Foroutan et al. (2018)</span> have used the epithelial-mesenchymal landscapes to better understand the behaviour of biological models across the epithelial mesenchymal transition. Additionally, it is often the case in biology that biological models are compared with patient data to enable translation of discoveries. Singscore enables this by plotting cell line data on a background dataset. In the plots below, we plot breast cancer patient data from The Cancer Genome Atlas (TCGA) in the background. We then project our cell line data onto the patient data to explore and explain various aspects of the epithelial mesenchymal landscape. Projecting cell line data onto the patient data enables transfer of discoveries made on cell lines to patients. We use pre-computed epithelial and mesenchymal scores of TCGA breast cancer patient data from the <code>singscore</code> package.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#load pre-computed TCGA breast cancer EMT scores</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"scoredf_tcga_epi"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"scoredf_tcga_mes"</span><span class="op">)</span>
@@ -321,7 +482,8 @@
   scoredf2 <span class="op">=</span> <span class="va">scoredf_tcga_mes</span>,
   scorenames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Epithelial score'</span>, <span class="st">'Mesenchymal score'</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<p>The plot below shows that PMC42-ET and PMC42-LA have similar mesenchymal scores, but very distinct epithelial scores. MDA-MB-468 on the other hand is a very epithelial cell line and less mesenchymal. We would suspect that PMC42-LA has both epithelial and mesenchymal properties. Like other plots in singscore, the plots below can be made interactive setting <code>isInteractive = TRUE</code>.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/projectScoreLandscape.html">projectScoreLandscape</a></span><span class="op">(</span>
   <span class="va">p_tcga</span>,
   scoredf1 <span class="op">=</span> <span class="va">epi_score</span>,
@@ -330,8 +492,9 @@
   annot_name <span class="op">=</span> <span class="st">'Subline'</span>,
   isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<p>Annotating samples using the treatment shows that hypoxic treatment of MDA-MB-468 results in increased mesenchymal properties of the cell line.</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/projectScoreLandscape.html">projectScoreLandscape</a></span><span class="op">(</span>
   <span class="va">p_tcga</span>,
   scoredf1 <span class="op">=</span> <span class="va">epi_score</span>,
@@ -340,10 +503,12 @@
   annot_name <span class="op">=</span> <span class="st">'Treatment'</span>,
   isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
-<p>Score using the Hallmark EMT signature</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">hemt_sig</span> <span class="op">=</span> <span class="va">msigdb.hs</span><span class="op">[[</span><span class="st">'HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION'</span><span class="op">]</span><span class="op">]</span>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<p>The Hallmark collection of the MSigDB represent key molecular processes associated with cancer progression. The HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION represents EMT in cancer therefore we could compute scores for samples using it. We can annotate samples using the hallmark EMT score to assess their relation with the EMT landscape. The plot below shows that the combined epithelial-mesenchymal axis is represented by the hallmark EMT signature.</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#extract the hallmark EMT signature</span>
+<span class="va">hemt_sig</span> <span class="op">=</span> <span class="va">msigdb.hs</span><span class="op">[[</span><span class="st">'HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION'</span><span class="op">]</span><span class="op">]</span>
+<span class="co">#score samples using the hallmark EMT signature</span>
 <span class="va">hemt_score</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">hemt_sig</span><span class="op">)</span>
 
 <span class="co">#plot Hallmark EMT signature</span>
@@ -355,19 +520,21 @@
   annot_name <span class="op">=</span> <span class="st">'Hallmark EMT score'</span>,
   isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
-<p>We can see that ET vs LA is a strong difference. We can investigate individual samples.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
+<p>The above plots show that the difference between PMC42-ET and PMC42-LA is mainly along the epithelial axis. We can investigate the contribution of each gene across individual samples using the <code><a href="https://davislaboratory.github.io/singscore/reference/plotRankDensity.html">plotRankDensity()</a></code> function. The distribution of unit normalised ranks shows that most genes in the epithelial gene-set are expressed at higher levels that all other genes in PMC42-LA. In contrast, epithelial genes are more dispersed in PMC42-ET. Interactive versions of these plots can be used to explore individual genes.</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotRankDensity.html">plotRankDensity</a></span><span class="op">(</span><span class="va">eranks</span><span class="op">[</span>, <span class="st">'PMC42LA_Ctrl_Rep1'</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, <span class="va">epi_sig</span>, isInteractive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotRankDensity.html">plotRankDensity</a></span><span class="op">(</span><span class="va">eranks</span><span class="op">[</span>, <span class="st">'PMC42ET_Ctrl_Rep1'</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, <span class="va">epi_sig</span>, isInteractive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-15-2.png" width="700"></p>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-17-2.png" width="700"></p>
 </div>
 <div id="stingscore" class="section level2">
 <h2 class="hasAnchor">
 <a href="#stingscore" class="anchor"></a>Stingscore</h2>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<p>At times whole transcriptome measurements are not feasible either due to costs or due to availability of high quality genomic material (as is the case with FFPE samples). In such cases, we may wish to work with targeted transcriptomic panels. Most gene-set scoring methods, including singscore, require transcriptome-wide measurements therefore making them unusable in a targeted sequencing context. In such cases, the stingscore method <span class="citation">(Bhuva, Cursons, and Davis 2020)</span> implemented in the <code>singscore</code> package can be used. Stingscore makes use of stably expressed genes to estimate gene-set scores using a reduced set of measurements.</p>
+<p>To demonstrate usage of stingscore in a targeted seqencing context, we will simulate a targeted sequencing panel using epithelial genes, mesenchymal genes and a few stably expressed genes. We will use the top 5 stably expressed genes identified in <span class="citation">Bhuva, Cursons, and Davis (2020)</span> to score samples.</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#simulate data by sub-sampling</span>
 <span class="va">sample_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">epi_sig</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">mes_sig</span><span class="op">)</span><span class="op">)</span>
 <span class="va">sample_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="va">sample_genes</span>, <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/getStableGenes.html">getStableGenes</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span>
@@ -385,11 +552,12 @@
 ## colnames(21): MDA468_Ctrl_Rep1 MDA468_Ctrl_Rep2 ... PMC42LA_EGF_Rep2
 ##   PMC42LA_EGF_Rep3
 ## colData names(14): group lib.size ... Organism SRA.Study</code></pre>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<p>The data samples genes of interest from the full data matrix resulting in the measurement of 214 genes. In reality, a panel of this size could be measure using technologies such as NanoString’s nCounter panel. The top 5 stably expressed genes used here could be used to score samples and to normalise expression measurements for additional analyses. The only difference between singscore and stingscore are in the way ranks are computed. In stingscore, ranks are estimated using stably expressed genes. Following rank estimation, scores can be computed as with singscore using the <code><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore()</a></code> function.</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">st_genes</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/getStableGenes.html">getStableGenes</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
 <span class="va">st_genes</span></code></pre></div>
 <pre><code>## [1] "RBM45"  "BRAP"   "CIAO1"  "TARDBP" "HNRNPK"</code></pre>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#rank genes using stably expressed genes</span>
 <span class="va">st_eranks</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/rankGenes.html">rankGenes</a></span><span class="op">(</span><span class="va">targeted_se</span>, stableGenes <span class="op">=</span> <span class="va">st_genes</span><span class="op">)</span>
 
@@ -418,12 +586,15 @@
   ylab <span class="op">=</span> <span class="st">'Stingscore (targeted)'</span>
 <span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html">abline</a></span><span class="op">(</span>coef <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
+<p>The plots above show that both epithelial and mesenchymal scores computed using singscore and stingscore are highly correlated. Though the scores are correlated, their values are not an exact match as there is an offset. As the relative order of samples remains the same, biological inferences are unaffected by the offset in scores computed using stingscore.</p>
 </div>
 <div id="multiscore" class="section level2">
 <h2 class="hasAnchor">
 <a href="#multiscore" class="anchor"></a>Multiscore</h2>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<p>When the hypothesis are not pre-determined, we may wish to perform an exploratory analysis using multiple gene-sets. In such a scenario, we would wish to score samples against 100s-1000s of gene-sets which we would then summarise using further downstream analysis. The <code><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore()</a></code> function can be used to score samples against multiple signatures simultaneously. This implementation is much faster than <code><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore()</a></code> and is therefore the recommended function for scoring against multiple gene-sets.</p>
+<p>We will score samples against gene-sets from the hallmark collection, gene ontologies, KEGG pathways, Reactome pathways and Biocarta pathways. The <code><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection()</a></code> function in the <code>msigdb</code> package can be used to subset a GeneSetCollection based on MSigDB categories and sub-categories. The function returns GeneSetCollection objects which can be concatenated as normal lists. The resulting list needs to be converted back into a GeneSetCollection object before passing it to <code><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore()</a></code>.</p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#subset collections and subcollections of interest</span>
 <span class="va">genesigs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
   <span class="va">epi_sig</span>,
@@ -433,7 +604,8 @@
   <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection</a></span><span class="op">(</span><span class="va">msigdb.hs</span>, <span class="st">'c5'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'GO:BP'</span>, <span class="st">'GO:MF'</span>, <span class="st">'GO:CC'</span><span class="op">)</span><span class="op">)</span>
 <span class="op">)</span>
 <span class="va">genesigs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSetCollection-methods.html">GeneSetCollection</a></span><span class="op">(</span><span class="va">genesigs</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<p>The results of <code><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore()</a></code> is a list containing a matrix of scores and a matrix of dispersion values. As some gene-sets could be entirely composed of genes not measured in the data, there may be missing values in these matrices.</p>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">eranks</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/rankGenes.html">rankGenes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay</a></span><span class="op">(</span><span class="va">emt_se</span>, <span class="st">'logRPKM'</span><span class="op">)</span><span class="op">)</span>
 <span class="va">msigdb_scores</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">genesigs</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">msigdb_scores</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></code></pre></div>
@@ -452,10 +624,19 @@
 ## HALLMARK_TNFA_SIGNALING_VIA_NFKB         7278.825         7191.351
 ## HALLMARK_HYPOXIA                         7614.634         7633.907
 ## HALLMARK_CHOLESTEROL_HOMEOSTASIS         4222.445         4188.345</code></pre>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">msigdb_scores</span>, <span class="va">dim</span><span class="op">)</span></code></pre></div>
+<pre><code>## $Scores
+## [1] 12352    21
+## 
+## $Dispersions
+## [1] 12352    21</code></pre>
+<p>Plotting scores against dispersion values across all signatures demonstrates the usual trend between these two values. The trend is expected since strong positive or negative scores can only be obtained if genes in gene-sets are coordinately expressed. The more interesting gene-sets are those that have low dispersion with scores close to 0; these gene-sets contain coordinately expressed genes with average expression relative to all measured genes.</p>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/smoothScatter.html">smoothScatter</a></span><span class="op">(</span><span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Scores</span>, <span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Dispersions</span>, xlab <span class="op">=</span> <span class="st">'Score'</span>, ylab <span class="op">=</span> <span class="st">'Dispersion'</span>, main <span class="op">=</span> <span class="st">'Score vs Dispersion'</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
+<p>We can assess gene-sets for individual samples to determine their phenotype composition. As transcriptomic measurements are more biologically meaningful when assessed relatively, we compute the difference in scores between one PMC42-ET control replicate and another PMC42-LA control replicate. The top positive and negative scores are listed below.</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#select scores for a single Hypoxic sample</span>
 <span class="va">et_la_scores</span> <span class="op">=</span> <span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Scores</span><span class="op">[</span>, <span class="st">'PMC42ET_Ctrl_Rep1'</span><span class="op">]</span> <span class="op">-</span> <span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Scores</span><span class="op">[</span>, <span class="st">'PMC42LA_Ctrl_Rep1'</span><span class="op">]</span>
 <span class="va">et_la_scores</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">et_la_scores</span><span class="op">)</span>
@@ -472,7 +653,7 @@
 ##                                                                             -0.2954161 
 ##                                                GO_NORADRENERGIC_NEURON_DIFFERENTIATION 
 ##                                                                             -0.2788329</code></pre>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span><span class="op">(</span><span class="va">et_la_scores</span><span class="op">)</span></code></pre></div>
 <pre><code>##                            BIOCARTA_CYTOKINE_PATHWAY 
 ##                                            0.2212715 
@@ -508,7 +689,7 @@
 <h1 class="hasAnchor">
 <a href="#packages-used" class="anchor"></a>Packages used</h1>
 <p>This workflow depends on various packages from version 3.14 of the Bioconductor project, running on R version 4.1.0 (2021-05-18) or higher. The complete list of the packages used for this workflow are shown below:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## R version 4.1.0 (2021-05-18)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
@@ -614,8 +795,47 @@
 <div id="ref-R-rmarkdown" class="csl-entry">
 Allaire, JJ, Yihui Xie, Jonathan McPherson, Javier Luraschi, Kevin Ushey, Aron Atkins, Hadley Wickham, Joe Cheng, Winston Chang, and Richard Iannone. 2021. <em>Rmarkdown: Dynamic Documents for r</em>. <a href="https://CRAN.R-project.org/package=rmarkdown">https://CRAN.R-project.org/package=rmarkdown</a>.
 </div>
+<div id="ref-bhuva20" class="csl-entry">
+Bhuva, Dharmesh D, Joseph Cursons, and Melissa J Davis. 2020. <span>“Stable Gene Expression for Normalisation and Single-Sample Scoring.”</span> <em>Nucleic Acids Research</em> 48 (19): e113–13.
+</div>
+<div id="ref-bhuva19" class="csl-entry">
+Bhuva, Dharmesh D, Momeneh Foroutan, Yi Xie, Ruqian Lyu, Joseph Cursons, and Melissa J Davis. 2019. <span>“Using Singscore to Predict Mutation Status in Acute Myeloid Leukemia from Transcriptomic Signatures.”</span> <em>F1000Research</em> 8.
+</div>
+<div id="ref-R-edgeR" class="csl-entry">
+Chen, Yunshun, Aaron TL Lun, Davis J McCarthy, Matthew E Ritchie, Belinda Phipson, Yifang Hu, Xiaobei Zhou, Mark D Robinson, and Gordon K Smyth. 2021. <em>edgeR: Empirical Analysis of Digital Gene Expression Data in r</em>.
+</div>
+<div id="ref-cursons15" class="csl-entry">
+Cursons, Joseph, Karl-Johan Leuchowius, Mark Waltham, Eva Tomaskovic-Crook, Momeneh Foroutan, Cameron P Bracken, Andrew Redfern, et al. 2015. <span>“Stimulus-Dependent Differences in Signalling Regulate Epithelial-Mesenchymal Plasticity and Change the Effects of Drugs in Breast Cancer Cell Lines.”</span> <em>Cell Communication and Signaling</em> 13 (1): 1–21.
+</div>
+<div id="ref-cursons18" class="csl-entry">
+Cursons, Joseph, Katherine A Pillman, Kaitlin G Scheer, Philip A Gregory, Momeneh Foroutan, Soroor Hediyeh-Zadeh, John Toubia, et al. 2018. <span>“Combinatorial Targeting by microRNAs Co-Ordinates Post-Transcriptional Control of EMT.”</span> <em>Cell Systems</em> 7 (1): 77–91.
+</div>
+<div id="ref-foroutan18" class="csl-entry">
+Foroutan, Momeneh, Dharmesh D Bhuva, Ruqian Lyu, Kristy Horan, Joseph Cursons, and Melissa J Davis. 2018. <span>“Single Sample Scoring of Molecular Phenotypes.”</span> <em>BMC Bioinformatics</em> 19 (1): 404.
+</div>
+<div id="ref-foroutan17" class="csl-entry">
+Foroutan, Momeneh, Joseph Cursons, Soroor Hediyeh-Zadeh, Erik W Thompson, and Melissa J Davis. 2017. <span>“A Transcriptional Program for Detecting TGF<span class="math inline">\(\beta\)</span>-Induced EMT in Cancer.”</span> <em>Molecular Cancer Research</em> 15 (5): 619–31.
+</div>
+<div id="ref-liao13" class="csl-entry">
+Liao, Yang, Gordon K Smyth, and Wei Shi. 2013. <span>“The Subread Aligner: Fast, Accurate and Scalable Read Mapping by Seed-and-Vote.”</span> <em>Nucleic Acids Research</em> 41 (10): e108–8.
+</div>
+<div id="ref-liao14" class="csl-entry">
+———. 2014. <span>“featureCounts: An Efficient General Purpose Program for Assigning Sequence Reads to Genomic Features.”</span> <em>Bioinformatics</em> 30 (7): 923–30.
+</div>
+<div id="ref-liberzon15" class="csl-entry">
+Liberzon, Arthur, Chet Birger, Helga Thorvaldsdóttir, Mahmoud Ghandi, Jill P Mesirov, and Pablo Tamayo. 2015. <span>“The Molecular Signatures Database Hallmark Gene Set Collection.”</span> <em>Cell Systems</em> 1 (6): 417–25.
+</div>
 <div id="ref-R-prettydoc" class="csl-entry">
 Qiu, Yixuan. 2021. <em>Prettydoc: Creating Pretty Documents from r Markdown</em>. <a href="https://github.com/yixuan/prettydoc">https://github.com/yixuan/prettydoc</a>.
+</div>
+<div id="ref-robinson10" class="csl-entry">
+Robinson, Mark D, and Alicia Oshlack. 2010. <span>“A Scaling Normalization Method for Differential Expression Analysis of RNA-Seq Data.”</span> <em>Genome Biology</em> 11 (3): 1–9.
+</div>
+<div id="ref-subramanian05" class="csl-entry">
+Subramanian, Aravind, Pablo Tamayo, Vamsi K Mootha, Sayan Mukherjee, Benjamin L Ebert, Michael A Gillette, Amanda Paulovich, et al. 2005. <span>“Gene Set Enrichment Analysis: A Knowledge-Based Approach for Interpreting Genome-Wide Expression Profiles.”</span> <em>Proceedings of the National Academy of Sciences</em> 102 (43): 15545–50.
+</div>
+<div id="ref-tan14" class="csl-entry">
+Tan, Tuan Zea, Qing Hao Miow, Yoshio Miki, Tetsuo Noda, Seiichi Mori, Ruby Yun-Ju Huang, and Jean Paul Thiery. 2014. <span>“Epithelial-Mesenchymal Transition Spectrum Quantification and Its Efficacy in Deciphering Survival and Drug Responses of Cancer Patients.”</span> <em>EMBO Molecular Medicine</em> 6 (10): 1279–93.
 </div>
 <div id="ref-R-ggplot2" class="csl-entry">
 Wickham, Hadley, Winston Chang, Lionel Henry, Thomas Lin Pedersen, Kohske Takahashi, Claus Wilke, Kara Woo, Hiroaki Yutani, and Dewey Dunnington. 2021. <em>Ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics</em>. <a href="https://CRAN.R-project.org/package=ggplot2">https://CRAN.R-project.org/package=ggplot2</a>.
