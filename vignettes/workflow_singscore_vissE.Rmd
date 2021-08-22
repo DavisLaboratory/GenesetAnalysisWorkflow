@@ -405,6 +405,188 @@ tail(et_la_scores)
 
 ## vissE + DE
 
+### Prepare data
+```{r}
+# create DGElist object from SE object
+emt_dge = asDGEList(emt_se)
+
+# subset dataset to extract only control samples of PMC42-ET and PMC42-LA for DE analysis
+emt_dge_sub = emt_dge[,emt_dge$samples$Subline %in% c("PMC42-ET","PMC42-LA") &
+                        emt_dge$samples$Treatment == "control"]
+head(emt_dge_sub$samples)
+```
+
+### create model design matrix
+```{r}
+# create model design matrix
+design = model.matrix(~ Subline, data = emt_dge_sub$samples)
+design
+```
+
+```{r}
+# preprocess, filter by expression. 
+keep = filterByExpr(emt_dge_sub, design = design)
+table(keep)
+
+# filter by expression.
+emt_dge_sub = emt_dge_sub[keep, ]
+
+# calculate normalisation factor using on TMM (default).
+emt_dge_sub = calcNormFactors(emt_dge_sub,method = "TMM")
+head(as.data.frame(emt_dge_sub$samples))
+
+# Estimate dispersions
+emt_dge_sub = estimateDisp(emt_dge_sub, design = design, robust = TRUE)
+
+```
+
+### Differential expression Analysis using edgeR-GLM
+```{r, message=FALSE, warning=FALSE}
+
+# fit usimg edgeR's Generalized Linear Models with Quasi-likelihood Tests (GLM) function.
+fit = glmQLFit(emt_dge_sub, design, robust = TRUE)
+par(mfrow = c(1, 2))
+plotMD(fit)
+plotQLDisp(fit)
+
+# get DE genes list
+res = glmQLFTest(fit, coef = 'SublinePMC42-LA')
+is.de = decideTestsDGE(res)
+summary(is.de)
+
+# get DE list based on p-value 0.05 cutoff
+DE_list = as.data.frame(topTags(res, n = Inf, p.value = 0.05)[, -(1:6)])
+head(DE_list)
+
+# get all genes statistics
+allg_list = as.data.frame(topTags(res, n = Inf)[, -(1:6)])
+
+```
+
+
+
+### Geneset Enrichment Analysis (limma fry)
+```{r, message=FALSE, warning=FALSE}
+
+#Use geneset collections (genesigs) generated earlier in the Singscore:multiscore section
+#to generate indices
+fry_indices = ids2indices(geneIds(genesigs), rownames(emt_dge_sub))
+length(fry_indices)
+
+#remove small and very large genesets
+fry_indices = fry_indices[sapply(fry_indices, length) > 10 
+                          & sapply(fry_indices, length) < 500]
+length(fry_indices)
+
+# remove any empty indices.
+empty = sapply(fry_indices, length) == 0
+fry_indices = fry_indices[!empty]
+length(fry_indices)
+
+#Perform a geneset enrichment analysis using limma::fry
+fry_res = fry(emt_dge_sub, index = fry_indices, design = design,contrast = 'SublinePMC42-LA' )
+
+#filter out non-significant results
+fry_res = fry_res[fry_res$FDR <0.05,]
+head(as.data.frame(fry_res))
+```
+
+### Summarising results of gene-set enrichment analysis 
+```{r, message=FALSE, warning=FALSE}
+
+# create a GeneSetCollection using the gene-set analysis results
+siggs= genesigs[rownames(fry_res)]
+
+#prepare gene stats
+gStats = allg_list$logFC
+names(gStats) = rownames(allg_list)
+
+#prepare gene-set stats
+gsStats = -log10(fry_res$FDR)
+gsStats = gsStats * c('Up' = 1, 'Down' = -1)[fry_res$Direction]
+names(gsStats) = rownames(fry_res)
+
+```
+
+### Compute the overlap network
+The default approach to computing overlaps is using the Jaccard index. Overlap is computed based on the gene overlap between gene-sets. Alternatively, the overlap coefficient can be used. The latter can be used to highlight hierarchical overlaps (such as those present in the gene ontology).
+```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+library(vissE)
+#compute geneset overlaps between significant genesets
+gs_ovlap = computeMsigOverlap(siggs, thresh = 0.25)
+
+#create a network from overlaps
+gs_ovnet = computeMsigNetwork(gs_ovlap, msigdb.hs)
+
+#plot the network
+set.seed(21) #set seed for reproducible layout
+plotMsigNetwork(gs_ovnet)
+```
+
+The overlap network plot above is annotated based on the MSigDB categories utilised. As we have previously generated gene-set statistics using singscore::multiscore, these can be projected onto the network.
+```{r fig.height=8, fig.width=8}
+#plot the network and overlay gene-set statistics
+set.seed(21) #set seed for reproducible layout
+plotMsigNetwork(gs_ovnet, genesetStat = gsStats)
+```
+
+### Identify communities within the network
+```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+# library(igraph)
+#identify clusters
+grps = cluster_walktrap(gs_ovnet)
+
+#extract clustering results
+grps = groups(grps)
+
+#remove small groups
+grps = grps[sapply(grps, length) > 5]
+
+#sort by stat
+sortstat = plyr::ldply(grps, function(x) {
+  fdr.stat = median(abs(gsStats[x]))
+  size.stat = length(x)
+  return(c(fdr.stat, size.stat))
+})[, -1]
+sortstat = apply(apply(sortstat, 2, rank), 1, prod)
+grps = grps[order(sortstat, decreasing = TRUE)]
+
+
+#plot the top 6 clusters
+set.seed(21) #set seed for reproducible layout
+p1 = plotMsigNetwork(gs_ovnet, markGroups = grps[1:6], genesetStat = gsStats)
+p1
+```
+
+### Characterise gene-set clusters
+
+Gene-set clusters identified can be assessed for their biological similarities using text-mining approaches. Here, we perform a frequency analysis (adjusted for using the inverse document frequency) on the gene-set names or their short descriptions to assess recurring biological themes in clusters. These results are then presented as word clouds.
+```{r fig.height=8, fig.width=9}
+#compute and plot the results of text-mining
+
+#using gene-set Names
+p2 = plotMsigWordcloud(msigdb.hs, grps[1:12], type = 'Name')
+p2
+
+#using gene-set Short descriptions
+plotMsigWordcloud(msigdb.hs, grps[1:12], type = 'Short')
+
+```
+### Visualise gene-level statistics for gene-set clusters
+Gene-level statistics for each gene-set cluster can be visualised to better understand the genes contributing to significance of gene-sets. Gene-level statistics can be passed onto the plotting function as a named vector. A jitter is applied on the x-axis (due to its discrete nature).
+```{r fig.height=8, fig.width=9}
+#plot the gene-level statistics
+p3 = plotGeneStats(gStats, msigdb.hs, grps[1:12]) +
+  geom_hline(yintercept = 0, colour = 2, lty = 2)
+p3
+```
+
+```{r fig.height=8, fig.width=15}
+library(patchwork)
+p2+labs(subtitle = 'Wordcloud') + 
+  p1 +labs(subtitle = 'Network') + 
+  p3 +labs(subtitle = 'gene-level statistics')
+```
 # Summary
 
 # Packages used {.unnumbered}
