@@ -79,16 +79,27 @@ To do so, we use gene-set enrichment analysis, a group of methods designed to id
 
 # Description of the biological problem
 
+Epithelial–mesenchymal transition (EMT) is a cellular process where static and polarised epithelial cells convert to a motile mesenchymal phenotype. It is the fundamental mechanism involved in embryogenesis and tissue differentiation and in the context of cancer, implicated in the cancer progression and metastasis. EMT entails a progressive loss of epithelial characteristics and acquisition of mesenchymal features, which in cancer enables cells to acquire migratory and invasive properties, induces stemness, avoid apoptosis and senescence and become immune-resistant. [Yilmaz2009, Thiery2009, Polyak2009, Książkiewicz2012]
+
+EMT is characterised by downregulation of epithelial markers (e.g E-cadherin, claudins) and upregulation of mesenchymal markers (e.g., vimentin, N-cadherin)), resulting in the loss of cell–cell adhesion and cell polarity, and the acquisition of migratory and invasive properties. There is a switch between keratin-rich adheren junction network to a vimentin-rich focal adhesion network with cadherin switch from E-cadherin to N-cadherin.[Tomita2000] 
+
+Although cancer cells utilise EMT to facilitating metastatic spread, they rarely fully convert to the mesenchymal phenotype, and instead presents a hybrid phenotype loosely termed epithelial mesenchymal plasticity (EMP). EMP has been associated with increased metastasis risk and poor prognosis in breast cancer [@cursons15]. There are currently limited specific markers proposed for this transient/metastable phenotype, owing to the lack of reliable progression readout and consequent limited studies for the transitional and progression states of EMT. Identification of specific markers of this hybrid state will provide crucial information to identify interventions for metastasis as well as mechanistic insights to uncover potential therapeutics. [Ribeiro2015]
+
+In this workflow, we utilise bulk transcriptomics data from [@cursons15] study which interrogates EMP in two breast cancer cell line models, namely the PMC42 system (PMC42-ET and PMC42-LA sublines) and MDA-MB-468 cells. There are numerous avenues to induce EMT, with epidermal growth factor (EGF) signalling via the EGFRs being one such stimuli. Notably signalling via EGFRs is also well-established driver of breast cancer progression. In this study, EMT was induced using EGF stimulation, and by hypoxia for MDA-MB-468 cells.[@cursons15]
+
+PMC42-LA is an epithelial subline derived from the vimentin positive, E-Cadherin negative parental PMC42-ET cells with both classified as having a “Basal B” transcriptome (expressed mesenchymal gene, lacked epithelial marker expression). Both of the PMC42 cell-lines undergo EGF-driven EMT, but PMC42-ET’s response is reduced due to higher basal vimentin expression.[@cursons15] 
+
+
 # Molecular phenotyping of individual samples
 
-To preform molecular phenotyping of the data from [@cursons15], we need the RNA-seq counts and appropriate gene-sets that represent the molecular phenotypes of interest. We will use processed RNA-seq data from the `emtdata` package in this workflow. We will then score individual samples against custom gene signatures from [@tan14] and from the molecular signatures database (MSigDB) [@liberzon15,@subramanian05] using singscore [@foroutan18,@bhuva20].
+To preform molecular phenotyping of the data from [@cursons15], we need the RNA-seq counts and appropriate gene-sets that represent the molecular phenotypes of interest. We will use processed RNA-seq data from the `emtdata` package in this workflow. We will then score individual samples against custom gene signatures from [@tan14] and from the molecular signatures database (MSigDB) ([@liberzon15,@subramanian05]) using singscore ([@foroutan18,@bhuva20]).
 
 ## Load data
 
 The `emtdata` package contains multiple pre-processed RNA-seq data from experiments studying the epithelial to mesenchymal transition. The package contains the following processed datasets:
 
 1.  cursons2015_se - RNA-seq data from various breast cancer cell lines representing different degrees of epithelial and mesenchymal phenotypes [@cursons15].
-2.  cursons2018_se - RNA-seq data from the human mammary epithelial (HMLE) cell line treated with TGF$\beta$ to induce an epithelial to mesenchymal transition (EMT) which is followed by treatment with miR-200c to induce a mesenchymal to epothelial transition (MET) [@cursons18].
+2.  cursons2018_se - RNA-seq data from the human mammary epithelial (HMLE) cell line treated with TGF$\beta$ to induce an epithelial to mesenchymal transition (EMT) which is followed by treatment with miR-200c to induce a mesenchymal to epithelial transition (MET) [@cursons18].
 3.  foroutan2017_se - A compendium of EMT induction experiments combined and corrected for batch effects [@foroutan17].
 
 The data used in this workflow is the [@cursons15] RNA-seq data. RNA-seq reads downloaded from the sequencing read archive (SRA) and processed using the Subread aligner [@liao13] and featureCounts [@liao14] to generate a counts matrix. Following this, genes with low expression were filtered out using `edgeR::filterByExpr()`. Normalisation factors were computed using TMM [@robinson10] and reads per kilobase per million (RPKM) values computed using function in the `edgeR` R/Bioconductor package [@R-edgeR]. Data were then stored in a SummarizedExperiment object that can be retrieved from the `ExperimentHub` using the `emtdata` R/Bioconductor package.
