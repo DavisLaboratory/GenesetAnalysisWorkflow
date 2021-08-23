@@ -59,7 +59,6 @@ library(emtdata)
 library(singscore)
 library(msigdb)
 library(vissE)
-library(ggpubr)
 library(graphics)
 
 #automatically create a bib database for R packages
@@ -401,192 +400,212 @@ tail(et_la_scores)
 
 # Identifying and visualising higher-order phenotypes
 
-## vissE + singscore
+## Perform DE analysis
 
-## vissE + DE
-
-### Prepare data
-```{r}
-# create DGElist object from SE object
-emt_dge = asDGEList(emt_se)
-
-# subset dataset to extract only control samples of PMC42-ET and PMC42-LA for DE analysis
-emt_dge_sub = emt_dge[,emt_dge$samples$Subline %in% c("PMC42-ET","PMC42-LA") &
-                        emt_dge$samples$Treatment == "control"]
-head(emt_dge_sub$samples)
-```
-
-### create model design matrix
-```{r}
-# create model design matrix
-design = model.matrix(~ Subline, data = emt_dge_sub$samples)
-design
-```
+We perform DE analysis using the quasi-likelihood edgeR pipeline [@chen16].
 
 ```{r}
-# preprocess, filter by expression. 
-keep = filterByExpr(emt_dge_sub, design = design)
-table(keep)
+library(edgeR)
+library(limma)
 
-# filter by expression.
-emt_dge_sub = emt_dge_sub[keep, ]
+#subset dataset to extract only control samples of PMC42-ET and PMC42-LA
+emt_se_sub = emt_se[, emt_se$Subline %in% c('PMC42-ET', 'PMC42-LA') &
+                      emt_se$Treatment == 'control']
+#create DGElist object from SE object
+emt_dge = asDGEList(emt_se_sub)
+#create model design matrix
+design = model.matrix(~ Subline, data = emt_dge$samples)
+#remove lowly expressed genes
+keep = filterByExpr(emt_dge, design = design)
+emt_dge = emt_dge[keep, ]
+#calculate normalisation factor using on TMM
+emt_dge = calcNormFactors(emt_dge, method = "TMM")
 
-# calculate normalisation factor using on TMM (default).
-emt_dge_sub = calcNormFactors(emt_dge_sub,method = "TMM")
-head(as.data.frame(emt_dge_sub$samples))
-
-# Estimate dispersions
-emt_dge_sub = estimateDisp(emt_dge_sub, design = design, robust = TRUE)
-
-```
-
-### Differential expression Analysis using edgeR-GLM
-```{r, message=FALSE, warning=FALSE}
-
-# fit usimg edgeR's Generalized Linear Models with Quasi-likelihood Tests (GLM) function.
-fit = glmQLFit(emt_dge_sub, design, robust = TRUE)
-par(mfrow = c(1, 2))
-plotMD(fit)
-plotQLDisp(fit)
-
-# get DE genes list
+#estimate dispersions
+emt_dge = estimateDisp(emt_dge, design = design, robust = TRUE)
+#fit usimg edgeR's Generalized Linear Models with Quasi-likelihood Tests (GLM) function
+fit = glmQLFit(emt_dge, design, robust = TRUE)
+#get DE genes list
 res = glmQLFTest(fit, coef = 'SublinePMC42-LA')
 is.de = decideTestsDGE(res)
-summary(is.de)
-
+plotMD(fit, status = is.de, main = 'PMC42-LA vs. PMC42-ET')
 # get DE list based on p-value 0.05 cutoff
-DE_list = as.data.frame(topTags(res, n = Inf, p.value = 0.05)[, -(1:6)])
+DE_list = as.data.frame(topTags(res, n = Inf, p.value = 0.05)[,-(1:6)])
 head(DE_list)
 
 # get all genes statistics
-allg_list = as.data.frame(topTags(res, n = Inf)[, -(1:6)])
-
+allg_list = as.data.frame(topTags(res, n = Inf)[,-(1:6)])
 ```
 
+## Gene-set testing using `limma::fry`
 
-
-### Geneset Enrichment Analysis (limma fry)
 ```{r, message=FALSE, warning=FALSE}
-
-#Use geneset collections (genesigs) generated earlier in the Singscore:multiscore section
-#to generate indices
-fry_indices = ids2indices(geneIds(genesigs), rownames(emt_dge_sub))
-length(fry_indices)
-
-#remove small and very large genesets
-fry_indices = fry_indices[sapply(fry_indices, length) > 10 
+#Use geneset collection (genesigs) generated earlier to create fry indices
+fry_indices = ids2indices(geneIds(genesigs), rownames(emt_dge))
+#remove very small and very large genesets
+fry_indices = fry_indices[sapply(fry_indices, length) > 10
                           & sapply(fry_indices, length) < 500]
-length(fry_indices)
-
-# remove any empty indices.
-empty = sapply(fry_indices, length) == 0
-fry_indices = fry_indices[!empty]
-length(fry_indices)
 
 #Perform a geneset enrichment analysis using limma::fry
-fry_res = fry(emt_dge_sub, index = fry_indices, design = design,contrast = 'SublinePMC42-LA' )
+fry_res = fry(emt_dge,
+              index = fry_indices,
+              design = design,
+              contrast = 'SublinePMC42-LA')
 
-#filter out non-significant results
-fry_res = fry_res[fry_res$FDR <0.05,]
-head(as.data.frame(fry_res))
+#select significant results (FDR < 0.05)
+fry_res = fry_res[fry_res$FDR < 0.05, ]
+head(fry_res)
 ```
 
-### Summarising results of gene-set enrichment analysis 
+## Prepare gene-set testing results for vissE
+
 ```{r, message=FALSE, warning=FALSE}
+#create a GeneSetCollection for the significant gene-sets
+siggs = genesigs[rownames(fry_res)]
+siggs
 
-# create a GeneSetCollection using the gene-set analysis results
-siggs= genesigs[rownames(fry_res)]
-
-#prepare gene stats
-gStats = allg_list$logFC
-names(gStats) = rownames(allg_list)
-
-#prepare gene-set stats
+#prepare gene-set statistics for visualisation (signed -log10(FDR))
 gsStats = -log10(fry_res$FDR)
+#use a positive sign to indicate up-regulated gene-sets
 gsStats = gsStats * c('Up' = 1, 'Down' = -1)[fry_res$Direction]
+#has to be a named vector
 names(gsStats) = rownames(fry_res)
+head(gsStats)
 
+#prepare gene-level statistics for visualisation (logFC)
+gStats = allg_list$logFC
+#has to be a named vector
+names(gStats) = rownames(allg_list)
+head(gStats)
 ```
 
-### Compute the overlap network
+## Compute the overlap network
+
 The default approach to computing overlaps is using the Jaccard index. Overlap is computed based on the gene overlap between gene-sets. Alternatively, the overlap coefficient can be used. The latter can be used to highlight hierarchical overlaps (such as those present in the gene ontology).
+
 ```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
 library(vissE)
-#compute geneset overlaps between significant genesets
-gs_ovlap = computeMsigOverlap(siggs, thresh = 0.25)
+library(igraph)
 
+#compute gene-set overlaps between significant gene-sets
+gs_ovlap = computeMsigOverlap(siggs, thresh = 0.25, measure = 'jaccard')
 #create a network from overlaps
-gs_ovnet = computeMsigNetwork(gs_ovlap, msigdb.hs)
-
+gs_ovnet = computeMsigNetwork(gs_ovlap, msigGsc = siggs)
 #plot the network
 set.seed(21) #set seed for reproducible layout
 plotMsigNetwork(gs_ovnet)
 ```
 
-The overlap network plot above is annotated based on the MSigDB categories utilised. As we have previously generated gene-set statistics using singscore::multiscore, these can be projected onto the network.
+The overlap network plot above is annotated based on the MSigDB categories used. We can annotate it with a gene-level statistic. Here we use a signed -log10(FDR) where the sign represents the direction of change.
+
 ```{r fig.height=8, fig.width=8}
 #plot the network and overlay gene-set statistics
 set.seed(21) #set seed for reproducible layout
 plotMsigNetwork(gs_ovnet, genesetStat = gsStats)
 ```
 
-### Identify communities within the network
-```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
-# library(igraph)
-#identify clusters
-grps = cluster_walktrap(gs_ovnet)
+## Identify communities within the network
 
+```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+#identify clusters using a graph clustering algorithm
+grps = cluster_walktrap(gs_ovnet)
 #extract clustering results
 grps = groups(grps)
-
 #remove small groups
 grps = grps[sapply(grps, length) > 5]
+length(grps)
+```
 
-#sort by stat
-sortstat = plyr::ldply(grps, function(x) {
-  fdr.stat = median(abs(gsStats[x]))
-  size.stat = length(x)
-  return(c(fdr.stat, size.stat))
-})[, -1]
-sortstat = apply(apply(sortstat, 2, rank), 1, prod)
-grps = grps[order(sortstat, decreasing = TRUE)]
+Since we could have numerous gene-set clusters, we need to come up with a prioritisation scheme to explore them. We maximise the cluster size and statistic using the product-of-ranks approach to achieve this.
 
+```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+#compute cluster sizes
+grp_size = sapply(grps, length)
+#compute cluster statistic - median of the absolute statistic
+grp_stat = sapply(grps, function(x) median(abs(gsStats[x])))
+#combine using product of ranks
+grp_pr = rank(grp_size) * rank(grp_stat)
+#order group using the product of ranks - maximise cluster size and statistic
+grps = grps[order(grp_pr, decreasing = TRUE)]
+```
 
-#plot the top 6 clusters
+Visualising all gene-set clusters together is difficult so we will focus on the top 12 prioritised using the product-of-ranks approach.
+
+```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+#plot the top 12 clusters
 set.seed(21) #set seed for reproducible layout
-p1 = plotMsigNetwork(gs_ovnet, markGroups = grps[1:6], genesetStat = gsStats)
+p1 = plotMsigNetwork(gs_ovnet, markGroups = grps[1:12], genesetStat = gsStats)
 p1
 ```
 
-### Characterise gene-set clusters
+## Characterise gene-set clusters
 
 Gene-set clusters identified can be assessed for their biological similarities using text-mining approaches. Here, we perform a frequency analysis (adjusted for using the inverse document frequency) on the gene-set names or their short descriptions to assess recurring biological themes in clusters. These results are then presented as word clouds.
-```{r fig.height=8, fig.width=9}
-#compute and plot the results of text-mining
 
-#using gene-set Names
-p2 = plotMsigWordcloud(msigdb.hs, grps[1:12], type = 'Name')
+```{r}
+#all gene-sets have names
+sapply(siggs[1:3], setName)
+#almost all gene-sets have short descriptions
+sapply(siggs[1:3], description)
+```
+
+These can be used to automatically annotate gene-sets
+
+```{r fig.height=8, fig.width=9}
+#compute and plot the results of text-mining: using gene-set name
+p2 = plotMsigWordcloud(msigGsc = siggs, groups = grps[1:12], type = 'Name')
 p2
 
-#using gene-set Short descriptions
-plotMsigWordcloud(msigdb.hs, grps[1:12], type = 'Short')
-
+#compute and plot the results of text-mining: using gene-set short description
+plotMsigWordcloud(msigGsc = siggs, groups = grps[1:12], type = 'Short')
 ```
-### Visualise gene-level statistics for gene-set clusters
+
+## Visualise gene-level statistics for gene-set clusters
+
 Gene-level statistics for each gene-set cluster can be visualised to better understand the genes contributing to significance of gene-sets. Gene-level statistics can be passed onto the plotting function as a named vector. A jitter is applied on the x-axis (due to its discrete nature).
+
 ```{r fig.height=8, fig.width=9}
-#plot the gene-level statistics
-p3 = plotGeneStats(gStats, msigdb.hs, grps[1:12]) +
-  geom_hline(yintercept = 0, colour = 2, lty = 2)
+#plot the gene-level statistics (logFC)
+p3 = plotGeneStats(gStats,
+                   msigGsc = siggs,
+                   groups = grps[1:12],
+                   statName = 'logFC')
+#since all vissE plots are ggplot2 objects, they can be modified
+p3 = p3 + geom_hline(yintercept = 0, colour = 2, lty = 2)
 p3
 ```
 
-```{r fig.height=8, fig.width=15}
+## Interpreting biology from vissE
+
+We can combine results from all three plots to provide a holistic view of the data.
+
+```{r fig.height=7, fig.width=15}
 library(patchwork)
-p2+labs(subtitle = 'Wordcloud') + 
-  p1 +labs(subtitle = 'Network') + 
-  p3 +labs(subtitle = 'gene-level statistics')
+
+#combine plots into a unified visualisation
+p2 + p1 + p3
 ```
+
+Cluster 90 is going up in PMC42-LA compared to PMC42-ET and is tightly clustered. Biology... (note GRHL2 and OVOL2 are present here)
+
+```{r fig.height=7, fig.width=15}
+#investigate specific clusters
+set.seed(21) #set seed for reproducible layout
+#select group to plot
+g = '90'
+#compute and plot vissE panels for the group
+p1_g = plotMsigNetwork(gs_ovnet, markGroups = grps[g], genesetStat = gsStats)
+p2_g = plotMsigWordcloud(msigGsc = siggs, groups = grps[g], type = 'Short')
+p3_g = plotGeneStats(
+  gStats,
+  msigGsc = siggs,
+  groups = grps[g],
+  statName = 'logFC',
+  topN = 25
+) + geom_hline(yintercept = 0, lty = 2, colour = 2)
+p2_g + p1_g + p3_g
+```
+
 # Summary
 
 # Packages used {.unnumbered}

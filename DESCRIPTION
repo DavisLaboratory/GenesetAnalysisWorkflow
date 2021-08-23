@@ -49,7 +49,6 @@ Imports:
     vissE,
     ExperimentHub,
     hexbin,
-    ggpubr,
     igraph,
     graphics,
     KernSmooth,
