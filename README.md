@@ -64,11 +64,11 @@ The workshop is designed for R `4.1` and can be installed using one of the two w
 If you're familiar with [Docker](https://docs.docker.com/get-docker/) you could use the Docker image which has all the software pre-configured to the correct versions.
 
 ```
-docker run -e -p 8787:8787 bhuvad/genesetanalysisworkflow:latest
+docker run -e PASSWORD=password -p 8787:8787 bhuvad/genesetanalysisworkflow:latest
 ```
 
 Once running, navigate to <http://localhost:8787/> and then login with
-`Username:rstudio` and `Password:rstudio`.
+`Username:rstudio` and `Password:password`.
 
 You should see the Rmarkdown file with all the workshop code which you can run.
 

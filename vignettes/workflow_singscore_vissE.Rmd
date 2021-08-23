@@ -60,6 +60,10 @@ library(singscore)
 library(msigdb)
 library(vissE)
 library(graphics)
+library(patchwork)
+library(igraph)
+library(limma)
+library(edgeR)
 
 #automatically create a bib database for R packages
 knitr::write_bib(c(
