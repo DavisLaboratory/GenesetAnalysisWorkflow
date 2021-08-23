@@ -145,7 +145,7 @@
 <span class="va">res</span> <span class="op">=</span> <span class="fu">query</span><span class="op">(</span><span class="va">eh</span>, <span class="st">'emtdata'</span><span class="op">)</span>
 <span class="va">res</span></code></pre></div>
 <pre><code>## ExperimentHub with 3 records
-## # snapshotDate(): 2021-08-09
+## # snapshotDate(): 2021-08-18
 ## # $dataprovider: Walter and Eliza Hall Institute of Medical Research, Queens...
 ## # $species: Homo sapiens
 ## # $rdataclass: GSEABase::SummarizedExperiment
@@ -672,13 +672,272 @@
 <div id="identifying-and-visualising-higher-order-phenotypes" class="section level1">
 <h1 class="hasAnchor">
 <a href="#identifying-and-visualising-higher-order-phenotypes" class="anchor"></a>Identifying and visualising higher-order phenotypes</h1>
-<div id="visse-singscore" class="section level2">
+<div id="perform-de-analysis" class="section level2">
 <h2 class="hasAnchor">
-<a href="#visse-singscore" class="anchor"></a>vissE + singscore</h2>
+<a href="#perform-de-analysis" class="anchor"></a>Perform DE analysis</h2>
+<p>We perform DE analysis using the quasi-likelihood edgeR pipeline <span class="citation">(Chen, Lun, and Smyth 2016)</span>.</p>
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://bioinf.wehi.edu.au/edgeR">edgeR</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://bioinf.wehi.edu.au/limma">limma</a></span><span class="op">)</span>
+
+<span class="co">#subset dataset to extract only control samples of PMC42-ET and PMC42-LA</span>
+<span class="va">emt_se_sub</span> <span class="op">=</span> <span class="va">emt_se</span><span class="op">[</span>, <span class="va">emt_se</span><span class="op">$</span><span class="va">Subline</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'PMC42-ET'</span>, <span class="st">'PMC42-LA'</span><span class="op">)</span> <span class="op">&amp;</span>
+                      <span class="va">emt_se</span><span class="op">$</span><span class="va">Treatment</span> <span class="op">==</span> <span class="st">'control'</span><span class="op">]</span>
+<span class="co">#create DGElist object from SE object</span>
+<span class="va">emt_dge</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/emtdata/man/asDGEList.html">asDGEList</a></span><span class="op">(</span><span class="va">emt_se_sub</span><span class="op">)</span>
+<span class="co">#create model design matrix</span>
+<span class="va">design</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="op">~</span> <span class="va">Subline</span>, data <span class="op">=</span> <span class="va">emt_dge</span><span class="op">$</span><span class="va">samples</span><span class="op">)</span>
+<span class="co">#remove lowly expressed genes</span>
+<span class="va">keep</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/filterByExpr.html">filterByExpr</a></span><span class="op">(</span><span class="va">emt_dge</span>, design <span class="op">=</span> <span class="va">design</span><span class="op">)</span>
+<span class="va">emt_dge</span> <span class="op">=</span> <span class="va">emt_dge</span><span class="op">[</span><span class="va">keep</span>, <span class="op">]</span>
+<span class="co">#calculate normalisation factor using on TMM</span>
+<span class="va">emt_dge</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/calcNormFactors.html">calcNormFactors</a></span><span class="op">(</span><span class="va">emt_dge</span>, method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span>
+
+<span class="co">#estimate dispersions</span>
+<span class="va">emt_dge</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/estimateDisp.html">estimateDisp</a></span><span class="op">(</span><span class="va">emt_dge</span>, design <span class="op">=</span> <span class="va">design</span>, robust <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#fit usimg edgeR's Generalized Linear Models with Quasi-likelihood Tests (GLM) function</span>
+<span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/glmQLFTest.html">glmQLFit</a></span><span class="op">(</span><span class="va">emt_dge</span>, <span class="va">design</span>, robust <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#get DE genes list</span>
+<span class="va">res</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/glmQLFTest.html">glmQLFTest</a></span><span class="op">(</span><span class="va">fit</span>, coef <span class="op">=</span> <span class="st">'SublinePMC42-LA'</span><span class="op">)</span>
+<span class="va">is.de</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/decidetestsDGE.html">decideTestsDGE</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/limma/man/plotMD.html">plotMD</a></span><span class="op">(</span><span class="va">fit</span>, status <span class="op">=</span> <span class="va">is.de</span>, main <span class="op">=</span> <span class="st">'PMC42-LA vs. PMC42-ET'</span><span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># get DE list based on p-value 0.05 cutoff</span>
+<span class="va">DE_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/topTags.html">topTags</a></span><span class="op">(</span><span class="va">res</span>, n <span class="op">=</span> <span class="cn">Inf</span>, p.value <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span><span class="op">[</span>,<span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">DE_list</span><span class="op">)</span></code></pre></div>
+<pre><code>##          gene_biotype     logFC   logCPM         F       PValue          FDR
+## FAT2   protein_coding -7.588511 6.614230 1334.7019 5.576353e-13 1.346410e-08
+## TGFBR2 protein_coding -9.993858 3.596306 1040.0713 2.218916e-12 1.759046e-08
+## SPINT1 protein_coding  6.890147 5.922593  985.9245 2.982160e-12 1.759046e-08
+## PLS3   protein_coding -6.059286 5.070152  958.2729 3.489918e-12 1.759046e-08
+## PLTP   protein_coding -6.202561 5.935153  950.8729 3.642671e-12 1.759046e-08
+## KLK11  protein_coding  8.779300 3.708962  877.8718 5.662833e-12 2.278818e-08</code></pre>
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># get all genes statistics</span>
+<span class="va">allg_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/topTags.html">topTags</a></span><span class="op">(</span><span class="va">res</span>, n <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span><span class="op">[</span>,<span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="visse-de" class="section level2">
+<div id="gene-set-testing-using-limmafry" class="section level2">
 <h2 class="hasAnchor">
-<a href="#visse-de" class="anchor"></a>vissE + DE</h2>
+<a href="#gene-set-testing-using-limmafry" class="anchor"></a>Gene-set testing using <code>limma::fry</code>
+</h2>
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#Use geneset collection (genesigs) generated earlier to create fry indices</span>
+<span class="va">fry_indices</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/ids2indices.html">ids2indices</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">genesigs</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">emt_dge</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#remove very small and very large genesets</span>
+<span class="va">fry_indices</span> <span class="op">=</span> <span class="va">fry_indices</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">fry_indices</span>, <span class="va">length</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">10</span>
+                          <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">fry_indices</span>, <span class="va">length</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">500</span><span class="op">]</span>
+
+<span class="co">#Perform a geneset enrichment analysis using limma::fry</span>
+<span class="va">fry_res</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/roast.html">fry</a></span><span class="op">(</span><span class="va">emt_dge</span>,
+              index <span class="op">=</span> <span class="va">fry_indices</span>,
+              design <span class="op">=</span> <span class="va">design</span>,
+              contrast <span class="op">=</span> <span class="st">'SublinePMC42-LA'</span><span class="op">)</span>
+
+<span class="co">#select significant results (FDR &lt; 0.05)</span>
+<span class="va">fry_res</span> <span class="op">=</span> <span class="va">fry_res</span><span class="op">[</span><span class="va">fry_res</span><span class="op">$</span><span class="va">FDR</span> <span class="op">&lt;</span> <span class="fl">0.05</span>, <span class="op">]</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">fry_res</span><span class="op">)</span></code></pre></div>
+<pre><code>##                                                         NGenes Direction
+## GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS                     13        Up
+## GO_LABYRINTHINE_LAYER_MORPHOGENESIS                         18        Up
+## GO_DNA_UNWINDING_INVOLVED_IN_DNA_REPLICATION                16      Down
+## GO_POSITIVE_REGULATION_OF_T_HELPER_CELL_DIFFERENTIATION     15        Up
+## GO_DNA_POLYMERASE_COMPLEX                                   21      Down
+## REACTOME_RA_BIOSYNTHESIS_PATHWAY                            16        Up
+##                                                               PValue
+## GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS                 7.343476e-07
+## GO_LABYRINTHINE_LAYER_MORPHOGENESIS                     2.604803e-06
+## GO_DNA_UNWINDING_INVOLVED_IN_DNA_REPLICATION            3.526290e-06
+## GO_POSITIVE_REGULATION_OF_T_HELPER_CELL_DIFFERENTIATION 3.787180e-06
+## GO_DNA_POLYMERASE_COMPLEX                               4.208996e-06
+## REACTOME_RA_BIOSYNTHESIS_PATHWAY                        4.238159e-06
+##                                                                 FDR
+## GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS                 0.004489003
+## GO_LABYRINTHINE_LAYER_MORPHOGENESIS                     0.004489003
+## GO_DNA_UNWINDING_INVOLVED_IN_DNA_REPLICATION            0.004489003
+## GO_POSITIVE_REGULATION_OF_T_HELPER_CELL_DIFFERENTIATION 0.004489003
+## GO_DNA_POLYMERASE_COMPLEX                               0.004489003
+## REACTOME_RA_BIOSYNTHESIS_PATHWAY                        0.004489003
+##                                                         PValue.Mixed
+## GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS                 1.220636e-05
+## GO_LABYRINTHINE_LAYER_MORPHOGENESIS                     3.708566e-07
+## GO_DNA_UNWINDING_INVOLVED_IN_DNA_REPLICATION            5.533273e-07
+## GO_POSITIVE_REGULATION_OF_T_HELPER_CELL_DIFFERENTIATION 3.109981e-06
+## GO_DNA_POLYMERASE_COMPLEX                               6.086205e-06
+## REACTOME_RA_BIOSYNTHESIS_PATHWAY                        3.192814e-06
+##                                                            FDR.Mixed
+## GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS                 1.980857e-05
+## GO_LABYRINTHINE_LAYER_MORPHOGENESIS                     3.173336e-06
+## GO_DNA_UNWINDING_INVOLVED_IN_DNA_REPLICATION            3.608736e-06
+## GO_POSITIVE_REGULATION_OF_T_HELPER_CELL_DIFFERENTIATION 7.916704e-06
+## GO_DNA_POLYMERASE_COMPLEX                               1.208747e-05
+## REACTOME_RA_BIOSYNTHESIS_PATHWAY                        8.019966e-06</code></pre>
+</div>
+<div id="prepare-gene-set-testing-results-for-visse" class="section level2">
+<h2 class="hasAnchor">
+<a href="#prepare-gene-set-testing-results-for-visse" class="anchor"></a>Prepare gene-set testing results for vissE</h2>
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#create a GeneSetCollection for the significant gene-sets</span>
+<span class="va">siggs</span> <span class="op">=</span> <span class="va">genesigs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">fry_res</span><span class="op">)</span><span class="op">]</span>
+<span class="va">siggs</span></code></pre></div>
+<pre><code>## GeneSetCollection
+##   names: GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS, GO_LABYRINTHINE_LAYER_MORPHOGENESIS, ..., GO_PLATELET_ALPHA_GRANULE_LUMEN (1667 total)
+##   unique identifiers: CS, SIRT4, ..., CDY2A (13779 total)
+##   types in collection:
+##     geneIdType: SymbolIdentifier (1 total)
+##     collectionType: BroadCollection, NullCollection (2 total)</code></pre>
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#prepare gene-set statistics for visualisation (signed -log10(FDR))</span>
+<span class="va">gsStats</span> <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">fry_res</span><span class="op">$</span><span class="va">FDR</span><span class="op">)</span>
+<span class="co">#use a positive sign to indicate up-regulated gene-sets</span>
+<span class="va">gsStats</span> <span class="op">=</span> <span class="va">gsStats</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Up'</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">'Down'</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">[</span><span class="va">fry_res</span><span class="op">$</span><span class="va">Direction</span><span class="op">]</span>
+<span class="co">#has to be a named vector</span>
+<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">gsStats</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">fry_res</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">gsStats</span><span class="op">)</span></code></pre></div>
+<pre><code>##                 GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS 
+##                                                 2.34785 
+##                     GO_LABYRINTHINE_LAYER_MORPHOGENESIS 
+##                                                 2.34785 
+##            GO_DNA_UNWINDING_INVOLVED_IN_DNA_REPLICATION 
+##                                                -2.34785 
+## GO_POSITIVE_REGULATION_OF_T_HELPER_CELL_DIFFERENTIATION 
+##                                                 2.34785 
+##                               GO_DNA_POLYMERASE_COMPLEX 
+##                                                -2.34785 
+##                        REACTOME_RA_BIOSYNTHESIS_PATHWAY 
+##                                                 2.34785</code></pre>
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#prepare gene-level statistics for visualisation (logFC)</span>
+<span class="va">gStats</span> <span class="op">=</span> <span class="va">allg_list</span><span class="op">$</span><span class="va">logFC</span>
+<span class="co">#has to be a named vector</span>
+<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">gStats</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">allg_list</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">gStats</span><span class="op">)</span></code></pre></div>
+<pre><code>##      FAT2    TGFBR2    SPINT1      PLS3      PLTP     KLK11 
+## -7.588511 -9.993858  6.890147 -6.059286 -6.202561  8.779300</code></pre>
+</div>
+<div id="compute-the-overlap-network" class="section level2">
+<h2 class="hasAnchor">
+<a href="#compute-the-overlap-network" class="anchor"></a>Compute the overlap network</h2>
+<p>The default approach to computing overlaps is using the Jaccard index. Overlap is computed based on the gene overlap between gene-sets. Alternatively, the overlap coefficient can be used. The latter can be used to highlight hierarchical overlaps (such as those present in the gene ontology).</p>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://davislaboratory.github.io/vissE">vissE</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://igraph.org">igraph</a></span><span class="op">)</span>
+
+<span class="co">#compute gene-set overlaps between significant gene-sets</span>
+<span class="va">gs_ovlap</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/computeMsigOverlap.html">computeMsigOverlap</a></span><span class="op">(</span><span class="va">siggs</span>, thresh <span class="op">=</span> <span class="fl">0.25</span>, measure <span class="op">=</span> <span class="st">'jaccard'</span><span class="op">)</span>
+<span class="co">#create a network from overlaps</span>
+<span class="va">gs_ovnet</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/computeMsigNetwork.html">computeMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovlap</span>, msigGsc <span class="op">=</span> <span class="va">siggs</span><span class="op">)</span>
+<span class="co">#plot the network</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
+<span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span><span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-27-1.png" width="768"></p>
+<p>The overlap network plot above is annotated based on the MSigDB categories used. We can annotate it with a gene-level statistic. Here we use a signed -log10(FDR) where the sign represents the direction of change.</p>
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#plot the network and overlay gene-set statistics</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
+<span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span>, genesetStat <span class="op">=</span> <span class="va">gsStats</span><span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-28-1.png" width="768"></p>
+</div>
+<div id="identify-communities-within-the-network" class="section level2">
+<h2 class="hasAnchor">
+<a href="#identify-communities-within-the-network" class="anchor"></a>Identify communities within the network</h2>
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#identify clusters using a graph clustering algorithm</span>
+<span class="va">grps</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/igraph/man/cluster_walktrap.html">cluster_walktrap</a></span><span class="op">(</span><span class="va">gs_ovnet</span><span class="op">)</span>
+<span class="co">#extract clustering results</span>
+<span class="va">grps</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/igraph/man/groups.html">groups</a></span><span class="op">(</span><span class="va">grps</span><span class="op">)</span>
+<span class="co">#remove small groups</span>
+<span class="va">grps</span> <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">grps</span>, <span class="va">length</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">5</span><span class="op">]</span>
+<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">grps</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1] 43</code></pre>
+<p>Since we could have numerous gene-set clusters, we need to come up with a prioritisation scheme to explore them. We maximise the cluster size and statistic using the product-of-ranks approach to achieve this.</p>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#compute cluster sizes</span>
+<span class="va">grp_size</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">grps</span>, <span class="va">length</span><span class="op">)</span>
+<span class="co">#compute cluster statistic - median of the absolute statistic</span>
+<span class="va">grp_stat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">grps</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html">median</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">gsStats</span><span class="op">[</span><span class="va">x</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#combine using product of ranks</span>
+<span class="va">grp_pr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">grp_size</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">grp_stat</span><span class="op">)</span>
+<span class="co">#order group using the product of ranks - maximise cluster size and statistic</span>
+<span class="va">grps</span> <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">grp_pr</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></code></pre></div>
+<p>Visualising all gene-set clusters together is difficult so we will focus on the top 12 prioritised using the product-of-ranks approach.</p>
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#plot the top 12 clusters</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
+<span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span>, markGroups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, genesetStat <span class="op">=</span> <span class="va">gsStats</span><span class="op">)</span>
+<span class="va">p1</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-31-1.png" width="768"></p>
+</div>
+<div id="characterise-gene-set-clusters" class="section level2">
+<h2 class="hasAnchor">
+<a href="#characterise-gene-set-clusters" class="anchor"></a>Characterise gene-set clusters</h2>
+<p>Gene-set clusters identified can be assessed for their biological similarities using text-mining approaches. Here, we perform a frequency analysis (adjusted for using the inverse document frequency) on the gene-set names or their short descriptions to assess recurring biological themes in clusters. These results are then presented as word clouds.</p>
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#all gene-sets have names</span>
+<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">siggs</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, <span class="va">setName</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1] "GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS"     
+## [2] "GO_LABYRINTHINE_LAYER_MORPHOGENESIS"         
+## [3] "GO_DNA_UNWINDING_INVOLVED_IN_DNA_REPLICATION"</code></pre>
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#almost all gene-sets have short descriptions</span>
+<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">siggs</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, <span class="va">description</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1] "The chemical reactions and pathways involving dicarboxylic acids, any organic acid containing three carboxyl (COOH) groups or anions (COO-). [GOC:mah]"                                        
+## [2] "The process in which the labyrinthine layer of the placenta is generated and organized. [GOC:dph]"                                                                                             
+## [3] "The process in which interchain hydrogen bonds between two strands of DNA are broken or 'melted', generating unpaired template strands for DNA replication. [ISBN:071673706X, ISBN:0815316194]"</code></pre>
+<p>These can be used to automatically annotate gene-sets</p>
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#compute and plot the results of text-mining: using gene-set name</span>
+<span class="va">p2</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigWordcloud.html">plotMsigWordcloud</a></span><span class="op">(</span>msigGsc <span class="op">=</span> <span class="va">siggs</span>, groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'Name'</span><span class="op">)</span>
+<span class="va">p2</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-33-1.png" width="864"></p>
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#compute and plot the results of text-mining: using gene-set short description</span>
+<span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigWordcloud.html">plotMsigWordcloud</a></span><span class="op">(</span>msigGsc <span class="op">=</span> <span class="va">siggs</span>, groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'Short'</span><span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-33-2.png" width="864"></p>
+</div>
+<div id="visualise-gene-level-statistics-for-gene-set-clusters" class="section level2">
+<h2 class="hasAnchor">
+<a href="#visualise-gene-level-statistics-for-gene-set-clusters" class="anchor"></a>Visualise gene-level statistics for gene-set clusters</h2>
+<p>Gene-level statistics for each gene-set cluster can be visualised to better understand the genes contributing to significance of gene-sets. Gene-level statistics can be passed onto the plotting function as a named vector. A jitter is applied on the x-axis (due to its discrete nature).</p>
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#plot the gene-level statistics (logFC)</span>
+<span class="va">p3</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotGeneStats.html">plotGeneStats</a></span><span class="op">(</span><span class="va">gStats</span>,
+                   msigGsc <span class="op">=</span> <span class="va">siggs</span>,
+                   groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>,
+                   statName <span class="op">=</span> <span class="st">'logFC'</span><span class="op">)</span>
+<span class="co">#since all vissE plots are ggplot2 objects, they can be modified</span>
+<span class="va">p3</span> <span class="op">=</span> <span class="va">p3</span> <span class="op">+</span> <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, colour <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
+<span class="va">p3</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-34-1.png" width="864"></p>
+</div>
+<div id="interpreting-biology-from-visse" class="section level2">
+<h2 class="hasAnchor">
+<a href="#interpreting-biology-from-visse" class="anchor"></a>Interpreting biology from vissE</h2>
+<p>We can combine results from all three plots to provide a holistic view of the data.</p>
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
+
+<span class="co">#combine plots into a unified visualisation</span>
+<span class="va">p2</span> <span class="op">+</span> <span class="va">p1</span> <span class="op">+</span> <span class="va">p3</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-35-1.png" width="1440"></p>
+<p>Cluster 90 is going up in PMC42-LA compared to PMC42-ET and is tightly clustered. Biology… (note GRHL2 and OVOL2 are present here)</p>
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#investigate specific clusters</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
+<span class="co">#select group to plot</span>
+<span class="va">g</span> <span class="op">=</span> <span class="st">'90'</span>
+<span class="co">#compute and plot vissE panels for the group</span>
+<span class="va">p1_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span>, markGroups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="va">g</span><span class="op">]</span>, genesetStat <span class="op">=</span> <span class="va">gsStats</span><span class="op">)</span>
+<span class="va">p2_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigWordcloud.html">plotMsigWordcloud</a></span><span class="op">(</span>msigGsc <span class="op">=</span> <span class="va">siggs</span>, groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="va">g</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'Short'</span><span class="op">)</span>
+<span class="va">p3_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotGeneStats.html">plotGeneStats</a></span><span class="op">(</span>
+  <span class="va">gStats</span>,
+  msigGsc <span class="op">=</span> <span class="va">siggs</span>,
+  groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="va">g</span><span class="op">]</span>,
+  statName <span class="op">=</span> <span class="st">'logFC'</span>,
+  topN <span class="op">=</span> <span class="fl">25</span>
+<span class="op">)</span> <span class="op">+</span> <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">2</span>, colour <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
+<span class="va">p2_g</span> <span class="op">+</span> <span class="va">p1_g</span> <span class="op">+</span> <span class="va">p3_g</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-36-1.png" width="1440"></p>
 </div>
 </div>
 <div id="summary" class="section level1">
@@ -689,7 +948,7 @@
 <h1 class="hasAnchor">
 <a href="#packages-used" class="anchor"></a>Packages used</h1>
 <p>This workflow depends on various packages from version 3.14 of the Bioconductor project, running on R version 4.1.0 (2021-05-18) or higher. The complete list of the packages used for this workflow are shown below:</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## R version 4.1.0 (2021-05-18)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
@@ -711,78 +970,81 @@
 ## [8] base     
 ## 
 ## other attached packages:
-##  [1] ggpubr_0.4.0                  vissE_1.1.0                  
-##  [3] msigdb_1.1.0                  singscore_1.13.1             
-##  [5] emtdata_1.1.0                 GSEABase_1.55.1              
-##  [7] graph_1.71.2                  annotate_1.71.0              
-##  [9] XML_3.99-0.7                  AnnotationDbi_1.55.1         
-## [11] edgeR_3.35.0                  limma_3.49.4                 
-## [13] ExperimentHub_2.1.4           AnnotationHub_3.1.5          
-## [15] BiocFileCache_2.1.1           dbplyr_2.1.1                 
-## [17] SummarizedExperiment_1.23.1   Biobase_2.53.0               
-## [19] GenomicRanges_1.45.0          GenomeInfoDb_1.29.3          
-## [21] IRanges_2.27.0                S4Vectors_0.31.0             
-## [23] BiocGenerics_0.39.1           MatrixGenerics_1.5.3         
-## [25] matrixStats_0.60.0            ggplot2_3.3.5                
-## [27] GenesetAnalysisWorkflow_0.9.1
+##  [1] igraph_1.2.6                  patchwork_1.1.1              
+##  [3] vissE_1.1.0                   msigdb_1.1.0                 
+##  [5] singscore_1.13.1              emtdata_1.1.0                
+##  [7] GSEABase_1.55.1               graph_1.71.2                 
+##  [9] annotate_1.71.0               XML_3.99-0.7                 
+## [11] AnnotationDbi_1.55.1          edgeR_3.35.0                 
+## [13] limma_3.49.4                  ExperimentHub_2.1.4          
+## [15] AnnotationHub_3.1.5           BiocFileCache_2.1.1          
+## [17] dbplyr_2.1.1                  SummarizedExperiment_1.23.1  
+## [19] Biobase_2.53.0                GenomicRanges_1.45.0         
+## [21] GenomeInfoDb_1.29.3           IRanges_2.27.2               
+## [23] S4Vectors_0.31.1              BiocGenerics_0.39.2          
+## [25] MatrixGenerics_1.5.3          matrixStats_0.60.0           
+## [27] ggplot2_3.3.5                 GenesetAnalysisWorkflow_0.9.1
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] colorspace_2.0-2              ggsignif_0.6.2               
-##   [3] rio_0.5.27                    ellipsis_0.3.2               
-##   [5] rprojroot_2.0.2               XVector_0.33.0               
-##   [7] fs_1.5.0                      hexbin_1.28.2                
-##   [9] farver_2.1.0                  ggrepel_0.9.1                
-##  [11] bit64_4.0.5                   interactiveDisplayBase_1.31.2
-##  [13] fansi_0.5.0                   cachem_1.0.5                 
-##  [15] knitr_1.33                    jsonlite_1.7.2               
-##  [17] broom_0.7.9                   png_0.1-7                    
-##  [19] shiny_1.6.0                   BiocManager_1.30.16          
-##  [21] compiler_4.1.0                httr_1.4.2                   
-##  [23] backports_1.2.1               assertthat_0.2.1             
-##  [25] Matrix_1.3-4                  fastmap_1.1.0                
-##  [27] later_1.2.0                   htmltools_0.5.1.1            
-##  [29] tools_4.1.0                   igraph_1.2.6                 
-##  [31] gtable_0.3.0                  glue_1.4.2                   
-##  [33] GenomeInfoDbData_1.2.6        reshape2_1.4.4               
-##  [35] dplyr_1.0.7                   rappdirs_0.3.3               
-##  [37] Rcpp_1.0.7                    carData_3.0-4                
-##  [39] cellranger_1.1.0              jquerylib_0.1.4              
-##  [41] pkgdown_1.6.1                 vctrs_0.3.8                  
-##  [43] Biostrings_2.61.2             xfun_0.25                    
-##  [45] stringr_1.4.0                 openxlsx_4.2.4               
-##  [47] mime_0.11                     lifecycle_1.0.0              
-##  [49] rstatix_0.7.0                 org.Hs.eg.db_3.13.0          
-##  [51] zlibbioc_1.39.0               scales_1.1.1                 
-##  [53] hms_1.1.0                     ragg_1.1.3                   
-##  [55] promises_1.2.0.1              RColorBrewer_1.1-2           
-##  [57] yaml_2.2.1                    curl_4.3.2                   
-##  [59] memoise_2.0.0                 sass_0.4.0                   
-##  [61] stringi_1.7.3                 RSQLite_2.2.7                
-##  [63] highr_0.9                     BiocVersion_3.14.0           
-##  [65] desc_1.3.0                    filelock_1.0.2               
-##  [67] zip_2.2.0                     rlang_0.4.11                 
-##  [69] pkgconfig_2.0.3               systemfonts_1.0.2            
-##  [71] bitops_1.0-7                  evaluate_0.14                
-##  [73] lattice_0.20-44               purrr_0.3.4                  
-##  [75] labeling_0.4.2                bit_4.0.4                    
-##  [77] tidyselect_1.1.1              plyr_1.8.6                   
-##  [79] magrittr_2.0.1                R6_2.5.0                     
-##  [81] generics_0.1.0                DelayedArray_0.19.1          
-##  [83] DBI_1.1.1                     haven_2.4.3                  
-##  [85] foreign_0.8-81                pillar_1.6.2                 
-##  [87] withr_2.4.2                   prettydoc_0.4.1              
-##  [89] abind_1.4-5                   KEGGREST_1.33.0              
-##  [91] RCurl_1.98-1.4                tibble_3.1.3                 
-##  [93] crayon_1.4.1                  car_3.0-11                   
-##  [95] KernSmooth_2.23-20            utf8_1.2.2                   
-##  [97] rmarkdown_2.10                readxl_1.3.1                 
-##  [99] locfit_1.5-9.4                grid_4.1.0                   
-## [101] data.table_1.14.0             blob_1.2.2                   
-## [103] forcats_0.5.1                 digest_0.6.27                
-## [105] xtable_1.8-4                  tidyr_1.1.3                  
-## [107] httpuv_1.6.1                  textshaping_0.3.5            
-## [109] munsell_0.5.0                 viridisLite_0.4.0            
-## [111] bslib_0.2.5.1</code></pre>
+##   [1] systemfonts_1.0.2             plyr_1.8.6                   
+##   [3] splines_4.1.0                 digest_0.6.27                
+##   [5] htmltools_0.5.1.1             fansi_0.5.0                  
+##   [7] magrittr_2.0.1                memoise_2.0.0                
+##   [9] tm_0.7-8                      Biostrings_2.61.2            
+##  [11] textshape_1.7.3               pkgdown_1.6.1                
+##  [13] colorspace_2.0-2              blob_1.2.2                   
+##  [15] rappdirs_0.3.3                ggrepel_0.9.1                
+##  [17] sylly_0.1-6                   textshaping_0.3.5            
+##  [19] xfun_0.25                     dplyr_1.0.7                  
+##  [21] crayon_1.4.1                  RCurl_1.98-1.4               
+##  [23] jsonlite_1.7.2                hexbin_1.28.2                
+##  [25] glue_1.4.2                    polyclip_1.10-0              
+##  [27] gtable_0.3.0                  zlibbioc_1.39.0              
+##  [29] XVector_0.33.0                DelayedArray_0.19.1          
+##  [31] scico_1.2.0                   scales_1.1.1                 
+##  [33] qdapRegex_0.7.2               DBI_1.1.1                    
+##  [35] Rcpp_1.0.7                    viridisLite_0.4.0            
+##  [37] xtable_1.8-4                  bit_4.0.4                    
+##  [39] textclean_0.9.3               httr_1.4.2                   
+##  [41] ggwordcloud_0.5.0             RColorBrewer_1.1-2           
+##  [43] ellipsis_0.3.2                pkgconfig_2.0.3              
+##  [45] farver_2.1.0                  sass_0.4.0                   
+##  [47] locfit_1.5-9.4                utf8_1.2.2                   
+##  [49] tidyselect_1.1.1              labeling_0.4.2               
+##  [51] rlang_0.4.11                  reshape2_1.4.4               
+##  [53] later_1.3.0                   munsell_0.5.0                
+##  [55] BiocVersion_3.14.0            tools_4.1.0                  
+##  [57] cachem_1.0.6                  generics_0.1.0               
+##  [59] RSQLite_2.2.8                 evaluate_0.14                
+##  [61] stringr_1.4.0                 fastmap_1.1.0                
+##  [63] yaml_2.2.1                    ragg_1.1.3                   
+##  [65] textstem_0.1.4                org.Hs.eg.db_3.13.0          
+##  [67] knitr_1.33                    bit64_4.0.5                  
+##  [69] fs_1.5.0                      purrr_0.3.4                  
+##  [71] KEGGREST_1.33.0               koRpus_0.13-8                
+##  [73] mime_0.11                     slam_0.1-48                  
+##  [75] xml2_1.3.2                    compiler_4.1.0               
+##  [77] filelock_1.0.2                curl_4.3.2                   
+##  [79] png_0.1-7                     interactiveDisplayBase_1.31.2
+##  [81] koRpus.lang.en_0.1-4          syuzhet_1.0.6                
+##  [83] tibble_3.1.3                  statmod_1.4.36               
+##  [85] tweenr_1.0.2                  bslib_0.2.5.1                
+##  [87] stringi_1.7.3                 highr_0.9                    
+##  [89] desc_1.3.0                    lattice_0.20-44              
+##  [91] Matrix_1.3-4                  vctrs_0.3.8                  
+##  [93] pillar_1.6.2                  lifecycle_1.0.0              
+##  [95] BiocManager_1.30.16           jquerylib_0.1.4              
+##  [97] data.table_1.14.0             bitops_1.0-7                 
+##  [99] httpuv_1.6.2                  sylly.en_0.1-3               
+## [101] R6_2.5.1                      promises_1.2.0.1             
+## [103] KernSmooth_2.23-20            lexicon_1.2.1                
+## [105] MASS_7.3-54                   assertthat_0.2.1             
+## [107] rprojroot_2.0.2               withr_2.4.2                  
+## [109] GenomeInfoDbData_1.2.6        parallel_4.1.0               
+## [111] grid_4.1.0                    prettydoc_0.4.1              
+## [113] tidyr_1.1.3                   rmarkdown_2.10               
+## [115] ggnewscale_0.4.5              ggforce_0.3.3                
+## [117] NLP_0.2-1                     shiny_1.6.0</code></pre>
 </div>
 <div id="acknowledgments" class="section level1 unnumbered">
 <h1 class="hasAnchor">
@@ -803,6 +1065,9 @@ Bhuva, Dharmesh D, Momeneh Foroutan, Yi Xie, Ruqian Lyu, Joseph Cursons, and Mel
 </div>
 <div id="ref-R-edgeR" class="csl-entry">
 Chen, Yunshun, Aaron TL Lun, Davis J McCarthy, Matthew E Ritchie, Belinda Phipson, Yifang Hu, Xiaobei Zhou, Mark D Robinson, and Gordon K Smyth. 2021. <em>edgeR: Empirical Analysis of Digital Gene Expression Data in r</em>.
+</div>
+<div id="ref-chen16" class="csl-entry">
+Chen, Yunshun, Aaron TL Lun, and Gordon K Smyth. 2016. <span>“From Reads to Genes to Pathways: Differential Expression Analysis of RNA-Seq Experiments Using Rsubread and the edgeR Quasi-Likelihood Pipeline.”</span> <em>F1000Research</em> 5.
 </div>
 <div id="ref-cursons15" class="csl-entry">
 Cursons, Joseph, Karl-Johan Leuchowius, Mark Waltham, Eva Tomaskovic-Crook, Momeneh Foroutan, Cameron P Bracken, Andrew Redfern, et al. 2015. <span>“Stimulus-Dependent Differences in Signalling Regulate Epithelial-Mesenchymal Plasticity and Change the Effects of Drugs in Breast Cancer Cell Lines.”</span> <em>Cell Communication and Signaling</em> 13 (1): 1–21.
