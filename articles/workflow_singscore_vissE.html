@@ -122,10 +122,10 @@
 <div id="description-of-the-biological-problem" class="section level1">
 <h1 class="hasAnchor">
 <a href="#description-of-the-biological-problem" class="anchor"></a>Description of the biological problem</h1>
-<p>Epithelial–mesenchymal transition (EMT) is a cellular process where static and polarised epithelial cells convert to a motile mesenchymal phenotype. It is the fundamental mechanism involved in embryogenesis and tissue differentiation and in the context of cancer, implicated in the cancer progression and metastasis. EMT entails a progressive loss of epithelial characteristics and acquisition of mesenchymal features, which in cancer enables cells to acquire migratory and invasive properties, induces stemness, avoid apoptosis and senescence and become immune-resistant. [Yilmaz2009, Thiery2009, Polyak2009, Książkiewicz2012]</p>
-<p>EMT is characterised by downregulation of epithelial markers (e.g E-cadherin, claudins) and upregulation of mesenchymal markers (e.g., vimentin, N-cadherin)), resulting in the loss of cell–cell adhesion and cell polarity, and the acquisition of migratory and invasive properties. There is a switch between keratin-rich adheren junction network to a vimentin-rich focal adhesion network with cadherin switch from E-cadherin to N-cadherin.[Tomita2000]</p>
-<p>Although cancer cells utilise EMT to facilitating metastatic spread, they rarely fully convert to the mesenchymal phenotype, and instead presents a hybrid phenotype loosely termed epithelial mesenchymal plasticity (EMP). EMP has been associated with increased metastasis risk and poor prognosis in breast cancer <span class="citation">(Cursons et al. 2015)</span>. There are currently limited specific markers proposed for this transient/metastable phenotype, owing to the lack of reliable progression readout and consequent limited studies for the transitional and progression states of EMT. Identification of specific markers of this hybrid state will provide crucial information to identify interventions for metastasis as well as mechanistic insights to uncover potential therapeutics. [Ribeiro2015]</p>
-<p>In this workflow, we utilise bulk transcriptomics data from <span class="citation">(Cursons et al. 2015)</span> study which interrogates EMP in two breast cancer cell line models, namely the PMC42 system (PMC42-ET and PMC42-LA sublines) and MDA-MB-468 cells. There are numerous avenues to induce EMT, with epidermal growth factor (EGF) signalling via the EGFRs being one such stimuli. Notably signalling via EGFRs is also well-established driver of breast cancer progression. In this study, EMT was induced using EGF stimulation, and by hypoxia for MDA-MB-468 cells.<span class="citation">(Cursons et al. 2015)</span></p>
+<p>Epithelial–mesenchymal transition (EMT) is a cellular process where static and polarised epithelial cells convert to a motile mesenchymal phenotype. It is the fundamental mechanism involved in embryogenesis and tissue differentiation and in the context of cancer, implicated in the cancer progression and metastasis. EMT entails a progressive loss of epithelial characteristics and acquisition of mesenchymal features, which in cancer enables cells to acquire migratory and invasive properties, induces stemness, avoid apoptosis and senescence and become immune-resistant. (<span class="citation">(Yilmaz and Christofori 2009)</span>, <span class="citation">(Thiery et al. 2009)</span>, <span class="citation">(Polyak and Weinberg 2009)</span>, <span class="citation">(Ksiazkiewicz, Markiewicz, and Zaczek 2012)</span>)</p>
+<p>EMT is characterised by downregulation of epithelial markers (e.g E-cadherin, claudins) and upregulation of mesenchymal markers (e.g., vimentin, N-cadherin)), resulting in the loss of cell–cell adhesion and cell polarity, and the acquisition of migratory and invasive properties. There is a switch between keratin-rich adheren junction network to a vimentin-rich focal adhesion network with cadherin switch from E-cadherin to N-cadherin.<span class="citation">(Tomita et al. 2000)</span></p>
+<p>Although cancer cells utilise EMT to facilitating metastatic spread, they rarely fully convert to the mesenchymal phenotype, and instead presents a hybrid phenotype loosely termed epithelial mesenchymal plasticity (EMP). EMP has been associated with increased metastasis risk and poor prognosis in breast cancer <span class="citation">(Cursons et al. 2015)</span>. There are currently limited specific markers proposed for this transient/metastable phenotype, owing to the lack of reliable progression readout and consequent limited studies for the transitional and progression states of EMT. Identification of specific markers of this hybrid state will provide crucial information to identify interventions for metastasis as well as mechanistic insights to uncover potential therapeutics. <span class="citation">(Ribeiro and Paredes 2015)</span></p>
+<p>In this workflow, we utilise bulk transcriptomics data from <span class="citation">(Cursons et al. 2015)</span> study which interrogates EMP in two breast cancer cell line models, namely the PMC42 system (PMC42-ET and PMC42-LA sublines) and MDA-MB-468 cells. There are numerous avenues to induce EMT, with epidermal growth factor (EGF) signalling via the EGFRs being one such stimuli.<span class="citation">(Cursons et al. 2015)</span></p>
 <p>PMC42-LA is an epithelial subline derived from the vimentin positive, E-Cadherin negative parental PMC42-ET cells with both classified as having a “Basal B” transcriptome (expressed mesenchymal gene, lacked epithelial marker expression). Both of the PMC42 cell-lines undergo EGF-driven EMT, but PMC42-ET’s response is reduced due to higher basal vimentin expression.<span class="citation">(Cursons et al. 2015)</span></p>
 </div>
 <div id="molecular-phenotyping-of-individual-samples" class="section level1">
@@ -677,10 +677,14 @@
 <div id="identifying-and-visualising-higher-order-phenotypes" class="section level1">
 <h1 class="hasAnchor">
 <a href="#identifying-and-visualising-higher-order-phenotypes" class="anchor"></a>Identifying and visualising higher-order phenotypes</h1>
+<p>In many RNASeq sequencing data analyses, gene-set enrichment analyses (be it an over representation analysis of a functional class scoring approach) are typically performed resulting in a list of gene-sets that are accompanied by their statistics and p-values or false discovery rates (FDR).<br>
+In most conventional collaborations, these results are typically manually curated/ scanned through by domain experts or biologists who then extract relevant themes pertaining to their specific experiment or domain of interest.</p>
+<p>The approach in this workflow uses the R package, <code>vissE</code>, which will allow automated extraction of themes based on the data. In this case we will utilize the results from the <code><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore()</a></code> function in <code>singscore</code> which scored samples against multiple signatures.</p>
+<p>The following analysis uses a subset of the <span class="citation">(Cursons et al. 2015)</span> dataset (specifically the non-treatment samples from PMC42-ET and PMC42-LA sublines).To demonstrate the workflow for <code>vissE</code>, differential expression (DE) analysis will be performed comparing the differences between PMC42-LA and PMC42-ET, generating a set of DE genes for conducting gene-set enrichment analysis.</p>
 <div id="perform-de-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#perform-de-analysis" class="anchor"></a>Perform DE analysis</h2>
-<p>We perform DE analysis using the quasi-likelihood edgeR pipeline <span class="citation">(Chen, Lun, and Smyth 2016)</span>.</p>
+<p>As mentioned, we will only use the control samples from the PMC42 sublines in <span class="citation">(Cursons et al. 2015)</span>. We then perform DE analysis using the quasi-likelihood edgeR pipeline <span class="citation">(Chen, Lun, and Smyth 2016)</span>.</p>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://bioinf.wehi.edu.au/edgeR">edgeR</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://bioinf.wehi.edu.au/limma">limma</a></span><span class="op">)</span>
@@ -726,6 +730,7 @@
 <h2 class="hasAnchor">
 <a href="#gene-set-testing-using-limmafry" class="anchor"></a>Gene-set testing using <code>limma::fry</code>
 </h2>
+<p>Using the DE genes from the DE analysis, perform a gene-set enrichment testing using <code><a href="https://rdrr.io/pkg/limma/man/roast.html">limma::fry</a></code>.</p>
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Use geneset collection (genesigs) generated earlier to create fry indices</span>
 <span class="va">fry_indices</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/ids2indices.html">ids2indices</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">genesigs</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">emt_dge</span><span class="op">)</span><span class="op">)</span>
@@ -781,6 +786,24 @@
 <div id="prepare-gene-set-testing-results-for-visse" class="section level2">
 <h2 class="hasAnchor">
 <a href="#prepare-gene-set-testing-results-for-visse" class="anchor"></a>Prepare gene-set testing results for vissE</h2>
+<p>With the available information from the DE analysis and GSEA, perform a vissE (Visualising Set Enrichment) analysis.</p>
+<p>A vissE analysis involves 3 steps:</p>
+<ul>
+<li>Compute gene-set overlaps and the gene-set overlap network<br>
+</li>
+<li>Identify clusters of gene-sets based on their overlap<br>
+</li>
+<li>Characterise clusters using text mining</li>
+<li>(Optional) Visualise gene-level statistics</li>
+</ul>
+<p>Firstly, prepare the necessary results and statistics:</p>
+<ul>
+<li>prepare GeneSetCollection object for the significant gene-sets based on GSEA results from limma:fry.<br>
+</li>
+<li>prepare gene-set statistics from GSEA.<br>
+</li>
+<li>prepare gene-level statistics from DE analysis.</li>
+</ul>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#create a GeneSetCollection for the significant gene-sets</span>
 <span class="va">siggs</span> <span class="op">=</span> <span class="va">genesigs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">fry_res</span><span class="op">)</span><span class="op">]</span>
@@ -824,6 +847,8 @@
 <h2 class="hasAnchor">
 <a href="#compute-the-overlap-network" class="anchor"></a>Compute the overlap network</h2>
 <p>The default approach to computing overlaps is using the Jaccard index. Overlap is computed based on the gene overlap between gene-sets. Alternatively, the overlap coefficient can be used. The latter can be used to highlight hierarchical overlaps (such as those present in the gene ontology).</p>
+<p>In this workflow example, compute the overlaps using the Jaccard index as our gene-set collection is generated by scoring samples against multiple signatures simultaneously.</p>
+<p>Compute, create and plot the network of overlaps.</p>
 <div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://davislaboratory.github.io/vissE">vissE</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://igraph.org">igraph</a></span><span class="op">)</span>
@@ -836,7 +861,7 @@
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
 <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span><span class="op">)</span></code></pre></div>
 <p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-27-1.png" width="768"></p>
-<p>The overlap network plot above is annotated based on the MSigDB categories used. We can annotate it with a gene-level statistic. Here we use a signed -log10(FDR) where the sign represents the direction of change.</p>
+<p>The overlap network plot above is annotated based on the MSigDB categories used. More information can be included by annotating with a gene-level statistic. Here we use a signed -log10(FDR) where the sign represents the direction of change. Note that the gene-level statistics used here is prepared in the previous section.</p>
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#plot the network and overlay gene-set statistics</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
@@ -846,6 +871,8 @@
 <div id="identify-communities-within-the-network" class="section level2">
 <h2 class="hasAnchor">
 <a href="#identify-communities-within-the-network" class="anchor"></a>Identify communities within the network</h2>
+<p>Now that we have a related network of genesets, it can be inferred that related gene-sets would likely represent related processes. To relate these network in the context of biological themes and classifications, the next step is then to identify clusters or communities of closed associated gene-sets. The user can select their preferred clustering approach but in this workflow, use the recommended graph clustering approaches in order to use the information provided in the overlap graph. Specifically, <code><a href="https://rdrr.io/pkg/igraph/man/cluster_walktrap.html">igraph::cluster_walktrap()</a></code> algorithm works well with dense graphs. Do note that other algorithms are implemented in the igraph package and these can be used instead of the walktrap algorithm.</p>
+<p>For the purpose of this workflow, use <code><a href="https://rdrr.io/pkg/igraph/man/cluster_walktrap.html">igraph::cluster_walktrap()</a></code>.</p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#identify clusters using a graph clustering algorithm</span>
 <span class="va">grps</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/igraph/man/cluster_walktrap.html">cluster_walktrap</a></span><span class="op">(</span><span class="va">gs_ovnet</span><span class="op">)</span>
@@ -855,7 +882,7 @@
 <span class="va">grps</span> <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">grps</span>, <span class="va">length</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">5</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">grps</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 43</code></pre>
-<p>Since we could have numerous gene-set clusters, we need to come up with a prioritisation scheme to explore them. We maximise the cluster size and statistic using the product-of-ranks approach to achieve this.</p>
+<p>Since we could have numerous gene-set clusters, we need to come up with a prioritisation scheme to explore them appropriately. In this workflow, we maximize the cluster size and statistic using the product-of-ranks approach to achieve this.</p>
 <div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#compute cluster sizes</span>
 <span class="va">grp_size</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">grps</span>, <span class="va">length</span><span class="op">)</span>
@@ -865,7 +892,7 @@
 <span class="va">grp_pr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">grp_size</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">grp_stat</span><span class="op">)</span>
 <span class="co">#order group using the product of ranks - maximise cluster size and statistic</span>
 <span class="va">grps</span> <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">grp_pr</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></code></pre></div>
-<p>Visualising all gene-set clusters together is difficult so we will focus on the top 12 prioritised using the product-of-ranks approach.</p>
+<p>Clearly, from the number of gene-set clusters obtained, it will be difficult to visualize the gene-set clusters all at once. So we will focus on the top 12 prioritised gene-sets as defined by the product-of-ranks approach.</p>
 <div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#plot the top 12 clusters</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
@@ -876,7 +903,7 @@
 <div id="characterise-gene-set-clusters" class="section level2">
 <h2 class="hasAnchor">
 <a href="#characterise-gene-set-clusters" class="anchor"></a>Characterise gene-set clusters</h2>
-<p>Gene-set clusters identified can be assessed for their biological similarities using text-mining approaches. Here, we perform a frequency analysis (adjusted for using the inverse document frequency) on the gene-set names or their short descriptions to assess recurring biological themes in clusters. These results are then presented as word clouds.</p>
+<p>To better visualize the resulting gene-set clusters identified in the context of their biological similarity and relevance, we further characterize the gene-set clusters identified using text-mining approaches. Here, we perform a frequency analysis (adjusted for using the inverse document frequency) on either the gene-set names or their short descriptions to assess recurring biological themes in clusters. These results are then presented as word clouds.</p>
 <div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#all gene-sets have names</span>
 <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">siggs</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, <span class="va">setName</span><span class="op">)</span></code></pre></div>
@@ -889,7 +916,7 @@
 <pre><code>## [1] "The chemical reactions and pathways involving dicarboxylic acids, any organic acid containing three carboxyl (COOH) groups or anions (COO-). [GOC:mah]"                                        
 ## [2] "The process in which the labyrinthine layer of the placenta is generated and organized. [GOC:dph]"                                                                                             
 ## [3] "The process in which interchain hydrogen bonds between two strands of DNA are broken or 'melted', generating unpaired template strands for DNA replication. [ISBN:071673706X, ISBN:0815316194]"</code></pre>
-<p>These can be used to automatically annotate gene-sets</p>
+<p>These word clouds can be used to automatically annotate gene-sets</p>
 <div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#compute and plot the results of text-mining: using gene-set name</span>
 <span class="va">p2</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigWordcloud.html">plotMsigWordcloud</a></span><span class="op">(</span>msigGsc <span class="op">=</span> <span class="va">siggs</span>, groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'Name'</span><span class="op">)</span>
@@ -903,7 +930,7 @@
 <div id="visualise-gene-level-statistics-for-gene-set-clusters" class="section level2">
 <h2 class="hasAnchor">
 <a href="#visualise-gene-level-statistics-for-gene-set-clusters" class="anchor"></a>Visualise gene-level statistics for gene-set clusters</h2>
-<p>Gene-level statistics for each gene-set cluster can be visualised to better understand the genes contributing to significance of gene-sets. Gene-level statistics can be passed onto the plotting function as a named vector. A jitter is applied on the x-axis (due to its discrete nature).</p>
+<p>After relating the gene-sets results to the biological theme of relevance, the next step is to further understand the underlying genes contributing to the significance of these gene-sets. Here we link up the gene-level statistics from the DE analysis for each gene-set cluster identified. The gene-level statistics have been prepared in the earlier sections and can now be passed onto the plotting function as a named vector. A jitter is applied on the x-axis (due to its discrete nature).</p>
 <div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#plot the gene-level statistics (logFC)</span>
 <span class="va">p3</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotGeneStats.html">plotGeneStats</a></span><span class="op">(</span><span class="va">gStats</span>,
@@ -918,21 +945,49 @@
 <div id="interpreting-biology-from-visse" class="section level2">
 <h2 class="hasAnchor">
 <a href="#interpreting-biology-from-visse" class="anchor"></a>Interpreting biology from vissE</h2>
-<p>We can combine results from all three plots to provide a holistic view of the data.</p>
+<p>Now that we have generated the three plots (namely the gene-set network, cluseter word clouds and cluster gene statistics), we can combine all three plots to provide a holistic view of the data. This will provide a integrated view of the biological themes highlighted by the analysis as well as the underlying genes driving these gene-sets. This approach aims to provide a un-biased and data driven approach to highlight potential mechanisms of interests that is may be missed due to the domain specific view of the domain expert.</p>
+<p>Notably the key mechanism of interest as defined by the analysis is also obtained. In the case of this particular contrast looking at transcriptomics differences between PMC42-LA versus PMC42-ET control sublines, we noted that in cluster 90 is tightly clustered and represents processes in epidermal cell differentiation and development.</p>
+<p>We further focus on the cluster for further interrogations.</p>
 <div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
 
 <span class="co">#combine plots into a unified visualisation</span>
 <span class="va">p2</span> <span class="op">+</span> <span class="va">p1</span> <span class="op">+</span> <span class="va">p3</span></code></pre></div>
 <p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-35-1.png" width="1440"></p>
-<p>Cluster 90 is going up in PMC42-LA compared to PMC42-ET and is tightly clustered.<br>
-Keratin associated genes (<em>KRT-x</em>) are well represented in this cluster.<br><em>GRHL2</em> (Transcription Factor Grainyhead-like 2) is suppresses TGF-beta induced EMT. Regulates epithelial morphogenesis acting as a target gene-associated transcriptional activator of apical junctional complex components.<br><em>OVOL2</em> (Ovo Like Zinc Finger 2) is a zinc-finger transcription repressor factor which induces mesenchymal-to-epithelial (MET) transition.<br><em>CDH-3</em> (P-cadherin) potentially identify an “intermediate/metastable” EMT state.</p>
+<p>Extracting cluster 90 from the gene-sets clusters, generate the three analysis plot of interests. On inspection of the network and statistics, cluster 90 is going up in PMC42-LA compared to PMC42-ET and is tightly clustered.</p>
+<p>From the cluster gene statistics panel, several genes of interest can be identified:</p>
+<ul>
+<li>Keratin associated genes (<em>KRT-x</em>) are well represented in this cluster.<br>
+</li>
+<li>
+<em>GRHL2</em> (Transcription Factor Grainyhead-like 2) is suppresses TGF-beta induced EMT. Regulates epithelial morphogenesis acting as a target gene-associated transcriptional activator of apical junctional complex components.<br>
+</li>
+<li>
+<em>OVOL2</em> (Ovo Like Zinc Finger 2) is a zinc-finger transcription repressor factor which induces mesenchymal-to-epithelial (MET) transition.<br>
+</li>
+<li>
+<em>CDH-3</em> (P-cadherin) potentially identify an “intermediate/metastable” EMT state.</li>
+</ul>
 <div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#investigate specific clusters</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
 <span class="co">#select group to plot</span>
 <span class="va">g</span> <span class="op">=</span> <span class="st">'90'</span>
-<span class="co">#compute and plot vissE panels for the group</span>
+
+<span class="co"># extract cluster of interest</span>
+<span class="va">grps</span><span class="op">[</span><span class="st">'90'</span><span class="op">]</span></code></pre></div>
+<pre><code>## $`90`
+## [1] "GO_KERATINIZATION"                           
+## [2] "GO_KERATINOCYTE_DIFFERENTIATION"             
+## [3] "GO_EPIDERMAL_CELL_DIFFERENTIATION"           
+## [4] "GO_CORNIFICATION"                            
+## [5] "REACTOME_FORMATION_OF_THE_CORNIFIED_ENVELOPE"
+## [6] "REACTOME_KERATINIZATION"                     
+## [7] "GO_KERATIN_FILAMENT"                         
+## [8] "GO_EPIDERMIS_DEVELOPMENT"                    
+## [9] "GO_SKIN_DEVELOPMENT"</code></pre>
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#compute and plot vissE panels for the group</span>
 <span class="va">p1_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span>, markGroups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="va">g</span><span class="op">]</span>, genesetStat <span class="op">=</span> <span class="va">gsStats</span><span class="op">)</span>
 <span class="va">p2_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigWordcloud.html">plotMsigWordcloud</a></span><span class="op">(</span>msigGsc <span class="op">=</span> <span class="va">siggs</span>, groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="va">g</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'Short'</span><span class="op">)</span>
 <span class="va">p3_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotGeneStats.html">plotGeneStats</a></span><span class="op">(</span>
@@ -954,7 +1009,7 @@ Keratin associated genes (<em>KRT-x</em>) are well represented in this cluster.<
 <h1 class="hasAnchor">
 <a href="#packages-used" class="anchor"></a>Packages used</h1>
 <p>This workflow depends on various packages from version 3.14 of the Bioconductor project, running on R version 4.1.0 (2021-05-18) or higher. The complete list of the packages used for this workflow are shown below:</p>
-<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## R version 4.1.0 (2021-05-18)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
@@ -984,7 +1039,7 @@ Keratin associated genes (<em>KRT-x</em>) are well represented in this cluster.<
 ## [11] AnnotationDbi_1.55.1          edgeR_3.35.0                 
 ## [13] limma_3.49.4                  ExperimentHub_2.1.4          
 ## [15] AnnotationHub_3.1.5           BiocFileCache_2.1.1          
-## [17] dbplyr_2.1.1                  SummarizedExperiment_1.23.1  
+## [17] dbplyr_2.1.1                  SummarizedExperiment_1.23.2  
 ## [19] Biobase_2.53.0                GenomicRanges_1.45.0         
 ## [21] GenomeInfoDb_1.29.3           IRanges_2.27.2               
 ## [23] S4Vectors_0.31.1              BiocGenerics_0.39.2          
@@ -1087,6 +1142,9 @@ Foroutan, Momeneh, Dharmesh D Bhuva, Ruqian Lyu, Kristy Horan, Joseph Cursons, a
 <div id="ref-foroutan17" class="csl-entry">
 Foroutan, Momeneh, Joseph Cursons, Soroor Hediyeh-Zadeh, Erik W Thompson, and Melissa J Davis. 2017. <span>“A Transcriptional Program for Detecting TGF<span class="math inline">\(\beta\)</span>-Induced EMT in Cancer.”</span> <em>Molecular Cancer Research</em> 15 (5): 619–31.
 </div>
+<div id="ref-ksiazkiewicz2012" class="csl-entry">
+Ksiazkiewicz, M, A Markiewicz, and A J Zaczek. 2012. <span>“Epithelial-Mesenchymal Transition: A Hallmark in Metastasis Formation Linking Circulating Tumor Cells and Cancer Stem Cells.”</span> <em>Pathobiology</em> 79.
+</div>
 <div id="ref-liao13" class="csl-entry">
 Liao, Yang, Gordon K Smyth, and Wei Shi. 2013. <span>“The Subread Aligner: Fast, Accurate and Scalable Read Mapping by Seed-and-Vote.”</span> <em>Nucleic Acids Research</em> 41 (10): e108–8.
 </div>
@@ -1096,8 +1154,14 @@ Liao, Yang, Gordon K Smyth, and Wei Shi. 2013. <span>“The Subread Aligner: Fas
 <div id="ref-liberzon15" class="csl-entry">
 Liberzon, Arthur, Chet Birger, Helga Thorvaldsdóttir, Mahmoud Ghandi, Jill P Mesirov, and Pablo Tamayo. 2015. <span>“The Molecular Signatures Database Hallmark Gene Set Collection.”</span> <em>Cell Systems</em> 1 (6): 417–25.
 </div>
+<div id="ref-polyak2009" class="csl-entry">
+Polyak, Kornelia, and Robert A Weinberg. 2009. <span>“Transitions Between Epithelial and Mesenchymal States: Acquisition of Malignant and Stem Cell Traits.”</span> <em>Nature Reviews Cancer</em> 9.
+</div>
 <div id="ref-R-prettydoc" class="csl-entry">
 Qiu, Yixuan. 2021. <em>Prettydoc: Creating Pretty Documents from r Markdown</em>. <a href="https://github.com/yixuan/prettydoc">https://github.com/yixuan/prettydoc</a>.
+</div>
+<div id="ref-ribeiro2015" class="csl-entry">
+Ribeiro, Ana Sofia, and Joana Paredes. 2015. <span>“P-Cadherin Linking Breast Cancer Stem Cells and Invasion: A Promising Marker to Identify an ’Intermediate/Metastable’ EMT State.”</span> <em>Frontiers in Oncology</em> 4.
 </div>
 <div id="ref-robinson10" class="csl-entry">
 Robinson, Mark D, and Alicia Oshlack. 2010. <span>“A Scaling Normalization Method for Differential Expression Analysis of RNA-Seq Data.”</span> <em>Genome Biology</em> 11 (3): 1–9.
@@ -1108,11 +1172,20 @@ Subramanian, Aravind, Pablo Tamayo, Vamsi K Mootha, Sayan Mukherjee, Benjamin L 
 <div id="ref-tan14" class="csl-entry">
 Tan, Tuan Zea, Qing Hao Miow, Yoshio Miki, Tetsuo Noda, Seiichi Mori, Ruby Yun-Ju Huang, and Jean Paul Thiery. 2014. <span>“Epithelial-Mesenchymal Transition Spectrum Quantification and Its Efficacy in Deciphering Survival and Drug Responses of Cancer Patients.”</span> <em>EMBO Molecular Medicine</em> 6 (10): 1279–93.
 </div>
+<div id="ref-thiery2009" class="csl-entry">
+Thiery, Jean Paul, Herve Acloque, Ruby Y J Huang, and M Angela Nieto. 2009. <span>“Epithelial-Mesenchymal Transitions in Development and Disease.”</span> <em>Cell</em> 139.
+</div>
+<div id="ref-tomita2000" class="csl-entry">
+Tomita, Kyoichi, Adrie van Bokhoven, Geert J L H van Leenders, Emiel T G Ruijter, Cornelius F J Jansen, Marion J G Bussemakers, and Jack A Schalken. 2000. <span>“Cadherin Switching in Human Prostate Cancer Progression.”</span> <em>Cancer Research</em> 60.
+</div>
 <div id="ref-R-ggplot2" class="csl-entry">
 Wickham, Hadley, Winston Chang, Lionel Henry, Thomas Lin Pedersen, Kohske Takahashi, Claus Wilke, Kara Woo, Hiroaki Yutani, and Dewey Dunnington. 2021. <em>Ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics</em>. <a href="https://CRAN.R-project.org/package=ggplot2">https://CRAN.R-project.org/package=ggplot2</a>.
 </div>
 <div id="ref-R-knitr" class="csl-entry">
 Xie, Yihui. 2021. <em>Knitr: A General-Purpose Package for Dynamic Report Generation in r</em>. <a href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-yilmaz2009" class="csl-entry">
+Yilmaz, Mahmut, and Gerhard Christofori. 2009. <span>“EMT, the Cytoskeleton, and Cancer Cell Invasion.”</span> <em>Cancer and Metastasis Reviews</em> 28.
 </div>
 </div>
 </div>
