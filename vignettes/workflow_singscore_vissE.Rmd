@@ -79,16 +79,13 @@ To do so, we use gene-set enrichment analysis, a group of methods designed to id
 
 # Description of the biological problem
 
-Epithelial–mesenchymal transition (EMT) is a cellular process where static and polarised epithelial cells convert to a motile mesenchymal phenotype. It is the fundamental mechanism involved in embryogenesis and tissue differentiation and in the context of cancer, implicated in the cancer progression and metastasis. EMT entails a progressive loss of epithelial characteristics and acquisition of mesenchymal features, which in cancer enables cells to acquire migratory and invasive properties, induces stemness, avoid apoptosis and senescence and become immune-resistant. ([@yilmaz2009], [@thiery2009], [@polyak2009], [@ksiazkiewicz2012])
+Epithelial--mesenchymal transition (EMT) is a cellular process where static and polarised epithelial cells convert to a motile mesenchymal phenotype. It is the fundamental mechanism involved in embryogenesis and tissue differentiation. In the context of cancer, it is implicated in cancer progression and metastasis. EMT entails a progressive loss of epithelial characteristics and acquisition of mesenchymal features that in cancer, enables cells to acquire migratory and invasive properties, induces stemness, avoid apoptosis and senescence, and become immune-resistant ([@yilmaz2009,@thiery2009,@polyak2009,@ksiazkiewicz2012]).
 
-EMT is characterised by downregulation of epithelial markers (e.g E-cadherin, claudins) and upregulation of mesenchymal markers (e.g., vimentin, N-cadherin)), resulting in the loss of cell–cell adhesion and cell polarity, and the acquisition of migratory and invasive properties. There is a switch between keratin-rich adheren junction network to a vimentin-rich focal adhesion network with cadherin switch from E-cadherin to N-cadherin.[@tomita2000] 
+EMT is characterised by downregulation of epithelial markers (e.g E-cadherin, claudins) and upregulation of mesenchymal markers (e.g., vimentin, N-cadherin). Changes to these markers result in the loss of cell--cell adhesion and cell polarity, and the acquisition of migratory and invasive properties. There is a switch from keratin-rich adherens junction network to a vimentin-rich focal adhesion network with cadherins switching from E-cadherin to N-cadherin [@tomita2000].
 
-Although cancer cells utilise EMT to facilitating metastatic spread, they rarely fully convert to the mesenchymal phenotype, and instead presents a hybrid phenotype loosely termed epithelial mesenchymal plasticity (EMP). EMP has been associated with increased metastasis risk and poor prognosis in breast cancer [@cursons15]. There are currently limited specific markers proposed for this transient/metastable phenotype, owing to the lack of reliable progression readout and consequent limited studies for the transitional and progression states of EMT. Identification of specific markers of this hybrid state will provide crucial information to identify interventions for metastasis as well as mechanistic insights to uncover potential therapeutics. [@ribeiro2015]
+Although cancer cells use EMT to facilitating metastatic spread, they rarely fully convert to the mesenchymal phenotype, and instead presents a hybrid phenotype loosely termed epithelial mesenchymal plasticity (EMP). EMP has been associated with increased metastatic risk and poor prognosis in breast cancer [@cursons15]. There are currently limited specific markers proposed for this transient/metastable phenotype, owing to the lack of reliable progression readout and consequent limited studies for the transitional and progression states of EMT. Identification of specific markers of this hybrid state will provide crucial information to identify interventions for metastasis as well as mechanistic insights to uncover potential therapeutics. [@ribeiro2015]
 
-In this workflow, we utilise bulk transcriptomics data from [@cursons15] study which interrogates EMP in two breast cancer cell line models, namely the PMC42 system (PMC42-ET and PMC42-LA sublines) and MDA-MB-468 cells. There are numerous avenues to induce EMT, with epidermal growth factor (EGF) signalling via the EGFRs being one such stimuli.[@cursons15]
-
-PMC42-LA is an epithelial subline derived from the vimentin positive, E-Cadherin negative parental PMC42-ET cells with both classified as having a “Basal B” transcriptome (expressed mesenchymal gene, lacked epithelial marker expression). Both of the PMC42 cell-lines undergo EGF-driven EMT, but PMC42-ET’s response is reduced due to higher basal vimentin expression.[@cursons15] 
-
+In this workflow, we use bulk transcriptomic data from [@cursons15] study which interrogates EMP in two breast cancer cell line models, namely the PMC42 system (PMC42-ET and PMC42-LA sublines) and MDA-MB-468. In this data, PMC42-LA is an epithelial subline derived from the vimentin positive, E-Cadherin negative parental PMC42-ET cells with both classified as having a "Basal B" transcriptome (expressed mesenchymal gene, lacked epithelial marker expression).
 
 # Molecular phenotyping of individual samples
 
@@ -415,17 +412,13 @@ tail(et_la_scores)
 
 # Identifying and visualising higher-order phenotypes
 
-In many RNASeq sequencing data analyses, gene-set enrichment analyses (be it an over representation analysis of a functional class scoring approach) are typically performed resulting in a list of gene-sets that are accompanied by their statistics and p-values or false discovery rates (FDR).  
-In most conventional collaborations, these results are typically manually curated/ scanned through by domain experts or biologists who then extract relevant themes pertaining to their specific experiment or domain of interest.  
+In many RNA-seq sequencing data analyses, gene-set enrichment analysis (be it an over representation analysis of a functional class scoring approach) is typically performed resulting in a list of gene-sets that are accompanied by their statistics and p-values or false discovery rates (FDR). In most conventional collaborations, these results are typically manually curated/ scanned through by domain experts or biologists who then extract relevant themes pertaining to their specific experiment or domain of interest. Manual curation and interpretation can be very time consuming considering the fact that most gene-set enrichment analyses produce 100s to 1000s of gene-sets.
 
-The approach in this workflow uses the R package, `vissE`, which will allow automated extraction of themes based on the data. In this case we will utilize the results from the `multiScore()` function in `singscore` which scored samples against multiple signatures. 
-
-The following analysis uses a subset of the [@cursons15] dataset (specifically the non-treatment samples from PMC42-ET and PMC42-LA sublines).To demonstrate the workflow for `vissE`, differential expression (DE) analysis will be performed comparing the differences between PMC42-LA and PMC42-ET, generating a set of DE genes for conducting gene-set enrichment analysis. 
-
+The approach in this workflow uses the R package, `vissE`, which will allow automated extraction of biological themes based on the data thus reducing the load on domain experts. The following analysis uses a subset of the \@cursons15 dataset (specifically the untreated samples from PMC42-ET and PMC42-LA sublines) to demonstrate the workflow for vissE. We first perform differential expression (DE) analysis to assess differences between the PMC42-LA and PMC42-ET sublines. A functional analysis is then performed using the popular `limma::fry` method, thus identifying biological processes that differ across the sublines. Finally, we identify, summarise and visualise higher order molecular phenotypes using vissE.
 
 ## Perform DE analysis
-As mentioned, we will only use the control samples from the PMC42 sublines in [@cursons15].
-We then perform DE analysis using the quasi-likelihood edgeR pipeline [@chen16].
+
+As we are interested in understanding the functional implications of the differences between the PMC42 sublines, we will only use the control samples from the PMC42 sublines in [@cursons15]. As we are dealing with count data, we will use the quasi-likelihood differential expression analysis pipeline from @chen16. We refer users to the original publication of the workflow for details on the decisions made at each step of the analysis.
 
 ```{r}
 library(edgeR)
@@ -462,9 +455,23 @@ allg_list = as.data.frame(topTags(res, n = Inf)[,-(1:6)])
 
 ## Gene-set testing using `limma::fry`
 
-Using the DE genes from the DE analysis, perform a gene-set enrichment testing using `limma::fry`.
+A functional analysis using `limma::fry` is then performed to identify biological processes that are altered across the PMC42 sublines. The gene-sets used for this analysis are from the molecular signatures database (MSigDB) [@subramanian05,@liberzon15] and are accessed through the `msigdb` package as demonstrated in a previous section.
+
+Based on our general experience with vissE, we have found curated gene-set collection such as the hallmark collection (h), the curated pathways collection (c2) and the ontology collection (GO) to work best in providing insight into biological processes when using vissE. Additionally, we subset collection on sub-collections of interest though the choice of collections/sub-collections of interest would depend on the biology being investigated. For example, the immunologic signatures collection (c7) may be included when investigating immune processes.
+
+A common approach to gene-set testing using `limma::fry` is to perform the analysis on each collection separately thus correcting for multiple hypothesis testing within each collection. This is a valid approach when biological insights are gained from a collection independent of other collections. However, since we are relying on all collections collectively to generate insights using vissE, we combine gene-sets and run `limma::fry` on all the combined gene-set collection.
 
 ```{r, message=FALSE, warning=FALSE}
+#subset collections and subcollections of interest
+genesigs = c(
+  epi_sig,
+  mes_sig,
+  subsetCollection(msigdb.hs, 'h'),
+  subsetCollection(msigdb.hs, 'c2', c('CP:KEGG', 'CP:REACTOME', 'CP:BIOCARTA')),
+  subsetCollection(msigdb.hs, 'c5', c('GO:BP', 'GO:MF', 'GO:CC'))
+)
+genesigs = GeneSetCollection(genesigs)
+
 #Use geneset collection (genesigs) generated earlier to create fry indices
 fry_indices = ids2indices(geneIds(genesigs), rownames(emt_dge))
 #remove very small and very large genesets
@@ -483,23 +490,26 @@ head(fry_res)
 ```
 
 ## Prepare gene-set testing results for vissE
-With the available information from the DE analysis and GSEA, perform a vissE (Visualising Set Enrichment) analysis. 
 
-A vissE analysis involves 3 steps:
+With the available information from the differential expression analysis and gene-set enrichment analysis, we now perform a vissE (Visualising Set Enrichment) analysis to identify higher-order molecular phenotypes. We note that a similar analysis can be performed with various other gene-set testing approaches such as over-representation analysis from the `clusterProfiler` R/Bioconductor package or from the popular GSEA tool [@subramanian05].
 
- - Compute gene-set overlaps and the gene-set overlap network   
- - Identify clusters of gene-sets based on their overlap  
- - Characterise clusters using text mining 
- - (Optional) Visualise gene-level statistics
+A standard vissE analysis involves 3 steps:
 
-Firstly, prepare the necessary results and statistics:  
+1.  Compute gene-set overlaps and the gene-set overlap network.
+2.  Identify clusters of gene-sets based on their overlap network.
+3.  Characterise clusters using a text mining analysis.
+4.  (Optional) Visualise gene-level statistics for each cluster of gene-sets
 
- - prepare GeneSetCollection object for the significant gene-sets based on GSEA results from limma:fry.  
- - prepare gene-set statistics from GSEA.  
- - prepare gene-level statistics from DE analysis.   
+To perform these analyses, we first prepare the necessary data as follows:
+
+-   a `GeneSetCollection` object by subsetting on the significant gene-sets identified from the gene-set enrichment analysis (from `limma:fry` in this case).
+-   a named vector containing gene-set statistics to use for the visualisation.
+-   a named vector containing gene-level statistics from the DE analysis.
+
+The gene-set statistic we use for visualisation purposes is a signed log-transformed false discovery rate ($\pm 1\times -\log_{10}(FDR)$) where the sign is positive for up-regulated gene-sets and negative for down-regulated gene-sets. The gene-level statitic visualised is the log fold-change (logFC).
 
 ```{r, message=FALSE, warning=FALSE}
-#create a GeneSetCollection for the significant gene-sets
+#create a GeneSetCollection by subsetting significant gene-sets
 siggs = genesigs[rownames(fry_res)]
 siggs
 
@@ -520,11 +530,9 @@ head(gStats)
 
 ## Compute the overlap network
 
-The default approach to computing overlaps is using the Jaccard index. Overlap is computed based on the gene overlap between gene-sets. Alternatively, the overlap coefficient can be used. The latter can be used to highlight hierarchical overlaps (such as those present in the gene ontology).
+The vissE package supports two gene-set similarity measures based on the overlap of genes between gene-sets: the Jaccard index (default) and the overlap coefficient. The overlap coefficient promotes parent-child relationships between gene-sets therefore is an ideal choice for hierarchically structured databases such as the gene ontology or Reactome, however, this is only recommended when running vissE on a single hierarchically structured database and not a combination of databases.
 
-In this workflow example, compute the overlaps using the Jaccard index as our gene-set collection is generated by scoring samples against multiple signatures simultaneously.  
-
-Compute, create and plot the network of overlaps.  
+Since we performed gene-set testing across various collections of the MSigDB, gene-set similarity is computed using the Jaccard index. We then create a network using the gene-set similarity data and visualise it.
 
 ```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
 library(vissE)
@@ -539,7 +547,7 @@ set.seed(21) #set seed for reproducible layout
 plotMsigNetwork(gs_ovnet)
 ```
 
-The overlap network plot above is annotated based on the MSigDB categories used. More information can be included by annotating with a gene-level statistic. Here we use a signed -log10(FDR) where the sign represents the direction of change. Note that the gene-level statistics used here is prepared in the previous section.  
+The overlap network plot above is annotated based on the MSigDB categories, however, more information can be included by annotating nodes with a gene-set statistic. Here we use the gene-set statistics prepared in the previous section.
 
 ```{r fig.height=8, fig.width=8}
 #plot the network and overlay gene-set statistics
@@ -549,9 +557,7 @@ plotMsigNetwork(gs_ovnet, genesetStat = gsStats)
 
 ## Identify communities within the network
 
-Now that we have a related network of genesets, it can be inferred that related gene-sets would likely represent related processes. To relate these network in the context of biological themes and classifications, the next step is then to identify clusters or communities of closed associated gene-sets. The user can select their preferred clustering approach but in this workflow, use the recommended graph clustering approaches in order to use the information provided in the overlap graph. Specifically, `igraph::cluster_walktrap()` algorithm works well with dense graphs. Do note that other algorithms are implemented in the igraph package and these can be used instead of the walktrap algorithm.
-
-For the purpose of this workflow, use `igraph::cluster_walktrap()`.   
+Given a network of related gene-sets, we expect that related gene-sets would likely represent a common higher-order biological process. As such, we perform clustering on gene-sets to identify gene-set clusters. The user can select their preferred clustering approach, however, we recommended graph clustering approaches in order to use the information provided in the overlap graph. Since we have a network of gene-sets, we can use graph clustering algorithms such as those from the `igraph` R package. Specifically, the walktrap algorithm is recommended as it works well across both dense and sparse graphs and is good at identifying both large and small clusters [@yang16].
 
 ```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
 #identify clusters using a graph clustering algorithm
@@ -563,7 +569,7 @@ grps = grps[sapply(grps, length) > 5]
 length(grps)
 ```
 
-Since we could have numerous gene-set clusters, we need to come up with a prioritisation scheme to explore them appropriately. In this workflow, we maximize the cluster size and statistic using the product-of-ranks approach to achieve this.
+Since we could identify numerous gene-set clusters, we need to come up with a prioritisation scheme to explore them appropriately. Since the second step of vissE works best for large clusters as there is more information to perform text-mining on, cluster size can be used as a prioritisation scheme. However, large gene-set clusters could simply arise from well-represented processes in databases. For instance, many databases have an over-representation of immune related processes as these have been studied extensively in the past therefore immune processes are likely to form large gene-set clusters. To avoid selecting for such gene-set clusters, we additionally prioritise gene-sets using gene-set statistics. As such a combined prioritisation method is recommended. In this workflow, we prioritise large gene-set clusters that also have a large average statistic ($\mathrm{mean}(-\log_{10}(FDR))$). The product-of-ranks approach used by @bhuva20 is used to equally weight both measures when prioritising gene-set clusters.
 
 ```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
 #compute cluster sizes
@@ -576,7 +582,7 @@ grp_pr = rank(grp_size) * rank(grp_stat)
 grps = grps[order(grp_pr, decreasing = TRUE)]
 ```
 
-Clearly, from the number of gene-set clusters obtained, it will be difficult to visualize the gene-set clusters all at once. So we will focus on the top 12 prioritised gene-sets as defined by the product-of-ranks approach.
+Clearly, from the number of gene-set clusters obtained, it will be difficult to visualize the gene-set clusters all at once, therefore, we focus our analysis on the top 12 prioritised gene-set clusters.
 
 ```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
 #plot the top 12 clusters
@@ -586,7 +592,8 @@ p1
 ```
 
 ## Characterise gene-set clusters
-To better visualize the resulting gene-set clusters identified in the context of their biological similarity and relevance, we further characterize the gene-set clusters identified using text-mining approaches. Here, we perform a frequency analysis (adjusted for using the inverse document frequency) on either the gene-set names or their short descriptions to assess recurring biological themes in clusters. These results are then presented as word clouds.
+
+Having identified gene-set clusters, we would want to derive a biological explanation for each cluster. Since gene-sets from the MSigDB are appropriately named (even those that are not manually curated) and come with short descriptions, we can harness this information to evaluate the common biological theme for each cluster.
 
 ```{r}
 #all gene-sets have names
@@ -595,7 +602,7 @@ sapply(siggs[1:3], setName)
 sapply(siggs[1:3], description)
 ```
 
-These word clouds can be used to automatically annotate gene-sets
+VissE automatically annotates each cluster by performing text mining analysis of either gene-set names or descriptions. Word frequencies weighted by the inverse document frequency (IDF) are computed within each cluster and visualised using the word clouds. These word clouds can be used to automatically annotate gene-sets
 
 ```{r fig.height=8, fig.width=9}
 #compute and plot the results of text-mining: using gene-set name
@@ -608,7 +615,7 @@ plotMsigWordcloud(msigGsc = siggs, groups = grps[1:12], type = 'Short')
 
 ## Visualise gene-level statistics for gene-set clusters
 
-After relating the gene-sets results to the biological theme of relevance, the next step is to further understand the underlying genes contributing to the significance of these gene-sets. Here we link up the gene-level statistics from the DE analysis for each gene-set cluster identified. The gene-level statistics have been prepared in the earlier sections and can now be passed onto the plotting function as a named vector. A jitter is applied on the x-axis (due to its discrete nature).
+After annotating gene-set clusters with biological themes, the next step is to further understand the individual contributing to the significance of these gene-set clusters. Here we link up the gene-level statistics (e.g., from a DE analysis) for each gene-set cluster identified. In addition to the statistic, it could be useful to assess the frequency of gene in the gene-set cluster, that is, the number of gene-sets within the cluster to which a gene belongs. In the `plotGeneStats()` function, we plot gene-level statistic against gene frequencies. Genes with a high statistic and a high frequency could be though of as key genes in the biological process identified. To reduce over-plotting, a jitter is applied along the x-axis (due to its discrete nature).
 
 ```{r fig.height=8, fig.width=9}
 #plot the gene-level statistics (logFC)
@@ -623,12 +630,7 @@ p3
 
 ## Interpreting biology from vissE
 
-Now that we have generated the three plots (namely the gene-set network, cluseter word clouds and cluster gene statistics), we can combine all three plots to provide a holistic view of the data. This will provide a integrated view of the biological themes highlighted by the analysis as well as the underlying genes driving these gene-sets. This approach aims to provide a un-biased and data driven approach to highlight potential mechanisms of interests that is may be missed due to the domain specific view of the domain expert.  
-
-Notably the key mechanism of interest as defined by the analysis is also obtained. In the case of this particular contrast looking at transcriptomics differences between PMC42-LA versus PMC42-ET control sublines, we noted that in cluster 90 is tightly clustered and represents processes in epidermal cell differentiation and development. 
-
-We further focus on the cluster for further interrogations.  
-
+Now that we have generated the three plots, we can combine them to provide a holistic view of the data. This will provide an integrated view of biological themes identified by the analysis, as well as the underlying genes driving these gene-sets.
 
 ```{r fig.height=7, fig.width=15}
 library(patchwork)
@@ -637,15 +639,7 @@ library(patchwork)
 p2 + p1 + p3
 ```
 
-Extracting cluster 90 from the gene-sets clusters, generate the three analysis plot of interests. On inspection of the network and statistics, cluster 90 is going up in PMC42-LA compared to PMC42-ET and is tightly clustered.  
-
-From the cluster gene statistics panel, several genes of interest can be identified:  
-
- - Keratin associated genes (*KRT-x*) are well represented in this cluster.  
- - *GRHL2* (Transcription Factor Grainyhead-like 2) is suppresses TGF-beta induced EMT. Regulates epithelial morphogenesis acting as a target gene-associated transcriptional activator of apical junctional complex components.  
-  - *OVOL2* (Ovo Like Zinc Finger 2) is a zinc-finger transcription repressor factor which induces mesenchymal-to-epithelial (MET) transition.   
-  - *CDH-3* (P-cadherin) potentially identify an “intermediate/metastable” EMT state.   
-  
+An expected result of this analysis is identified in cluster "90" that contains 9 gene-sets. We can generate the plot above specifically for cluster "90" and while doing so, annotate more genes in the gene-level statistics plot.
 
 ```{r fig.height=7, fig.width=15}
 
@@ -670,7 +664,11 @@ p3_g = plotGeneStats(
 p2_g + p1_g + p3_g
 ```
 
+The word cloud computed using gene-set names hints at a theme around keratinisation. This is further empahsised when annotating the cluster using gene-set descriptions. An additional line of evidence for this theme is the gene-level statistic plot that shows keratin genes (*KRT*s) having high logFCs and frequencies. Gene-sets in the gene-set cluster are tightly clustered suggesting they share many genes among themselves. This cluster is mainly composed of gene-sets that are being up-regulated in PMC42-LA compared to PMC42-ET. As was discussed in the background biology section of this document, keratin-rich adherens junction are characterisitic of an epithelial phenotype. This is consistent with the visualisations provided by the vissE analysis.
+
 # Summary
+
+Functional analysis is an important component of a bioinformatics pipeline and is key point in connecting bioinformatics with biology. The tools presented in this workflow allow users to investigate molecular phenotypes in biological systems using gene-set enrichment analysis. These tools and the workflow put an emphasis on visualisation as this is an important factor in interacting with data and interpreting meaningful biology from molecular data.
 
 # Packages used {.unnumbered}
 
@@ -681,5 +679,7 @@ sessionInfo()
 ```
 
 # Acknowledgments {.unnumbered}
+
+We would like to thank Ahmed Mohamed for his ideas on improving text-mining.
 
 # References {.unnumbered}
