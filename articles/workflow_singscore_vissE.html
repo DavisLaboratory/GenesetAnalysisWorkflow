@@ -809,7 +809,7 @@
 <li>a named vector containing gene-set statistics to use for the visualisation.</li>
 <li>a named vector containing gene-level statistics from the DE analysis.</li>
 </ul>
-<p>The gene-set statistic we use for visualisation purposes is a signed log-transformed false discovery rate (<span class="math inline">\(\pm 1\times -\log_{10}(FDR)\)</span>) where the sign is positive for up-regulated gene-sets and negative for down-regulated gene-sets. The gene-level statitic visualised is the log fold-change (logFC).</p>
+<p>The gene-set statistic we use for visualisation purposes is a signed log-transformed false discovery rate (<span class="math inline">\(\pm 1\times -\log_{10}(FDR)\)</span>) where the sign is positive for up-regulated gene-sets and negative for down-regulated gene-sets. The gene-level statistic visualised is the log fold-change (logFC).</p>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#create a GeneSetCollection by subsetting significant gene-sets</span>
 <span class="va">siggs</span> <span class="op">=</span> <span class="va">genesigs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">fry_res</span><span class="op">)</span><span class="op">]</span>
@@ -988,7 +988,7 @@
 <span class="op">)</span> <span class="op">+</span> <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">2</span>, colour <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
 <span class="va">p2_g</span> <span class="op">+</span> <span class="va">p1_g</span> <span class="op">+</span> <span class="va">p3_g</span></code></pre></div>
 <p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-36-1.png" width="1440"></p>
-<p>The word cloud computed using gene-set names hints at a theme around keratinisation. This is further empahsised when annotating the cluster using gene-set descriptions. An additional line of evidence for this theme is the gene-level statistic plot that shows keratin genes (<em>KRT</em>s) having high logFCs and frequencies. Gene-sets in the gene-set cluster are tightly clustered suggesting they share many genes among themselves. This cluster is mainly composed of gene-sets that are being up-regulated in PMC42-LA compared to PMC42-ET. As was discussed in the background biology section of this document, keratin-rich adherens junction are characterisitic of an epithelial phenotype. This is consistent with the visualisations provided by the vissE analysis.</p>
+<p>The word cloud computed using gene-set names hints at a theme around keratinisation. This is further empahsised when annotating the cluster using gene-set descriptions. An additional line of evidence for this theme is the gene-level statistic plot that shows keratin genes (<em>KRT</em>s) having high logFCs and frequencies. Gene-sets in the gene-set cluster are tightly clustered suggesting they share many genes among themselves. This cluster is mainly composed of gene-sets that are being up-regulated in PMC42-LA compared to PMC42-ET. As was discussed in the background biology section of this document, keratin-rich adherens junctions are characteristics of an epithelial phenotype. This is consistent with the visualisations provided by the vissE analysis.</p>
 </div>
 </div>
 <div id="summary" class="section level1">
