@@ -506,7 +506,7 @@ To perform these analyses, we first prepare the necessary data as follows:
 -   a named vector containing gene-set statistics to use for the visualisation.
 -   a named vector containing gene-level statistics from the DE analysis.
 
-The gene-set statistic we use for visualisation purposes is a signed log-transformed false discovery rate ($\pm 1\times -\log_{10}(FDR)$) where the sign is positive for up-regulated gene-sets and negative for down-regulated gene-sets. The gene-level statitic visualised is the log fold-change (logFC).
+The gene-set statistic we use for visualisation purposes is a signed log-transformed false discovery rate ($\pm 1\times -\log_{10}(FDR)$) where the sign is positive for up-regulated gene-sets and negative for down-regulated gene-sets. The gene-level statistic visualised is the log fold-change (logFC).
 
 ```{r, message=FALSE, warning=FALSE}
 #create a GeneSetCollection by subsetting significant gene-sets
@@ -664,7 +664,7 @@ p3_g = plotGeneStats(
 p2_g + p1_g + p3_g
 ```
 
-The word cloud computed using gene-set names hints at a theme around keratinisation. This is further empahsised when annotating the cluster using gene-set descriptions. An additional line of evidence for this theme is the gene-level statistic plot that shows keratin genes (*KRT*s) having high logFCs and frequencies. Gene-sets in the gene-set cluster are tightly clustered suggesting they share many genes among themselves. This cluster is mainly composed of gene-sets that are being up-regulated in PMC42-LA compared to PMC42-ET. As was discussed in the background biology section of this document, keratin-rich adherens junction are characterisitic of an epithelial phenotype. This is consistent with the visualisations provided by the vissE analysis.
+The word cloud computed using gene-set names hints at a theme around keratinisation. This is further empahsised when annotating the cluster using gene-set descriptions. An additional line of evidence for this theme is the gene-level statistic plot that shows keratin genes (*KRT*s) having high logFCs and frequencies. Gene-sets in the gene-set cluster are tightly clustered suggesting they share many genes among themselves. This cluster is mainly composed of gene-sets that are being up-regulated in PMC42-LA compared to PMC42-ET. As was discussed in the background biology section of this document, keratin-rich adherens junctions are characteristics of an epithelial phenotype. This is consistent with the visualisations provided by the vissE analysis.
 
 # Summary
 
