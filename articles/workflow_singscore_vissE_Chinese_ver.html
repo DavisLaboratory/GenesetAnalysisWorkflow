@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Visualising molecular phenotypes inferred from individual samples using singscore, vissE and msigdb • GenesetAnalysisWorkflow</title>
+<title>使用R包singscore，vissE和msigdb对单样本进行分子表型可视化 • GenesetAnalysisWorkflow</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Visualising molecular phenotypes inferred from individual samples using singscore, vissE and msigdb">
+<script src="../pkgdown.js"></script><meta property="og:title" content="使用R包singscore，vissE和msigdb对单样本进行分子表型可视化">
 <meta property="og:description" content="GenesetAnalysisWorkflow">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -82,10 +82,10 @@
 
       
 
-      </header><script src="workflow_singscore_vissE_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
+      </header><script src="workflow_singscore_vissE_Chinese_ver_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Visualising molecular phenotypes inferred from individual samples using singscore, vissE and msigdb</h1>
+      <h1 data-toc-skip>使用R包singscore，vissE和msigdb对单样本进行分子表型可视化</h1>
                         <h4 class="author">Dharmesh D Bhuva</h4>
             <address class="author_afil">
       Bioinformatics Division, Walter and Eliza Hall Institute of Medical Research, Parkville, VIC 3052, AustraliaDepartment of Medical Biology, University of Melbourne, Parkville, VIC 3010, Australia<br><a class="author_email" href="mailto:#"></a><a href="mailto:bhuva.d@wehi.edu.au" class="email">bhuva.d@wehi.edu.au</a>
@@ -98,53 +98,57 @@
             <address class="author_afil">
       Bioinformatics Division, Walter and Eliza Hall Institute of Medical Research, Parkville, VIC 3052, AustraliaDepartment of Medical Biology, University of Melbourne, Parkville, VIC 3010, AustraliaDepartment of Biochemistry and Molecular Biology, Faculty of Medicine, Dentistry and Health Sciences, University of Melbourne, Parkville, VIC, 3010, Australia<br><a class="author_email" href="mailto:#"></a><a href="mailto:davis.m@wehi.edu.au" class="email">davis.m@wehi.edu.au</a>
       </address>
+                              <h4 class="author">Jinjin Chen</h4>
+            <address class="author_afil">
+      Bioinformatics Division, Walter and Eliza Hall Institute of Medical Research, Parkville, VIC 3052, AustraliaDepartment of Medical Biology, University of Melbourne, Parkville, VIC 3010, Australia<br><a class="author_email" href="mailto:#"></a><a href="mailto:chen.j@wehi.edu.au" class="email">chen.j@wehi.edu.au</a>
+      </address>
                   
             <h4 class="date">Sep 2021</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/DavisLaboratory/GenesetAnalysisWorkflow/blob/master/vignettes/workflow_singscore_vissE.Rmd"><code>vignettes/workflow_singscore_vissE.Rmd</code></a></small>
-      <div class="hidden name"><code>workflow_singscore_vissE.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/DavisLaboratory/GenesetAnalysisWorkflow/blob/master/vignettes/workflow_singscore_vissE_Chinese_ver.Rmd"><code>vignettes/workflow_singscore_vissE_Chinese_ver.Rmd</code></a></small>
+      <div class="hidden name"><code>workflow_singscore_vissE_Chinese_ver.Rmd</code></div>
 
     </div>
 
     
         <div class="abstract">
       <p class="abstract">Abstract</p>
-      <p>Abstract</p>
+      <p>摘要</p>
     </div>
     
 <p>
 </p>
 <p><strong>R version</strong>: R version 4.1.1 (2021-08-10) <br><strong>Bioconductor version</strong>: 3.14 <br><strong>Package version</strong>: 0.9.1</p>
 
-<div id="introduction" class="section level1">
+<div id="背景介绍" class="section level1">
 <h1 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>A standard bioinformatics analysis of ’omics data will produce a list of molecules following statistical analysis. In the context of transcriptomics, these molecules are genes or transcripts and the statistical approach used to identify them is mostly a differential expression analysis. Once genes have been identified as differentially expressed in an experiment, biologists are often interested in understanding their biological implications. This is done by understanding their functional role in the biological system being investigated. The role and function of many genes is known to some extent and this is an area of continued research. Knowledge on gene function is often encoded into knowledgebases such as the gene ontology and other pathway databases. Given these functional annotations, we are interested in identifying over-represented functions in our data.</p>
-<p>To do so, we use gene-set enrichment analysis, a group of methods designed to identify enriched functions represented by collections of genes known as gene-sets. This workflow will demonstrate functional analysis of transcriptomic data using the molecular signatures database (through the <code>msigdb</code> R/Bioconductor package) and a gene-set enrichment method, <code>singscore</code>. It will also demonstrate how higher order biological themes can be identified in data using the <code>vissE</code>package. It will begin by loading gene expression data and gene-sets from the <code>ExperimentHub</code> using the <code>emtdata</code> and <code>msigdb</code> R/Bioconductor packages. Molecular phenotypes representing the functional characterisitic of Samples will be identified using the single-sample gene-set enrichment method, singscore. Finally, higher-order functional themes will be identified using vissE.</p>
+<a href="#%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D" class="anchor"></a>背景介绍</h1>
+<p>一套标准的生信组学数据分析流程会通过统计学分析产生一个分子列表。在转录组学背景中，这些分子往往是基因或者转录本，而鉴定它们的统计学方法通常是差异表达分析（DE分析）。一旦基因在实验中被鉴定为差异表达基因，生物学家们常常会想了解它们的生物学意义。而这是通过了解它们在所研究的生物学系统中的功能作用来实现的。许多基因的角色和功能在某种程度上是已知的，这也是一项持续进行的研究。基因功能的有关知识通常被编码在知识库中，如基因本体（GO）以及其他的通路数据库。基于这些功能注释，我们有兴趣在我们的数据中鉴定那些被富集的功能。</p>
+<p>为此，我们使用基因集富集分析，这是一组用于鉴定基因集中被富集的功能的方法。这个分析流程会展示如何使用分子标志数据库（通过<code>msigdb</code> R/Bioconductor包）和基因集富集方法（<code>singscore</code>），对转录组数据进行功能分析。它还将展示如何使用<code>vissE</code>包在数据中鉴定更高阶的生物学主题。本分析流程将使用<code>emtdata</code>和<code>msigdb</code> R/Bioconductor包从<code>ExperimentHub</code>中加载基因表达数据以及相关基因集。单样本基因集富集方法（<code>singscore</code>）将被用来鉴定表征了样本功能特征的分子表型。最后，使用<code>vissE</code>对更高阶的功能主题进行鉴定。</p>
 </div>
-<div id="description-of-the-biological-problem" class="section level1">
+<div id="生物学问题的描述" class="section level1">
 <h1 class="hasAnchor">
-<a href="#description-of-the-biological-problem" class="anchor"></a>Description of the biological problem</h1>
-<p>Epithelial–mesenchymal transition (EMT) is a cellular process where static and polarised epithelial cells convert to a motile mesenchymal phenotype. It is the fundamental mechanism involved in embryogenesis and tissue differentiation. In the context of cancer, it is implicated in cancer progression and metastasis. EMT entails a progressive loss of epithelial characteristics and acquisition of mesenchymal features that in cancer, enables cells to acquire migratory and invasive properties, induces stemness, avoid apoptosis and senescence, and become immune-resistant (<span class="citation">Ksiazkiewicz, Markiewicz, and Zaczek (2012)</span>).</p>
-<p>EMT is characterised by downregulation of epithelial markers (e.g E-cadherin, claudins) and upregulation of mesenchymal markers (e.g., vimentin, N-cadherin). Changes to these markers result in the loss of cell–cell adhesion and cell polarity, and the acquisition of migratory and invasive properties. There is a switch from keratin-rich adherens junction network to a vimentin-rich focal adhesion network with cadherins switching from E-cadherin to N-cadherin <span class="citation">(Tomita et al. 2000)</span>.</p>
-<p>Although cancer cells use EMT to facilitating metastatic spread, they rarely fully convert to the mesenchymal phenotype, and instead presents a hybrid phenotype loosely termed epithelial mesenchymal plasticity (EMP). EMP has been associated with increased metastatic risk and poor prognosis in breast cancer <span class="citation">(Cursons et al. 2015)</span>. There are currently limited specific markers proposed for this transient/metastable phenotype, owing to the lack of reliable progression readout and consequent limited studies for the transitional and progression states of EMT. Identification of specific markers of this hybrid state will provide crucial information to identify interventions for metastasis as well as mechanistic insights to uncover potential therapeutics. <span class="citation">(Ribeiro and Paredes 2015)</span></p>
-<p>In this workflow, we use bulk transcriptomic data from <span class="citation">(Cursons et al. 2015)</span> study which interrogates EMP in two breast cancer cell line models, namely the PMC42 system (PMC42-ET and PMC42-LA sublines) and MDA-MB-468. In this data, PMC42-LA is an epithelial subline derived from the vimentin positive, E-Cadherin negative parental PMC42-ET cells with both classified as having a “Basal B” transcriptome (expressed mesenchymal gene, lacked epithelial marker expression).</p>
+<a href="#%E7%94%9F%E7%89%A9%E5%AD%A6%E9%97%AE%E9%A2%98%E7%9A%84%E6%8F%8F%E8%BF%B0" class="anchor"></a>生物学问题的描述</h1>
+<p>上皮-间充质转化（EMT）是一种细胞过程，描述了静态极化的上皮细胞转化为活动的间充质细胞表型的现象。它是涉及胚胎发生和组织分化的基础机制。而在癌症方面，它与癌症进展和转移有关。EMT导致上皮特征的逐渐丧失以及间充质特征的获得，使得癌症中的细胞获得了转移与侵袭的特性，诱导了细胞干性，从而避免了细胞凋亡和衰老，具备了免疫抗性。(<span class="citation">Ksiazkiewicz, Markiewicz, and Zaczek (2012)</span>)</p>
+<p>EMT的特征是上皮标志物（如E-钙粘蛋白和密封蛋白）的下调以及间充质标志物（如波形蛋白和N-钙粘蛋白）的上调。这些标志物的改变会导致细胞间的粘附力和细胞极性的丧失，以及迁移性和侵袭性的获得。而从富含角蛋白的粘连网络转换成富含波形蛋白的黏着斑网络则伴随着钙粘蛋白从E型转为N型<span class="citation">(Tomita et al. 2000)</span>。</p>
+<p>尽管癌细胞通过EMT促进转移扩散，但它们很少完全转化为间充质表型，而是表现出一种杂交表型，被宽泛地称为上皮间充质可塑性（EMP）。EMP与乳腺癌转移风险的增加以及不良预后相关<span class="citation">(Cursons et al. 2015)</span>。受限于缺乏可靠的进展读数以及由此导致的对EMT的过渡与进展状态的有限研究，目前针对这种瞬态/亚稳态表型提出的特定标志物有限。这种混合态的特定标志物的鉴定将为确定转移的干预措施，以及揭示潜在治疗方法的机制提供关键信息。<span class="citation">(Ribeiro and Paredes 2015)</span></p>
+<p>在本次分析流程中，我们使用来自<span class="citation">(Cursons et al. 2015)</span>研究的批量转录组数据，该研究在两种乳腺癌细胞系模型中，即PMC42 system（PMC42-ET和PMC42-LA亚株）和MDA-MB-468，对EMP进行研究。在该数据集中，PMC42-LA是一种源自波形蛋白阳性，E-钙粘蛋白阴性的亲本PMC42-ET细胞的上皮亚系，两者均被归类为具有“基底B”转录组（表达间充质基因，缺乏上皮标记基因表达）。</p>
 </div>
-<div id="molecular-phenotyping-of-individual-samples" class="section level1">
+<div id="单个样本的分子表型" class="section level1">
 <h1 class="hasAnchor">
-<a href="#molecular-phenotyping-of-individual-samples" class="anchor"></a>Molecular phenotyping of individual samples</h1>
-<p>To preform molecular phenotyping of the data from <span class="citation">(Cursons et al. 2015)</span>, we need the RNA-seq counts and appropriate gene-sets that represent the molecular phenotypes of interest. We will use processed RNA-seq data from the <code>emtdata</code> package in this workflow. We will then score individual samples against custom gene signatures from <span class="citation">(Tan et al. 2014)</span> and from the molecular signatures database (MSigDB) (<span class="citation">Subramanian et al. (2005)</span>) using singscore (<span class="citation">Bhuva, Cursons, and Davis (2020)</span>).</p>
-<div id="load-data" class="section level2">
+<a href="#%E5%8D%95%E4%B8%AA%E6%A0%B7%E6%9C%AC%E7%9A%84%E5%88%86%E5%AD%90%E8%A1%A8%E5%9E%8B" class="anchor"></a>单个样本的分子表型</h1>
+<p>为了对来自<span class="citation">(Cursons et al. 2015)</span>的数据进行分子表型分析，我们需要RNA-seq计数以及能表征感兴趣的分子表型的合适的基因集。在本次分析流程中我们将使用来自<code>emtdata</code>包的处理过的RNA-seq数据。接下来我们将使用singscore方法(<span class="citation">Bhuva, Cursons, and Davis (2020)</span>)，分别针对来自<span class="citation">(Tan et al. 2014)</span>和分子标志数据库（MSigDB）(<span class="citation">Subramanian et al. (2005)</span>)的自定义基因标志物对单个样本进行评分。</p>
+<div id="加载数据" class="section level2">
 <h2 class="hasAnchor">
-<a href="#load-data" class="anchor"></a>Load data</h2>
-<p>The <code>emtdata</code> package contains multiple pre-processed RNA-seq data from experiments studying the epithelial to mesenchymal transition. The package contains the following processed datasets:</p>
+<a href="#%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE" class="anchor"></a>加载数据</h2>
+<p><code>emtdata</code>包中包含了多种预处理过的RNA-seq数据，这些数据来自研究上皮向间充质转化的实验。该包包含了以下经过处理的数据集：</p>
 <ol style="list-style-type: decimal">
-<li>cursons2015_se - RNA-seq data from various breast cancer cell lines representing different degrees of epithelial and mesenchymal phenotypes <span class="citation">(Cursons et al. 2015)</span>.</li>
-<li>cursons2018_se - RNA-seq data from the human mammary epithelial (HMLE) cell line treated with TGF<span class="math inline">\(\beta\)</span> to induce an epithelial to mesenchymal transition (EMT) which is followed by treatment with miR-200c to induce a mesenchymal to epithelial transition (MET) <span class="citation">(Cursons et al. 2018)</span>.</li>
-<li>foroutan2017_se - A compendium of EMT induction experiments combined and corrected for batch effects <span class="citation">(Foroutan et al. 2017)</span>.</li>
+<li>cursons2015_se - 来自多种乳腺癌细胞系的RNA-seq数据，代表不同程度的上皮和间充质表型<span class="citation">(Cursons et al. 2015)</span>。</li>
+<li>cursons2018_se - 来自人乳腺上皮细胞（HMLE）系的RNA-seq数据，该细胞系经TGF<span class="math inline">\(\beta\)</span>处理诱导上皮间充质转化（EMT），随后以miR-200c处理诱导间充质上皮转化（MET）<span class="citation">(Cursons et al. 2018)</span>.</li>
+<li>foroutan2017_se - 一份EMT诱导实验的汇编数据，结合并消除了批次效应<span class="citation">(Foroutan et al. 2017)</span>.</li>
 </ol>
-<p>The data used in this workflow is the <span class="citation">(Cursons et al. 2015)</span> RNA-seq data. RNA-seq reads downloaded from the sequencing read archive (SRA) and processed using the Subread aligner <span class="citation">(Liao, Smyth, and Shi 2013)</span> and featureCounts <span class="citation">(Liao, Smyth, and Shi 2014)</span> to generate a counts matrix. Following this, genes with low expression were filtered out using <code><a href="https://rdrr.io/pkg/edgeR/man/filterByExpr.html">edgeR::filterByExpr()</a></code>. Normalisation factors were computed using TMM <span class="citation">(Robinson and Oshlack 2010)</span> and reads per kilobase per million (RPKM) values computed using function in the <code>edgeR</code> R/Bioconductor package <span class="citation">(Chen et al. 2021)</span>. Data were then stored in a SummarizedExperiment object that can be retrieved from the <code>ExperimentHub</code> using the <code>emtdata</code> R/Bioconductor package.</p>
-<p>Data from the <code>emtdata</code> package can be retireved by using accessors within the package or by querying the <code>ExperimentHub</code>. The query below searches for all objects in the hub associated with the search term “emtdata.” Information about three datasets available in the <code>emtdata</code> package is retrieved.</p>
+<p>本次分析流程中使用的数据为<span class="citation">(Cursons et al. 2015)</span>RNA-seq数据。从SRA下载RNA-seq数据，并使用Subread aligner<span class="citation">(Liao, Smyth, and Shi 2013)</span>和featureCounts<span class="citation">(Liao, Smyth, and Shi 2014)</span>对数据进行处理生成计数矩阵。随后使用<code><a href="https://rdrr.io/pkg/edgeR/man/filterByExpr.html">edgeR::filterByExpr()</a></code>函数过滤掉低表达基因。使用<code>edgeR</code> R/Bioconductor包中的相关函数，根据TMM计算得到标准化因子，并计算基因的每百万读数中每千碱基映射读数（RPKM）。随后数据被存储在SummarizedExperiment对象中，可以使用<code>emtdata</code> R/Bioconductor包从<code>ExperimentHub</code>中被检索到。</p>
+<p>来自<code>emtdata</code>包的数据可以使用包内的访问器或者<code>ExperimentHub</code>被检索到。以下的检索将搜索hub中与搜索词“emtdata”相关联的所有对象。检索到<code>emtdata</code>包中可用的三个数据集的信息。</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">ExperimentHub</span><span class="op">)</span>
 
@@ -165,9 +169,9 @@
 ##   EH5439 | foroutan2017_se
 ##   EH5440 | cursons2018_se 
 ##   EH5441 | cursons2015_se</code></pre>
-<p>We can view all metadata associated with each object using the <code>mcols()</code> function. This information links back to the original publication for each data. We can also see information on the species this data was generated from.</p>
+<p>我们可以使用<code>mcols()</code>函数查看与每个对象关联的所有元数据。该信息将链接到每个数据的原始出版物，我们还能查看产生这些数据的物种信息。</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#retrieve metadata for records</span>
+<code class="sourceCode R"><span class="co">#检索元数据</span>
 <span class="fu">mcols</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></code></pre></div>
 <pre><code>## DataFrame with 3 rows and 15 columns
 ##                  title           dataprovider      species taxonomyid
@@ -195,15 +199,15 @@
 ## EH5439 emtdata/foroutan2017.. https://doi.org/10.4..         TXT
 ## EH5440 emtdata/cursons2018_.. https://www.ncbi.nlm..         TXT
 ## EH5441 emtdata/cursons2015_.. https://www.ncbi.nlm..         TXT</code></pre>
-<p>Objects can then be retrieved using the accession ID (“EH5441”) or using the function <code><a href="https://rdrr.io/pkg/emtdata/man/cursons2015_se.html">cursons2015_se()</a></code>. Data are stored as <code>SummarizedExperiment</code> objects and the functions <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData()</a></code>, <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData()</a></code> and <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay()</a></code> can be used to interact with the object. We see that the data has measurements for approximately 30000 genes across 21 samples. Both count-level data and logRPKM measurements are stored in the object.</p>
+<p>可以使用编号（“EH5441”）或者通过函数<code><a href="https://rdrr.io/pkg/emtdata/man/cursons2015_se.html">cursons2015_se()</a></code>来检索对象。数据被存储为<code>SummarizedExperiment</code>对象，函数<code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData()</a></code>，<code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData()</a></code>和<code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay()</a></code>可用于与对象交互。我们能看见该数据测量了21个样本中约30,000个基因，基因的计数和logRPKM矩阵都被存储在对象中。</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment">SummarizedExperiment</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/DavisLaboratory/emtdata">emtdata</a></span><span class="op">)</span>
 
-<span class="co">#load using object ID</span>
+<span class="co">#使用对象编号加载数据</span>
 <span class="va">emt_se</span> <span class="op">=</span> <span class="va">eh</span><span class="op">[[</span><span class="st">'EH5441'</span><span class="op">]</span><span class="op">]</span>
 
-<span class="co">#alternative approach</span>
+<span class="co">#等效方法</span>
 <span class="va">emt_se</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/emtdata/man/cursons2015_se.html">cursons2015_se</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">emt_se</span></code></pre></div>
 <pre><code>## class: SummarizedExperiment 
@@ -216,9 +220,9 @@
 ## colnames(21): MDA468_Ctrl_Rep1 MDA468_Ctrl_Rep2 ... PMC42LA_EGF_Rep2
 ##   PMC42LA_EGF_Rep3
 ## colData names(14): group lib.size ... Organism SRA.Study</code></pre>
-<p>The sample annotations show us that there are 3 cell lines in this data (PMC42-ET, PMC42-LA and MDA-MB-648). These cell lines have been treated with Hypoxia and EGF with measurements taken either 3 or 7 days post treatment. We also get metadata associated with each sample, including the original SRA identifier and their library sizes.</p>
+<p>样本注释显示该数据中有3种细胞系（PMC42-ET，PMC42-LA和MDA-MB-648）。这些细胞系经过缺氧和EGF处理，并在处理3或7天后进行测量。我们还获取了每个样本关联的元数据，包括原始SRA编号以及它们的文库大小。</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#view sample annotations</span>
+<code class="sourceCode R"><span class="co">#查看样本注释</span>
 <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>##                   group  lib.size norm.factors                              Run
 ## MDA468_Ctrl_Rep1      1 114794500    0.9743731 SRR3576739,SRR3576768,SRR3591405
@@ -330,9 +334,9 @@
 ## PMC42LA_EGF_Rep1  SRP075592
 ## PMC42LA_EGF_Rep2  SRP075592
 ## PMC42LA_EGF_Rep3  SRP075592</code></pre>
-<p>Gene identifiers in this data are Ensembl gene identifiers, however, gene symbols or Entrez IDs will be requried for the downstream analysis. We will convert Ensembl IDs to gene symbols as these are easier to interpret visually. The row annotations of <code>emt_se</code> contain mappings to other identifiers such as gene symbols. We can convert Ensembl IDs to gene symbols by using the mappings stored in the object. Due to the issue of multi-mapping between identifiers, we first have to deal with duplicate mappings. We can identify duplicates as below.</p>
+<p>该数据使用的基因标识符是Ensembl基因标志符，但下游分析需要用到基因symbols和Entrez IDs。我们将把Ensembl IDs转换为基因symbols，因为这些更容易被直观地理解。<code>emt_se</code>的行注释包含了其他标识符的映射，如symbols。我们可以使用存储在对象中的映射将Ensembl IDs转化成symbols。但由于不同标识符间存在多重映射的问题，我们首先需要处理重复映射。我们可以通过以下方式识别重复项。</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#identify duplicated mappings</span>
+<code class="sourceCode R"><span class="co">#识别重复映射</span>
 <span class="va">all_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span><span class="op">$</span><span class="va">gene_name</span>
 <span class="va">dups</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">all_genes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="va">all_genes</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
 <span class="va">dups</span></code></pre></div>
@@ -341,9 +345,9 @@
 ## [11] "TMSB15B"     "ALG1L9P"     "DNAJC9-AS1"  "BMS1P4"      "SNORA70"    
 ## [16] "HERC2P7"     "U2"          "U3"          "ELFN2"       "5_8S_rRNA"  
 ## [21] "U1"</code></pre>
-<p>Most duplicates are arising from miscellaneous RNA therefore duplicated mappings can either be removed or resolved manually using other annotations such as their biotypes (for example, retaining protein coding genes). For simplicity, we discard multimapped genes in this analysis. Since the number of genes being discarded is relatively small and the genes being discarded are unrelated to the process we wish to study (EMT), the effect of their removal will be minimal and can be safely ignored.</p>
+<p>大部分重复项是由MsicRNA引起的，因此可以通过使用其他注释，例如biotypes（比如保留蛋白编码基因）来手动移除或解决。由于重复映射基因的数量相对较小，且这些基因与我们希望研究的过程（EMT）无关，因此舍弃它们的影响将很小，可以被安全忽略。为了简单起见，我们在本次分析中直接舍弃重复映射基因。</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#remove duplicated genes</span>
+<code class="sourceCode R"><span class="co">#移除重复映射基因</span>
 <span class="va">emt_se</span> <span class="op">=</span> <span class="va">emt_se</span><span class="op">[</span><span class="op">!</span><span class="va">all_genes</span> <span class="op">%in%</span> <span class="va">dups</span>, <span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span><span class="op">$</span><span class="va">gene_name</span>
 <span class="va">emt_se</span></code></pre></div>
@@ -357,12 +361,12 @@
 ##   PMC42LA_EGF_Rep3
 ## colData names(14): group lib.size ... Organism SRA.Study</code></pre>
 </div>
-<div id="load-gene-sets" class="section level2">
+<div id="加载基因集" class="section level2">
 <h2 class="hasAnchor">
-<a href="#load-gene-sets" class="anchor"></a>Load gene-sets</h2>
-<p>Gene-sets representing the molecular phenotypes of interest need to be prepared to query individual samples against. We can either use signatures from the molecular signatures database made available through the <code>msigdb</code> R/Bioconductor package or we can use custom signatures from publications. <span class="citation">Tan et al. (2014)</span> developed gene-sets that represent an epithelial and a mesenchymal phenotype. We will use these to explore the epithelial-mesenchymal landscape of samples. Data from the publication is organised in the <em>Thiery_EMTsignatures.txt</em> file that is stored in the package associated with this workflow.</p>
+<a href="#%E5%8A%A0%E8%BD%BD%E5%9F%BA%E5%9B%A0%E9%9B%86" class="anchor"></a>加载基因集</h2>
+<p>需要准备好表征感兴趣的分子表型的基因集用来查询单个样本。我们既可以使用<code>msigdb</code>包来获取分子标志数据库中的标志基因，也可以使用来自出版刊物发表的自定义标志基因。<span class="citation">Tan et al. (2014)</span> 开发了表征上皮和间充质表型的基因集，我们将使用这些基因集来探究样本的上皮-间充质结构。出版物中发表的数据被写入了<em>Thiery_EMTsignatures.txt</em>文件，该文件存储在与此分析流程相关的包中。</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#read Thiery et al. signatures</span>
+<code class="sourceCode R"><span class="co">#读取Theiry et al.的标志基因集</span>
 <span class="va">thiery_path</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">'extdata/Thiery_EMTsignatures.txt'</span>, package <span class="op">=</span> <span class="st">'GenesetAnalysisWorkflow'</span><span class="op">)</span>
 <span class="va">thiery_data</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span><span class="op">(</span><span class="va">thiery_path</span>, header <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">thiery_data</span><span class="op">)</span></code></pre></div>
@@ -380,15 +384,15 @@
 ## 4       ADIRF         10974
 ## 5        AGR2         10551
 ## 6        AIM1           202</code></pre>
-<p>Since gene symbols are used in the gene expression data, we will use create gene-sets using gene symbols. We will use signatures specific to cell lines from <span class="citation">Tan et al. (2014)</span>. Gene-sets are stored in the dedicated <code><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-methods.html">GSEABase::GeneSet</a></code> object that allows storage of metadata associated with gene-sets. Singscore can work with gene-sets defined as a character vector or in GeneSet objects. Since the latter is more structured, we prefer to use them for our analysis. GeneSet objects are used in the following vissE analysis too, further motivating their use. Unique gene identifiers are required for GeneSet objects. It is good practice to specify a unique, well-defined setName for each gene-set. Additionally, to enable usage with the <code>vissE</code> package, we will specify the identifier type (i.e. <code><a href="https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html">SymbolIdentifier()</a></code>).</p>
+<p>由于基因表达数据中使用的是基因symbols，我们将使用symbols创建基因集。我们将使用来自<span class="citation">(Tan et al. 2014)</span>细胞系的特异性标志基因，基因集被存储在专用的<code><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-methods.html">GSEABase::GeneSet</a></code>对象中，可以用于存储基因集相关的元数据。Singscore既可以使用被定义为字符串向量的基因集，也可以处理<code><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-methods.html">GSEABase::GeneSet</a></code>对象。由于后者具有更好的数据结构，我们倾向于在分析中使用后者。在后续的vissE分析中也使用到了GeneSet对象，更进一步推动了它们的使用。GeneSet对象要求基因具有唯一的标识符，因此最好为每一个基因集指定一个唯一且定义明确的集合名。此外，为了后续使用<code>vissE</code>包，我们将在此指定标识符类型（即<code><a href="https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html">SymbolIdentifier()</a></code>）。</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">GSEABase</span><span class="op">)</span>
 
-<span class="co">#retrieve epithelial genes</span>
+<span class="co">#检索上皮基因</span>
 <span class="va">epi_genes</span> <span class="op">=</span> <span class="va">thiery_data</span><span class="op">$</span><span class="va">officialSymbol</span><span class="op">[</span><span class="va">thiery_data</span><span class="op">$</span><span class="va">epiMes_cellLine</span> <span class="op">%in%</span> <span class="st">'epi'</span><span class="op">]</span>
-<span class="co">#select unique genes</span>
+<span class="co">#过滤重复基因</span>
 <span class="va">epi_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">epi_genes</span><span class="op">)</span>
-<span class="co">#create GeneSet object</span>
+<span class="co">#创建GeneSet对象</span>
 <span class="va">epi_sig</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-methods.html">GeneSet</a></span><span class="op">(</span><span class="va">epi_genes</span>, setName <span class="op">=</span> <span class="st">'THIERY_EPITHELIAL_CELLLINE'</span>, geneIdType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html">SymbolIdentifier</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="va">epi_sig</span></code></pre></div>
 <pre><code>## setName: THIERY_EPITHELIAL_CELLLINE 
@@ -397,11 +401,11 @@
 ## collectionType: Null 
 ## details: use 'details(object)'</code></pre>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#retrieve mesenchymal genes</span>
+<code class="sourceCode R"><span class="co">#检索间充质基因</span>
 <span class="va">mes_genes</span> <span class="op">=</span> <span class="va">thiery_data</span><span class="op">$</span><span class="va">genes</span><span class="op">[</span><span class="va">thiery_data</span><span class="op">$</span><span class="va">epiMes_cellLine</span> <span class="op">%in%</span> <span class="st">'mes'</span><span class="op">]</span>
-<span class="co">#select unique genes</span>
+<span class="co">#过滤重复基因</span>
 <span class="va">mes_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">mes_genes</span><span class="op">)</span>
-<span class="co">#create GeneSet object</span>
+<span class="co">#创建GeneSet对象</span>
 <span class="va">mes_sig</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-methods.html">GeneSet</a></span><span class="op">(</span><span class="va">mes_genes</span>, setName <span class="op">=</span> <span class="st">'THIERY_MESENCHYMAL_CELLLINE'</span>, geneIdType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneIdentifierType-constructors.html">SymbolIdentifier</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="va">mes_sig</span></code></pre></div>
 <pre><code>## setName: THIERY_MESENCHYMAL_CELLLINE 
@@ -409,13 +413,13 @@
 ## geneIdType: Symbol
 ## collectionType: Null 
 ## details: use 'details(object)'</code></pre>
-<p>If the gene-sets of interest are available in the molecular signatures database (MSigDB), the <code>msigdb</code> package can be used. This package uses the <code>ExperimentHub</code> to make MSigDB gene-sets available as GeneSet objects in a <code><a href="https://rdrr.io/pkg/GSEABase/man/GeneSetCollection-methods.html">GSEABase::GeneSetCollection</a></code> object. The GeneSetCollection object can be used to store multiple GeneSet objects. The <code>msigdb</code> package provides signatures for human and mouse (the version provided by the Smyth lab at WEHI) using either gene symbols or Entrez IDs. The package provides versions of MSigDB including and greater than 7.2.</p>
+<p>若感兴趣的基因集在分子标志数据库（MSigDB）中可用，则可以使用<code>msigdb</code>包获取。该包使用<code>ExperimentHub</code>将MSigDB中的基因集作为GeneSet对象嵌入<code><a href="https://rdrr.io/pkg/GSEABase/man/GeneSetCollection-methods.html">GSEABase::GeneSetCollection</a></code>对象中，而GeneSetCollection对象可以被用于存储多个GeneSet对象。<code>msigdb</code>包使用symbols或Entrez IDs为人和鼠提供标志基因（使用WEHI Smyth实验室提供的版本）。该包提供了7.2及以上版本的MSigDB。</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://davislaboratory.github.io/msigdb">msigdb</a></span><span class="op">)</span>
 
-<span class="co">#load MSigDB gene-sets</span>
+<span class="co">#加载MSigDB基因集</span>
 <span class="va">msigdb.hs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/getMsigdb.html">getMsigdb</a></span><span class="op">(</span>org <span class="op">=</span> <span class="st">'hs'</span>, id <span class="op">=</span> <span class="st">'SYM'</span>, version <span class="op">=</span> <span class="st">'7.2'</span><span class="op">)</span>
-<span class="co">#add KEGG gene-sets</span>
+<span class="co">#添加KEGG基因集</span>
 <span class="va">msigdb.hs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/appendKEGG.html">appendKEGG</a></span><span class="op">(</span><span class="va">msigdb.hs</span><span class="op">)</span>
 <span class="va">msigdb.hs</span></code></pre></div>
 <pre><code>## GeneSetCollection
@@ -428,13 +432,13 @@
 <div id="singscore" class="section level2">
 <h2 class="hasAnchor">
 <a href="#singscore" class="anchor"></a>Singscore</h2>
-<p>With the data and gene-sets ready, we can now score samples against gene-sets to explore molecular phenotypes using singscore <span class="citation">(Foroutan et al. 2018)</span>. Singscore is a rank-based single sample scoring approach implemented in the <code>singscore</code> R/Bioconductor package. The core computation of scores can be summarised in two steps: computing within sample gene ranks and computing gene-set scores using ranks. Data used for singscore should be length bias corrected (e.g. TPM, RPKM, RSEM) and should have filtered out genes with low expression across most samples. The data used here has been processed as such therefore no further pre-processing is required. Further information on length-bias correction and filtering with respect to singscore can be found in <span class="citation">Bhuva et al. (2019)</span>.</p>
+<p>准备好数据和基因集后，我们现在可以使用singscore<span class="citation">(Foroutan et al. 2018)</span>针对给定的基因集对样本进行评分，来探究其分子表型。Singscore是一种基于秩次的单样本评分方法，由<code>singscore</code> R/Bioconductor包实现。评分的核心计算可以被概括为两步：计算样本内的基因排名，使用排名计算基因集得分。传入singscore的数据应经过长度偏差校正（如TPM,RPKM,RSEM）并应该过滤掉大多数样本中低表达的基因。此处使用的数据已经经过了这样的处理，因此无需进一步预处理。更多有关singscore长度偏差校正和过滤的信息可以在<span class="citation">(Bhuva et al. 2019)</span>中被找到。</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://davislaboratory.github.io/singscore">singscore</a></span><span class="op">)</span>
 
-<span class="co">#rank genes based on expression (logRPKM)</span>
+<span class="co">#根据基因表达对基因排序</span>
 <span class="va">eranks</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/rankGenes.html">rankGenes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay</a></span><span class="op">(</span><span class="va">emt_se</span>, <span class="st">'logRPKM'</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#compute epithelial scores</span>
+<span class="co">#计算上皮得分</span>
 <span class="va">epi_score</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">epi_sig</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">epi_score</span><span class="op">)</span></code></pre></div>
 <pre><code>##                  TotalScore TotalDispersion
@@ -445,7 +449,7 @@
 ## MDA468_EGF_Rep2   0.3218094        4169.812
 ## MDA468_EGF_Rep3   0.3274617        3951.870</code></pre>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#compute mesenchymal scores</span>
+<code class="sourceCode R"><span class="co">#计算间充质得分</span>
 <span class="va">mes_score</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">mes_sig</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">mes_score</span><span class="op">)</span></code></pre></div>
 <pre><code>##                    TotalScore TotalDispersion
@@ -455,7 +459,7 @@
 ## MDA468_EGF_Rep1   0.014965710       10068.337
 ## MDA468_EGF_Rep2   0.008487366       10682.133
 ## MDA468_EGF_Rep3   0.018875730        8914.874</code></pre>
-<p>Unlike other single-sample methods, the results from singscore contain two values, the score and the dispersion. We have found both to be useful in interpreting scores from gene-sets. The score is an indication of the median expression of all genes in the gene-set relative to all measured genes. The dispersion is a measure of the coordination of gene expression for genes in the signature. Lower dispersion indicates that genes in the gene-set are expressed at a similar level. The <code><a href="https://davislaboratory.github.io/singscore/reference/plotDispersion.html">plotDispersion()</a></code> function can be used to plot scores against their dispersions. Samples can be annotated using discrete or continous annotations. All plots in the <code>singscore</code> package can be turned into interactive plots by setting <code>isInteractive = TRUE</code>.</p>
+<p>不同于其他单样本方法，singscore的结果包含两种值：分数和离散度。我们发现这两种值都有助于解释基因集得分。得分表示了基因集中所有基因相对于所有测量基因的中位值表达，而离散度是衡量基因集中的基因表达协调性的指标，低离散度表示基因集中的基因有相似的表达水平。可以使用函数<code><a href="https://davislaboratory.github.io/singscore/reference/plotDispersion.html">plotDispersion()</a></code>绘制得分vs离散度的散点图，离散或连续型变量都可以被用于样本注释。<code>singscore</code>包中的所有绘图函数都可以通过设置<code>isInteractive = TRUE</code>来绘制交互图像。</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotDispersion.html">plotDispersion</a></span><span class="op">(</span>
   <span class="va">epi_score</span>,
@@ -465,8 +469,8 @@
   alpha <span class="op">=</span> <span class="fl">0.5</span>,
   isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
-<p>The plot above shows that the MDA-MB-468 cell line is more epithelial than the other cell lines as indicated by larger scores. Lower dispersion values for these samples indicate that epithelial genes are expressed at similar levels relative to other genes. The mesenchymal signature shows the inverse pattern with PMC42-ET and PMC42-LA cell lines having higher scores and lower dispersion values compared to MDA-MB-468.</p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+<p>从上图可以看出，MDA-MB-468细胞系更高的得分显示其相比于其他细胞系，具有更显著的上皮样特征。而这些样本中较低的离散度表明相对于其他基因，这些上皮基因有相似的表达水平。间充质基因集则显示出相反的模式，PMC42-ET和PMC42-LA细胞系相对于MDA-MB-468细胞系有更高的得分和更低的离散度。</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotDispersion.html">plotDispersion</a></span><span class="op">(</span>
   <span class="va">mes_score</span>,
@@ -476,20 +480,20 @@
   alpha <span class="op">=</span> <span class="fl">0.5</span>,
   isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
-<p>It is often useful to investigate the association between gene-sets, especially when phenotypes are expected to be associated biologically. <span class="citation">Cursons et al. (2018)</span> and <span class="citation">Foroutan et al. (2018)</span> have used the epithelial-mesenchymal landscapes to better understand the behaviour of biological models across the epithelial mesenchymal transition. Additionally, it is often the case in biology that biological models are compared with patient data to enable translation of discoveries. Singscore enables this by plotting cell line data on a background dataset. In the plots below, we plot breast cancer patient data from The Cancer Genome Atlas (TCGA) in the background. We then project our cell line data onto the patient data to explore and explain various aspects of the epithelial mesenchymal landscape. Projecting cell line data onto the patient data enables transfer of discoveries made on cell lines to patients. We use pre-computed epithelial and mesenchymal scores of TCGA breast cancer patient data from the <code>singscore</code> package.</p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
+<p>研究基因集之间的关联性通常很有用，尤其是当表型之间预期存在生物学相关性时。<span class="citation">(Cursons et al. 2018)</span>和<span class="citation">(Foroutan et al. 2018)</span>利用上皮-间充质全景图更好地理解了生物模型在上皮-间充质转化上的行为。此外，在生物学中经常将生物模型与病人数据比较，从而对发现进行更好地翻译。Singscore通过在背景数据集中绘制细胞系数据来实现这一点。下图中，我们在背景中绘制了来自TCGA的乳腺癌病人数据，随后我们将我们的细胞系数据投射到病人数据上，以探究并解释上皮间充质全景的各个方面。通过将细胞系数据投射到病人数据上，细胞系上的发现可以被传递到病人层面。我们在此使用了预先用<code>singscore</code>包计算得到的TCGA乳腺癌样本数据的上皮和间充质得分。</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#load pre-computed TCGA breast cancer EMT scores</span>
+<code class="sourceCode R"><span class="co">#加载预先计算好的TCGA乳腺癌EMT得分</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"scoredf_tcga_epi"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"scoredf_tcga_mes"</span><span class="op">)</span>
 
-<span class="co">#plot an EMT landscape</span>
+<span class="co">#绘制EMT全景图</span>
 <span class="va">p_tcga</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotScoreLandscape.html">plotScoreLandscape</a></span><span class="op">(</span>
   scoredf1 <span class="op">=</span> <span class="va">scoredf_tcga_epi</span>,
   scoredf2 <span class="op">=</span> <span class="va">scoredf_tcga_mes</span>,
   scorenames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Epithelial score'</span>, <span class="st">'Mesenchymal score'</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
-<p>The plot below shows that PMC42-ET and PMC42-LA have similar mesenchymal scores, but very distinct epithelial scores. MDA-MB-468 on the other hand is a very epithelial cell line and less mesenchymal. We would suspect that PMC42-LA has both epithelial and mesenchymal properties. Like other plots in singscore, the plots below can be made interactive setting <code>isInteractive = TRUE</code>.</p>
+<p>下图显示了PMC42-ET和PMC42-LA有相似的间充质得分，但上皮得分截然不同。另一方面，MDA-MB-468则是非常偏向上皮样的细胞系，与间充质样细胞相去甚远。我们合理怀疑PMC42-LA兼具上皮和间充质两种特性。与singscore包中的其他绘图函数一样，下图也可以通过设置<code>isInteractive = TRUE</code>来添加交互功能。</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/projectScoreLandscape.html">projectScoreLandscape</a></span><span class="op">(</span>
   <span class="va">p_tcga</span>,
@@ -499,8 +503,8 @@
   annot_name <span class="op">=</span> <span class="st">'Subline'</span>,
   isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
-<p>Annotating samples using the treatment shows that hypoxic treatment of MDA-MB-468 results in increased mesenchymal properties of the cell line.</p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<p>使用处理信息对样本进行注释，结果显示对MDA-MB-468进行缺氧处理会增加细胞系的间充质特性。</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/projectScoreLandscape.html">projectScoreLandscape</a></span><span class="op">(</span>
   <span class="va">p_tcga</span>,
@@ -510,15 +514,15 @@
   annot_name <span class="op">=</span> <span class="st">'Treatment'</span>,
   isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
-<p>The Hallmark collection of the MSigDB represent key molecular processes associated with cancer progression. The HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION represents EMT in cancer therefore we could compute scores for samples using it. We can annotate samples using the hallmark EMT score to assess their relation with the EMT landscape. The plot below shows that the combined epithelial-mesenchymal axis is represented by the hallmark EMT signature.</p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<p>MSigDB的hallmark集合代表了与癌症进展相关的关键分子进程。其中HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION代表了癌症中的EMT，因此我们可以用它来计算样本的得分。我们可以用hallmark EMT得分注释样本，从而评估其与EMT景观的关系。下图显示hallmark EMT基因集可以表征上皮-间充质联合轴。</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#extract the hallmark EMT signature</span>
+<code class="sourceCode R"><span class="co">#提取hallmark EMT标志基因</span>
 <span class="va">hemt_sig</span> <span class="op">=</span> <span class="va">msigdb.hs</span><span class="op">[[</span><span class="st">'HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION'</span><span class="op">]</span><span class="op">]</span>
-<span class="co">#score samples using the hallmark EMT signature</span>
+<span class="co">#使用标志基因对样本打分</span>
 <span class="va">hemt_score</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">hemt_sig</span><span class="op">)</span>
 
-<span class="co">#plot Hallmark EMT signature</span>
+<span class="co">#绘制hallmark EMT基因集得分</span>
 <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/projectScoreLandscape.html">projectScoreLandscape</a></span><span class="op">(</span>
   <span class="va">p_tcga</span>,
   scoredf1 <span class="op">=</span> <span class="va">epi_score</span>,
@@ -527,27 +531,27 @@
   annot_name <span class="op">=</span> <span class="st">'Hallmark EMT score'</span>,
   isInteractive <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
-<p>The above plots show that the difference between PMC42-ET and PMC42-LA is mainly along the epithelial axis. We can investigate the contribution of each gene across individual samples using the <code><a href="https://davislaboratory.github.io/singscore/reference/plotRankDensity.html">plotRankDensity()</a></code> function. The distribution of unit normalised ranks shows that most genes in the epithelial gene-set are expressed at higher levels that all other genes in PMC42-LA. In contrast, epithelial genes are more dispersed in PMC42-ET. Interactive versions of these plots can be used to explore individual genes.</p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
+<p>上图表明PMC42-ET和PMC42-LA之间的差异主要在上皮轴方向。我们可以使用函数<code><a href="https://davislaboratory.github.io/singscore/reference/plotRankDensity.html">plotRankDensity()</a></code>来研究单个样本内每个基因的贡献度。归一化的基因秩分布表明上皮基因集大多数的基因相比于其他基因，在PMC42-LA中有更高的表达水平。相比之下，上皮基因在PMC42-ET中的表达更为分散。这些图的交互式版本可以被用于探究单个基因。</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotRankDensity.html">plotRankDensity</a></span><span class="op">(</span><span class="va">eranks</span><span class="op">[</span>, <span class="st">'PMC42LA_Ctrl_Rep1'</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, <span class="va">epi_sig</span>, isInteractive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/plotRankDensity.html">plotRankDensity</a></span><span class="op">(</span><span class="va">eranks</span><span class="op">[</span>, <span class="st">'PMC42ET_Ctrl_Rep1'</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, <span class="va">epi_sig</span>, isInteractive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-17-2.png" width="700"></p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-17-2.png" width="700"></p>
 </div>
 <div id="stingscore" class="section level2">
 <h2 class="hasAnchor">
 <a href="#stingscore" class="anchor"></a>Stingscore</h2>
-<p>At times whole transcriptome measurements are not feasible either due to costs or due to availability of high quality genomic material (as is the case with FFPE samples). In such cases, we may wish to work with targeted transcriptomic panels. Most gene-set scoring methods, including singscore, require transcriptome-wide measurements therefore making them unusable in a targeted sequencing context. In such cases, the stingscore method <span class="citation">(Bhuva, Cursons, and Davis 2020)</span> implemented in the <code>singscore</code> package can be used. Stingscore makes use of stably expressed genes to estimate gene-set scores using a reduced set of measurements.</p>
-<p>To demonstrate usage of stingscore in a targeted seqencing context, we will simulate a targeted sequencing panel using epithelial genes, mesenchymal genes and a few stably expressed genes. We will use the top 5 stably expressed genes identified in <span class="citation">Bhuva, Cursons, and Davis (2020)</span> to score samples.</p>
+<p>有时由于成本或高质量基因组材料的可用性（如FFPE样本的情况），全转录组测量并不可行。这种情况下，我们希望能使用具有靶向性的转录组，然而大多数基因集评分方法（包括singscore）要求全转录组测序，因此不能在靶向测序背景中使用。此时，<code>singscore</code>包中的stingscore<span class="citation">(Bhuva, Cursons, and Davis 2020)</span>方法可以发挥作用。Stingscore使用一组稳定表达的基因在减少的测序环境中预估基因集得分。</p>
+<p>为了演示stingscore在靶向测序环境中的使用，我们将使用上皮基因，间充质基因和一些稳定表达的基因来模拟一个靶向测序平台。我们将使用在<span class="citation">(Bhuva, Cursons, and Davis 2020)</span>中鉴定的top 5稳定表达的基因来对样本打分。</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#simulate data by sub-sampling</span>
-<span class="va">sample_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">epi_sig</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">mes_sig</span><span class="op">)</span><span class="op">)</span>
-<span class="va">sample_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">union</a></span><span class="op">(</span><span class="va">sample_genes</span>, <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/getStableGenes.html">getStableGenes</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#subset genes with measurements in the data</span>
+<code class="sourceCode R"><span class="co">#创建靶向测序基因列表</span>
+<span class="va">sample_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/igraph/man/union.html">union</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">epi_sig</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">mes_sig</span><span class="op">)</span><span class="op">)</span>
+<span class="va">sample_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/igraph/man/union.html">union</a></span><span class="op">(</span><span class="va">sample_genes</span>, <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/getStableGenes.html">getStableGenes</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#选取测序数据中存在的靶向测序基因</span>
 <span class="va">sample_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">intersect</a></span><span class="op">(</span><span class="va">sample_genes</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">emt_se</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#subset data</span>
+<span class="co">#模拟靶向测序数据</span>
 <span class="va">targeted_se</span> <span class="op">=</span> <span class="va">emt_se</span><span class="op">[</span><span class="va">sample_genes</span>, <span class="op">]</span>
 <span class="va">targeted_se</span></code></pre></div>
 <pre><code>## class: SummarizedExperiment 
@@ -559,20 +563,20 @@
 ## colnames(21): MDA468_Ctrl_Rep1 MDA468_Ctrl_Rep2 ... PMC42LA_EGF_Rep2
 ##   PMC42LA_EGF_Rep3
 ## colData names(14): group lib.size ... Organism SRA.Study</code></pre>
-<p>The data samples genes of interest from the full data matrix resulting in the measurement of 214 genes. In reality, a panel of this size could be measure using technologies such as NanoString’s nCounter panel. The top 5 stably expressed genes used here could be used to score samples and to normalise expression measurements for additional analyses. The only difference between singscore and stingscore are in the way ranks are computed. In stingscore, ranks are estimated using stably expressed genes. Following rank estimation, scores can be computed as with singscore using the <code><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore()</a></code> function.</p>
+<p>我们从原始数据中对感兴趣的基因取样，最终得到了包含214个基因的测序数据。事实上，这种大小的测序结果可以通过NanoString’s nCounter等平台测量得到。此处使用的前5个稳定表达的基因可以被用来对样本进行评分，并对表达数据标准化以进行其他分析。Singscore和stingscore唯一的区别就在于二者计算秩的方式。在stingscore中，基因的秩是通过稳定表达基因来预估的，预估后，与singscore相似，即可使用函数<code><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore()</a></code>计算最终得分。</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">st_genes</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/getStableGenes.html">getStableGenes</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
 <span class="va">st_genes</span></code></pre></div>
 <pre><code>## [1] "RBM45"  "BRAP"   "CIAO1"  "TARDBP" "HNRNPK"</code></pre>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#rank genes using stably expressed genes</span>
+<code class="sourceCode R"><span class="co">#根据稳定表达基因预估基因秩</span>
 <span class="va">st_eranks</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/rankGenes.html">rankGenes</a></span><span class="op">(</span><span class="va">targeted_se</span>, stableGenes <span class="op">=</span> <span class="va">st_genes</span><span class="op">)</span>
 
-<span class="co">#score samples using the simulated targeted sequencing data</span>
+<span class="co">#使用模拟靶向数据对样本打分</span>
 <span class="va">epi_score_st</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">st_eranks</span>, <span class="va">epi_sig</span><span class="op">)</span>
 <span class="va">mes_score_st</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore</a></span><span class="op">(</span><span class="va">st_eranks</span>, <span class="va">mes_sig</span><span class="op">)</span>
 
-<span class="co">#plot scores computed using singscore vs stingscore</span>
+<span class="co">#绘制singscore vs stingscore的散点图</span>
 <span class="va">colmap</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'MDA-MB-468'</span> <span class="op">=</span> <span class="st">'#1B9E77'</span>, <span class="st">'PMC42-ET'</span> <span class="op">=</span> <span class="st">'#D95F02'</span>, <span class="st">'PMC42-LA'</span> <span class="op">=</span> <span class="st">'#7570B3'</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span>
@@ -593,16 +597,16 @@
   ylab <span class="op">=</span> <span class="st">'Stingscore (targeted)'</span>
 <span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html">abline</a></span><span class="op">(</span>coef <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
-<p>The plots above show that both epithelial and mesenchymal scores computed using singscore and stingscore are highly correlated. Though the scores are correlated, their values are not an exact match as there is an offset. As the relative order of samples remains the same, biological inferences are unaffected by the offset in scores computed using stingscore.</p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
+<p>上图显示singscore和stingscore计算的上皮，间充质得分均高度线性相关。然而尽管得分高度线性相关，由于存在偏移，二者的值并不完全匹配。但因为样本的相对顺序不变，生物学推断不受由stingscore计算得分引起的偏移的影响。</p>
 </div>
 <div id="multiscore" class="section level2">
 <h2 class="hasAnchor">
 <a href="#multiscore" class="anchor"></a>Multiscore</h2>
-<p>When the hypothesis are not pre-determined, we may wish to perform an exploratory analysis using multiple gene-sets. In such a scenario, we would wish to score samples against 100s-1000s of gene-sets which we would then summarise using further downstream analysis. The <code><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore()</a></code> function can be used to score samples against multiple signatures simultaneously. This implementation is much faster than <code><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore()</a></code> and is therefore the recommended function for scoring against multiple gene-sets.</p>
-<p>We will score samples against gene-sets from the hallmark collection, gene ontologies, KEGG pathways, Reactome pathways and Biocarta pathways. The <code><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection()</a></code> function in the <code>msigdb</code> package can be used to subset a GeneSetCollection based on MSigDB categories and sub-categories. The function returns GeneSetCollection objects which can be concatenated as normal lists. The resulting list needs to be converted back into a GeneSetCollection object before passing it to <code><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore()</a></code>.</p>
+<p>当假设未被预先确定时，我们可能希望使用多种基因集进行探索性分析。在这种情况下，我们会希望能针对100s-1000s个基因集对样本进行评分，并使用下游分析进行总结概况，此时可以使用函数<code><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore()</a></code>针对多个基因集同时对样本进行评分。这种实现方法比<code><a href="https://davislaboratory.github.io/singscore/reference/simpleScore.html">simpleScore()</a></code>快得多，因此是使用多基因集评分的推荐函数。</p>
+<p>我们将针对来自hallmark集合，GO，KEGG通路，Reactome通路以及Biocarta通路的基因集对样本进行评分。可以使用<code>msigdb</code>包中的函数<code><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection()</a></code>来根据MSigDB类别及子类别选取GeneSetCollection的子集。该函数将返回GeneSetCollection对象，这些对象可以作为正常列表被串联在一起，但在将最终结果传递给函数<code><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore()</a></code>前，需要确保列表已经被转化回GeneSetCollection对象。</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#subset collections and subcollections of interest</span>
+<code class="sourceCode R"><span class="co">#创建感兴趣的基因集集合</span>
 <span class="va">genesigs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
   <span class="va">epi_sig</span>,
   <span class="va">mes_sig</span>,
@@ -611,7 +615,7 @@
   <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection</a></span><span class="op">(</span><span class="va">msigdb.hs</span>, <span class="st">'c5'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'GO:BP'</span>, <span class="st">'GO:MF'</span>, <span class="st">'GO:CC'</span><span class="op">)</span><span class="op">)</span>
 <span class="op">)</span>
 <span class="va">genesigs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSetCollection-methods.html">GeneSetCollection</a></span><span class="op">(</span><span class="va">genesigs</span><span class="op">)</span></code></pre></div>
-<p>The results of <code><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore()</a></code> is a list containing a matrix of scores and a matrix of dispersion values. As some gene-sets could be entirely composed of genes not measured in the data, there may be missing values in these matrices.</p>
+<p>函数<code><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore()</a></code>的返回结果是一个包含了得分矩阵和离散度矩阵的列表。由于某些基因集可能完全由数据中未测量的基因组成，这些矩阵中有可能会存在缺失值。</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">eranks</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/rankGenes.html">rankGenes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay</a></span><span class="op">(</span><span class="va">emt_se</span>, <span class="st">'logRPKM'</span><span class="op">)</span><span class="op">)</span>
 <span class="va">msigdb_scores</span> <span class="op">=</span> <span class="fu"><a href="https://davislaboratory.github.io/singscore/reference/multiScore.html">multiScore</a></span><span class="op">(</span><span class="va">eranks</span>, <span class="va">genesigs</span><span class="op">)</span>
@@ -638,13 +642,13 @@
 ## 
 ## $Dispersions
 ## [1] 12352    21</code></pre>
-<p>Plotting scores against dispersion values across all signatures demonstrates the usual trend between these two values. The trend is expected since strong positive or negative scores can only be obtained if genes in gene-sets are coordinately expressed. The more interesting gene-sets are those that have low dispersion with scores close to 0; these gene-sets contain coordinately expressed genes with average expression relative to all measured genes.</p>
+<p>通过绘制所有基因集的得分vs离散度可以展示这两种值之间的一般趋势。这种趋势是预料之中的，因为只有当基因集中的基因都协调表达时才能获得强正或强负的得分。更有趣的是那些有着低离散度和评分接近0的基因集，这些基因集包含的协调表达基因相对于所有被测量基因平均表达。</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/smoothScatter.html">smoothScatter</a></span><span class="op">(</span><span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Scores</span>, <span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Dispersions</span>, xlab <span class="op">=</span> <span class="st">'Score'</span>, ylab <span class="op">=</span> <span class="st">'Dispersion'</span>, main <span class="op">=</span> <span class="st">'Score vs Dispersion'</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
-<p>We can assess gene-sets for individual samples to determine their phenotype composition. As transcriptomic measurements are more biologically meaningful when assessed relatively, we compute the difference in scores between one PMC42-ET control replicate and another PMC42-LA control replicate. The top positive and negative scores are listed below.</p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
+<p>我们可以通过评估单个样本的基因集来确定它们的表型组成。由于转录组测量在相对评估时更具有生物学意义，我们计算了一个PMC42-ET对照重复和另一个PMC42-LA对照重复的得分差异。下面列出了最高的正分和负分。</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#select scores for a single Hypoxic sample</span>
+<code class="sourceCode R"><span class="co">#选择一个缺氧处理的样本和得分</span>
 <span class="va">et_la_scores</span> <span class="op">=</span> <span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Scores</span><span class="op">[</span>, <span class="st">'PMC42ET_Ctrl_Rep1'</span><span class="op">]</span> <span class="op">-</span> <span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Scores</span><span class="op">[</span>, <span class="st">'PMC42LA_Ctrl_Rep1'</span><span class="op">]</span>
 <span class="va">et_la_scores</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">et_la_scores</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">et_la_scores</span><span class="op">)</span></code></pre></div>
@@ -676,43 +680,43 @@
 ##                                            0.2410252</code></pre>
 </div>
 </div>
-<div id="identifying-and-visualising-higher-order-phenotypes" class="section level1">
+<div id="识别并可视化高阶表型" class="section level1">
 <h1 class="hasAnchor">
-<a href="#identifying-and-visualising-higher-order-phenotypes" class="anchor"></a>Identifying and visualising higher-order phenotypes</h1>
-<p>In many RNA-seq sequencing data analyses, gene-set enrichment analysis (be it an over representation analysis of a functional class scoring approach) is typically performed resulting in a list of gene-sets that are accompanied by their statistics and p-values or false discovery rates (FDR). In most conventional collaborations, these results are typically manually curated/ scanned through by domain experts or biologists who then extract relevant themes pertaining to their specific experiment or domain of interest. Manual curation and interpretation can be very time consuming considering the fact that most gene-set enrichment analyses produce 100s to 1000s of gene-sets.</p>
-<p>The approach in this workflow uses the R package, <code>vissE</code>, which will allow automated extraction of biological themes based on the data thus reducing the load on domain experts. The following analysis uses a subset of the @cursons15 dataset (specifically the untreated samples from PMC42-ET and PMC42-LA sublines) to demonstrate the workflow for vissE. We first perform differential expression (DE) analysis to assess differences between the PMC42-LA and PMC42-ET sublines. A functional analysis is then performed using the popular <code><a href="https://rdrr.io/pkg/limma/man/roast.html">limma::fry</a></code> method, thus identifying biological processes that differ across the sublines. Finally, we identify, summarise and visualise higher order molecular phenotypes using vissE.</p>
-<div id="perform-de-analysis" class="section level2">
+<a href="#%E8%AF%86%E5%88%AB%E5%B9%B6%E5%8F%AF%E8%A7%86%E5%8C%96%E9%AB%98%E9%98%B6%E8%A1%A8%E5%9E%8B" class="anchor"></a>识别并可视化高阶表型</h1>
+<p>在很多RNA-seq测序数据分析中，基因集富集分析（可以是一个功能性类别评分手段的过表达分析）通常会被使用并产生一系列基因集，附有相关统计量，p值或假阳性率（FDR）。在大多数传统合作中，这些结果通常由领域专家或生物学家手动校正或扫描，接着他们会提取与其特定实验或感兴趣领域相关的主题。考虑到大多数基因集富集分析会产生100s到1000s 个基因集，手动管理和解释可能非常耗时。</p>
+<p>本分析流程中使用的方法R包，<code>vissE</code>，可以根据数据自动提取生物学主题，从而减少领域专家的负担。以下分析使用@cursons15 数据集的子集（确切的说是来自PMC42-ET和PMC42-LA亚系的未处理样本）来演示vissE的分析流程。我们首先进行差异表达（DE）分析以评估PMC42-LA和PMC42-ET亚系之间的差异。然后使用流行的<code><a href="https://rdrr.io/pkg/limma/man/roast.html">limma::fry</a></code>方法进行功能性分析，从而识别跨亚系不同的生物过程。最后，我们使用vissE鉴定、总结和可视化高阶分子表型。</p>
+<div id="差异表达分析" class="section level2">
 <h2 class="hasAnchor">
-<a href="#perform-de-analysis" class="anchor"></a>Perform DE analysis</h2>
-<p>As we are interested in understanding the functional implications of the differences between the PMC42 sublines, we will only use the control samples from the PMC42 sublines in <span class="citation">(Cursons et al. 2015)</span>. As we are dealing with count data, we will use the quasi-likelihood differential expression analysis pipeline from <span class="citation">Chen, Lun, and Smyth (2016)</span>. We refer users to the original publication of the workflow for details on the decisions made at each step of the analysis.</p>
+<a href="#%E5%B7%AE%E5%BC%82%E8%A1%A8%E8%BE%BE%E5%88%86%E6%9E%90" class="anchor"></a>差异表达分析</h2>
+<p>由于我们对了解PMC42亚系之间的差异的功能意义感兴趣，我们将仅使用<span class="citation">(Cursons et al. 2015)</span>中来自PMC42亚系的对照样本。在处理计数数据时，我们将使用来自<span class="citation">(Chen, Lun, and Smyth 2016)</span>的拟似然差异表达分析流程。我们推荐使用者参考分析流程的原始出版物，以了解在分析的每个步骤中做出的决策的细节。</p>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://bioinf.wehi.edu.au/edgeR">edgeR</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://bioinf.wehi.edu.au/limma">limma</a></span><span class="op">)</span>
 
-<span class="co">#subset dataset to extract only control samples of PMC42-ET and PMC42-LA</span>
+<span class="co">#从原始数据中提取PMC42-ET和PMC42-LA的对照样本</span>
 <span class="va">emt_se_sub</span> <span class="op">=</span> <span class="va">emt_se</span><span class="op">[</span>, <span class="va">emt_se</span><span class="op">$</span><span class="va">Subline</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'PMC42-ET'</span>, <span class="st">'PMC42-LA'</span><span class="op">)</span> <span class="op">&amp;</span>
                       <span class="va">emt_se</span><span class="op">$</span><span class="va">Treatment</span> <span class="op">==</span> <span class="st">'control'</span><span class="op">]</span>
-<span class="co">#create DGElist object from SE object</span>
+<span class="co">#从SE对象中创建DGEList对象</span>
 <span class="va">emt_dge</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/emtdata/man/asDGEList.html">asDGEList</a></span><span class="op">(</span><span class="va">emt_se_sub</span><span class="op">)</span>
-<span class="co">#create model design matrix</span>
+<span class="co">#创建模型设计矩阵</span>
 <span class="va">design</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="op">~</span> <span class="va">Subline</span>, data <span class="op">=</span> <span class="va">emt_dge</span><span class="op">$</span><span class="va">samples</span><span class="op">)</span>
-<span class="co">#remove lowly expressed genes</span>
+<span class="co">#去除低表达基因</span>
 <span class="va">keep</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/filterByExpr.html">filterByExpr</a></span><span class="op">(</span><span class="va">emt_dge</span>, design <span class="op">=</span> <span class="va">design</span><span class="op">)</span>
 <span class="va">emt_dge</span> <span class="op">=</span> <span class="va">emt_dge</span><span class="op">[</span><span class="va">keep</span>, <span class="op">]</span>
-<span class="co">#calculate normalisation factor using on TMM</span>
+<span class="co">#使用TMM计算标准化因子</span>
 <span class="va">emt_dge</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/calcNormFactors.html">calcNormFactors</a></span><span class="op">(</span><span class="va">emt_dge</span>, method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span>
 
-<span class="co">#estimate dispersions</span>
+<span class="co">#估计离散度</span>
 <span class="va">emt_dge</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/estimateDisp.html">estimateDisp</a></span><span class="op">(</span><span class="va">emt_dge</span>, design <span class="op">=</span> <span class="va">design</span>, robust <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#fit usimg edgeR's Generalized Linear Models with Quasi-likelihood Tests (GLM) function</span>
+<span class="co">#使用edgeR中带有拟似然检验（GLM）函数的广义线性模型进行拟合</span>
 <span class="va">fit</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/glmQLFTest.html">glmQLFit</a></span><span class="op">(</span><span class="va">emt_dge</span>, <span class="va">design</span>, robust <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#get DE genes list</span>
+<span class="co">#获取差异表达（DE）基因列表</span>
 <span class="va">res</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/glmQLFTest.html">glmQLFTest</a></span><span class="op">(</span><span class="va">fit</span>, coef <span class="op">=</span> <span class="st">'SublinePMC42-LA'</span><span class="op">)</span>
 <span class="va">is.de</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/decidetestsDGE.html">decideTestsDGE</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/limma/man/plotMD.html">plotMD</a></span><span class="op">(</span><span class="va">fit</span>, status <span class="op">=</span> <span class="va">is.de</span>, main <span class="op">=</span> <span class="st">'PMC42-LA vs. PMC42-ET'</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># get DE list based on p-value 0.05 cutoff</span>
+<code class="sourceCode R"><span class="co">#以p值0.05为阈值筛选DE基因列表</span>
 <span class="va">DE_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/topTags.html">topTags</a></span><span class="op">(</span><span class="va">res</span>, n <span class="op">=</span> <span class="cn">Inf</span>, p.value <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span><span class="op">[</span>,<span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">DE_list</span><span class="op">)</span></code></pre></div>
 <pre><code>##          gene_biotype     logFC   logCPM         F       PValue          FDR
@@ -723,18 +727,17 @@
 ## PLTP   protein_coding -6.202561 5.935153  950.8729 3.642671e-12 1.759046e-08
 ## KLK11  protein_coding  8.779300 3.708962  877.8718 5.662833e-12 2.278818e-08</code></pre>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># get all genes statistics</span>
+<code class="sourceCode R"><span class="co">#获取所有基因的统计量</span>
 <span class="va">allg_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/topTags.html">topTags</a></span><span class="op">(</span><span class="va">res</span>, n <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span><span class="op">[</span>,<span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="gene-set-testing-using-limmafry" class="section level2">
+<div id="使用limmafry测试基因集" class="section level2">
 <h2 class="hasAnchor">
-<a href="#gene-set-testing-using-limmafry" class="anchor"></a>Gene-set testing using <code>limma::fry</code>
-</h2>
-<p>A functional analysis using <code><a href="https://rdrr.io/pkg/limma/man/roast.html">limma::fry</a></code> is then performed to identify biological processes that are altered across the PMC42 sublines. The gene-sets used for this analysis are from the molecular signatures database (MSigDB) <span class="citation">Liberzon et al. (2015)</span> and are accessed through the <code>msigdb</code> package as demonstrated in a previous section.</p>
-<p>Based on our general experience with vissE, we have found curated gene-set collection such as the hallmark collection (h), the curated pathways collection (c2) and the ontology collection (GO) to work best in providing insight into biological processes when using vissE. Additionally, we subset collection on sub-collections of interest though the choice of collections/sub-collections of interest would depend on the biology being investigated. For example, the immunologic signatures collection (c7) may be included when investigating immune processes.</p>
-<p>A common approach to gene-set testing using <code><a href="https://rdrr.io/pkg/limma/man/roast.html">limma::fry</a></code> is to perform the analysis on each collection separately thus correcting for multiple hypothesis testing within each collection. This is a valid approach when biological insights are gained from a collection independent of other collections. However, since we are relying on all collections collectively to generate insights using vissE, we combine gene-sets and run <code><a href="https://rdrr.io/pkg/limma/man/roast.html">limma::fry</a></code> on all the combined gene-set collection.</p>
+<a href="#%E4%BD%BF%E7%94%A8limmafry%E6%B5%8B%E8%AF%95%E5%9F%BA%E5%9B%A0%E9%9B%86" class="anchor"></a>使用<code>limma::fry</code>测试基因集</h2>
+<p>使用<code><a href="https://rdrr.io/pkg/limma/man/roast.html">limma::fry</a></code>进行功能分析，以鉴定跨PMC42亚系发生改变的生物过程。用于该分析的基因集来自分子特征数据库（MSigDB）<span class="citation">Liberzon et al. (2015)</span>，并可通过<code>msigdb</code>包访问，如上一节所示。</p>
+<p>根据我们使用vissE的一般经验，我们发现精选的基因集集合，例如hallmark集合（h）、curated通路集合（c2）和GO集合（GO），在使用时最能有助于深入了解生物学过程。此外，我们选取了感兴趣的子集的集合，然而感兴趣的集合/子集合的选择将取决于正在研究的生物学方向。例如，在研究免疫过程时可以选择免疫特征集合（c7）。</p>
+<p>使用<code><a href="https://rdrr.io/pkg/limma/man/roast.html">limma::fry</a></code>进行基因集检测的一个常用方法是对每个集合分别进行分析，从而校正每个集合中的多假设检验。当生物学的理解是来自一个独立于其他集合的集合中时，这是一个有效的方法。然而，由于我们使用vissE依赖所有的集合对相关方向进行深入了解，我们合并基因集并对所有的基因集集合使用<code><a href="https://rdrr.io/pkg/limma/man/roast.html">limma::fry</a></code>。</p>
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#subset collections and subcollections of interest</span>
+<code class="sourceCode R"><span class="co">#选取感兴趣的基因集/子集</span>
 <span class="va">genesigs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
   <span class="va">epi_sig</span>,
   <span class="va">mes_sig</span>,
@@ -744,19 +747,19 @@
 <span class="op">)</span>
 <span class="va">genesigs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSetCollection-methods.html">GeneSetCollection</a></span><span class="op">(</span><span class="va">genesigs</span><span class="op">)</span>
 
-<span class="co">#Use geneset collection (genesigs) generated earlier to create fry indices</span>
+<span class="co">#使用此前生成的基因集集合（genesigs）创建fry index</span>
 <span class="va">fry_indices</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/ids2indices.html">ids2indices</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSet-class.html">geneIds</a></span><span class="op">(</span><span class="va">genesigs</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">emt_dge</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#remove very small and very large genesets</span>
+<span class="co">#去除极小或极大的基因集</span>
 <span class="va">fry_indices</span> <span class="op">=</span> <span class="va">fry_indices</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">fry_indices</span>, <span class="va">length</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">10</span>
                           <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">fry_indices</span>, <span class="va">length</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">500</span><span class="op">]</span>
 
-<span class="co">#Perform a geneset enrichment analysis using limma::fry</span>
+<span class="co">#使用limma::fry进行基因集富集分析</span>
 <span class="va">fry_res</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/roast.html">fry</a></span><span class="op">(</span><span class="va">emt_dge</span>,
               index <span class="op">=</span> <span class="va">fry_indices</span>,
               design <span class="op">=</span> <span class="va">design</span>,
               contrast <span class="op">=</span> <span class="st">'SublinePMC42-LA'</span><span class="op">)</span>
 
-<span class="co">#select significant results (FDR &lt; 0.05)</span>
+<span class="co">#选择显著性结果（FDR &lt; 0.05）</span>
 <span class="va">fry_res</span> <span class="op">=</span> <span class="va">fry_res</span><span class="op">[</span><span class="va">fry_res</span><span class="op">$</span><span class="va">FDR</span> <span class="op">&lt;</span> <span class="fl">0.05</span>, <span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">fry_res</span><span class="op">)</span></code></pre></div>
 <pre><code>##                                                         NGenes Direction
@@ -795,26 +798,26 @@
 ## GO_DNA_POLYMERASE_COMPLEX                               1.208747e-05
 ## REACTOME_RA_BIOSYNTHESIS_PATHWAY                        8.019966e-06</code></pre>
 </div>
-<div id="prepare-gene-set-testing-results-for-visse" class="section level2">
+<div id="为visse准备基因集测试结果" class="section level2">
 <h2 class="hasAnchor">
-<a href="#prepare-gene-set-testing-results-for-visse" class="anchor"></a>Prepare gene-set testing results for vissE</h2>
-<p>With the available information from the differential expression analysis and gene-set enrichment analysis, we now perform a vissE (Visualising Set Enrichment) analysis to identify higher-order molecular phenotypes. We note that a similar analysis can be performed with various other gene-set testing approaches such as over-representation analysis from the <code>clusterProfiler</code> R/Bioconductor package or from the popular GSEA tool <span class="citation">(Subramanian et al. 2005)</span>.</p>
-<p>A standard vissE analysis involves 3 steps:</p>
+<a href="#%E4%B8%BAvisse%E5%87%86%E5%A4%87%E5%9F%BA%E5%9B%A0%E9%9B%86%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C" class="anchor"></a>为vissE准备基因集测试结果</h2>
+<p>利用差异表达分析和基因集富集分析产生的可用信息，我们现在应用vissE（Visualising Set Enrichment）分析来鉴定高阶分子表型。我们注意到，类似的分析可以使用通过各种其他基因集测试方法实现，例如来自<code>clusterProfiler</code>包或流行的GSEA工具的过表达分析（ORA）<span class="citation">(Subramanian et al. 2005)</span>。</p>
+<p>一项标准的vissE分析包括3步：</p>
 <ol style="list-style-type: decimal">
-<li>Compute gene-set overlaps and the gene-set overlap network.</li>
-<li>Identify clusters of gene-sets based on their overlap network.</li>
-<li>Characterise clusters using a text mining analysis.</li>
-<li>(Optional) Visualise gene-level statistics for each cluster of gene-sets</li>
+<li>计算基因集重叠和基因集重叠网络。</li>
+<li>基于重叠网络识别基因集聚类。</li>
+<li>使用文本挖掘分析表征聚类。</li>
+<li>（可选）可视化每个基因集类群的基因水平统计数据。</li>
 </ol>
-<p>To perform these analyses, we first prepare the necessary data as follows:</p>
+<p>为了进行这些分析，我们首先要准备如下的必要数据:</p>
 <ul>
-<li>a <code>GeneSetCollection</code> object by subsetting on the significant gene-sets identified from the gene-set enrichment analysis (from <code>limma:fry</code> in this case).</li>
-<li>a named vector containing gene-set statistics to use for the visualisation.</li>
-<li>a named vector containing gene-level statistics from the DE analysis.</li>
+<li>一个<code>GeneSetCollection</code>对象，通过从基因集富集分析确定的重要基因集中选取子集（本例中来自<code>limma:fry</code>）。</li>
+<li>一个命名向量，包含用于可视化的基因集统计信息。</li>
+<li>一个命名向量，包含DE分析中的基因水平统计信息。</li>
 </ul>
-<p>The gene-set statistic we use for visualisation purposes is a signed log-transformed false discovery rate (<span class="math inline">\(\pm 1\times -\log_{10}(FDR)\)</span>) where the sign is positive for up-regulated gene-sets and negative for down-regulated gene-sets. The gene-level statistic visualised is the log fold-change (logFC).</p>
+<p>我们用于可视化目的的基因集统计数据是一个有正负的对数转换后的假阳性率(<span class="math inline">\(\pm 1\times -\log_{10}(FDR)\)</span>)，其中正代表上调基因集，负代表下调基因集。用于可视化的基因水平统计量是差异倍数的对数（logFC）。</p>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#create a GeneSetCollection by subsetting significant gene-sets</span>
+<code class="sourceCode R"><span class="co">#通过对重要基因集进行子集化来创建 GeneSetCollection</span>
 <span class="va">siggs</span> <span class="op">=</span> <span class="va">genesigs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">fry_res</span><span class="op">)</span><span class="op">]</span>
 <span class="va">siggs</span></code></pre></div>
 <pre><code>## GeneSetCollection
@@ -824,11 +827,11 @@
 ##     geneIdType: SymbolIdentifier (1 total)
 ##     collectionType: BroadCollection, NullCollection (2 total)</code></pre>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#prepare gene-set statistics for visualisation (signed -log10(FDR))</span>
+<code class="sourceCode R"><span class="co">#准备用于可视化的基因集统计量（signed -log10(FDR)）</span>
 <span class="va">gsStats</span> <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">fry_res</span><span class="op">$</span><span class="va">FDR</span><span class="op">)</span>
-<span class="co">#use a positive sign to indicate up-regulated gene-sets</span>
+<span class="co">#使用正号表示上调的基因集</span>
 <span class="va">gsStats</span> <span class="op">=</span> <span class="va">gsStats</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Up'</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">'Down'</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">[</span><span class="va">fry_res</span><span class="op">$</span><span class="va">Direction</span><span class="op">]</span>
-<span class="co">#has to be a named vector</span>
+<span class="co">#必须是一个命名向量</span>
 <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">gsStats</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">fry_res</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">gsStats</span><span class="op">)</span></code></pre></div>
 <pre><code>##                 GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS 
@@ -844,129 +847,129 @@
 ##                        REACTOME_RA_BIOSYNTHESIS_PATHWAY 
 ##                                                 2.34785</code></pre>
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#prepare gene-level statistics for visualisation (logFC)</span>
+<code class="sourceCode R"><span class="co">#为可视化准备基因水平统计数量(logFC)</span>
 <span class="va">gStats</span> <span class="op">=</span> <span class="va">allg_list</span><span class="op">$</span><span class="va">logFC</span>
-<span class="co">#has to be a named vector</span>
+<span class="co">#必须是一个命名向量</span>
 <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">gStats</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">allg_list</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">gStats</span><span class="op">)</span></code></pre></div>
 <pre><code>##      FAT2    TGFBR2    SPINT1      PLS3      PLTP     KLK11 
 ## -7.588511 -9.993858  6.890147 -6.059286 -6.202561  8.779300</code></pre>
 </div>
-<div id="compute-the-overlap-network" class="section level2">
+<div id="计算重叠网络" class="section level2">
 <h2 class="hasAnchor">
-<a href="#compute-the-overlap-network" class="anchor"></a>Compute the overlap network</h2>
-<p>The vissE package supports two gene-set similarity measures based on the overlap of genes between gene-sets: the Jaccard index (default) and the overlap coefficient. The overlap coefficient promotes parent-child relationships between gene-sets therefore is an ideal choice for hierarchically structured databases such as the gene ontology or Reactome, however, this is only recommended when running vissE on a single hierarchically structured database and not a combination of databases.</p>
-<p>Since we performed gene-set testing across various collections of the MSigDB, gene-set similarity is computed using the Jaccard index. We then create a network using the gene-set similarity data and visualise it.</p>
+<a href="#%E8%AE%A1%E7%AE%97%E9%87%8D%E5%8F%A0%E7%BD%91%E7%BB%9C" class="anchor"></a>计算重叠网络</h2>
+<p>vissE包支持两种基于基因集之间基因重叠的基因集相似性度量：Jaccard指数（默认）和重叠系数。重叠系数强调了基因集之间的亲子关系，因此是分层结构数据库（例如GO或Reactome）的理想选择，但是，仅仅推荐在单个分层结构数据库而不是组合式数据库上运行vissE时才这样做。</p>
+<p>由于我们对MSigDB的不同集合进行了基因集测试，因此使用Jaccard指数计算基因集相似性。随后，我们使用基因集相似性数据创建一个网络，并将其可视化。</p>
 <div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://davislaboratory.github.io/vissE">vissE</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://igraph.org">igraph</a></span><span class="op">)</span>
 
-<span class="co">#compute gene-set overlaps between significant gene-sets</span>
+<span class="co">#计算重要基因组之间的重叠</span>
 <span class="va">gs_ovlap</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/computeMsigOverlap.html">computeMsigOverlap</a></span><span class="op">(</span><span class="va">siggs</span>, thresh <span class="op">=</span> <span class="fl">0.25</span>, measure <span class="op">=</span> <span class="st">'jaccard'</span><span class="op">)</span>
-<span class="co">#create a network from overlaps</span>
+<span class="co">#利用重叠创建一个网络</span>
 <span class="va">gs_ovnet</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/computeMsigNetwork.html">computeMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovlap</span>, msigGsc <span class="op">=</span> <span class="va">siggs</span><span class="op">)</span>
-<span class="co">#plot the network</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
+<span class="co">#可视化网络</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#设置随机数以便于获得重复结果</span>
 <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-27-1.png" width="768"></p>
-<p>The overlap network plot above is annotated based on the MSigDB categories, however, more information can be included by annotating nodes with a gene-set statistic. Here we use the gene-set statistics prepared in the previous section.</p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-27-1.png" width="768"></p>
+<p>上面的重叠网络图是基于MSigDB类别注释的，然而，通过使用基因集统计量注释节点可以包含更多信息。这里我们使用上一节准备的基因集统计量。</p>
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#plot the network and overlay gene-set statistics</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
+<code class="sourceCode R"><span class="co">#绘制网络并覆盖基因集统计量</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#设置随机数以便于获得重复结果</span>
 <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span>, genesetStat <span class="op">=</span> <span class="va">gsStats</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-28-1.png" width="768"></p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-28-1.png" width="768"></p>
 </div>
-<div id="identify-communities-within-the-network" class="section level2">
+<div id="确定网络中的群" class="section level2">
 <h2 class="hasAnchor">
-<a href="#identify-communities-within-the-network" class="anchor"></a>Identify communities within the network</h2>
-<p>Given a network of related gene-sets, we expect that related gene-sets would likely represent a common higher-order biological process. As such, we perform clustering on gene-sets to identify gene-set clusters. The user can select their preferred clustering approach, however, we recommended graph clustering approaches in order to use the information provided in the overlap graph. Since we have a network of gene-sets, we can use graph clustering algorithms such as those from the <code>igraph</code> R package. Specifically, the walktrap algorithm is recommended as it works well across both dense and sparse graphs and is good at identifying both large and small clusters <span class="citation">(Yang, Algesheimer, and Tessone 2016)</span>.</p>
+<a href="#%E7%A1%AE%E5%AE%9A%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E7%BE%A4" class="anchor"></a>确定网络中的群</h2>
+<p>给定一个相关基因集的网络，我们预计相关基因集可能代表一个常见的高阶生物过程。因此，我们对基因集进行聚类以识别基因集类群。 用户可以选择他们喜欢的聚类方法，但是，为了使用重叠图中提供的信息，我们在此推荐使用图聚类方法。 由于我们有一个基因集网络，我们可以使用诸如来自<code>igraph</code>R 包的那些图聚类算法。确切地说，我们推荐使用 walktrap 算法，因为它同时适用于密集和稀疏图形，并且擅长识别大小类群<span class="citation">(Yang, Algesheimer, and Tessone 2016)</span>。</p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#identify clusters using a graph clustering algorithm</span>
+<code class="sourceCode R"><span class="co">#使用图聚类算法识别聚类</span>
 <span class="va">grps</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/igraph/man/cluster_walktrap.html">cluster_walktrap</a></span><span class="op">(</span><span class="va">gs_ovnet</span><span class="op">)</span>
-<span class="co">#extract clustering results</span>
+<span class="co">#提取聚类结果</span>
 <span class="va">grps</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/igraph/man/groups.html">groups</a></span><span class="op">(</span><span class="va">grps</span><span class="op">)</span>
-<span class="co">#remove small groups</span>
+<span class="co">#移除小类群</span>
 <span class="va">grps</span> <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">grps</span>, <span class="va">length</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">5</span><span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">grps</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 43</code></pre>
-<p>Since we could identify numerous gene-set clusters, we need to come up with a prioritisation scheme to explore them appropriately. Since the second step of vissE works best for large clusters as there is more information to perform text-mining on, cluster size can be used as a prioritisation scheme. However, large gene-set clusters could simply arise from well-represented processes in databases. For instance, many databases have an over-representation of immune related processes as these have been studied extensively in the past therefore immune processes are likely to form large gene-set clusters. To avoid selecting for such gene-set clusters, we additionally prioritise gene-sets using gene-set statistics. As such a combined prioritisation method is recommended. In this workflow, we prioritise large gene-set clusters that also have a large average statistic (<span class="math inline">\(\mathrm{mean}(-\log_{10}(FDR))\)</span>). The product-of-ranks approach used by <span class="citation">Bhuva, Cursons, and Davis (2020)</span> is used to equally weight both measures when prioritising gene-set clusters.</p>
+<p>由于我们可以识别大量基因集类群，我们需要提出一个优先级方案来适当地探索它们。vissE的第二步对大型聚类最适用，因为有更多信息可用于进行文本挖掘分析，因此类群大小可用作优先级方案。然而，大型基因集类群可能只是从数据库中具有良好代表性的过程中产生的。例如，许多数据库过多地描述了免疫相关过程，因为过去对这些过程进行了广泛研究，因此免疫过程可能会形成大型基因集类群。为了避免选择这样的基因集类群，我们还使用基因集统计量对基因集进行了优先级排序。因此，我们建议采用组合优先排序方法。在此分析流程中，我们优先考虑同时具有较大平均统计量(<span class="math inline">\(\mathrm{mean}(-\log_{10}(FDR))\)</span>)的大型基因集类群。<span class="citation">(Bhuva, Cursons, and Davis 2020)</span>使用的等级乘积方法用于在对基因集类群进行排序时，对这两个度量进行同等加权。</p>
 <div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#compute cluster sizes</span>
+<code class="sourceCode R"><span class="co">#计算类群大小</span>
 <span class="va">grp_size</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">grps</span>, <span class="va">length</span><span class="op">)</span>
-<span class="co">#compute cluster statistic - median of the absolute statistic</span>
+<span class="co">#计算类群统计量-绝对统计量的中位数</span>
 <span class="va">grp_stat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">grps</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html">median</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">gsStats</span><span class="op">[</span><span class="va">x</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#combine using product of ranks</span>
+<span class="co">#结合排序乘积</span>
 <span class="va">grp_pr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">grp_size</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html">rank</a></span><span class="op">(</span><span class="va">grp_stat</span><span class="op">)</span>
-<span class="co">#order group using the product of ranks - maximise cluster size and statistic</span>
+<span class="co">#使用排序乘积对组进行排序-最大化类群的大小和统计量</span>
 <span class="va">grps</span> <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">grp_pr</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></code></pre></div>
-<p>Clearly, from the number of gene-set clusters obtained, it will be difficult to visualize the gene-set clusters all at once, therefore, we focus our analysis on the top 12 prioritised gene-set clusters.</p>
+<p>显然，从获得的基因集类群的数量来看，很难一次将所有基因集类群可视化，因此，我们将重点分析前12个优先的基因集类群。</p>
 <div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#plot the top 12 clusters</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
+<code class="sourceCode R"><span class="co">#绘制前12个类群</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#设置随机数以便于获得重复结果</span>
 <span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span>, markGroups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, genesetStat <span class="op">=</span> <span class="va">gsStats</span><span class="op">)</span>
 <span class="va">p1</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-31-1.png" width="768"></p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-31-1.png" width="768"></p>
 </div>
-<div id="characterise-gene-set-clusters" class="section level2">
+<div id="描述基因集聚类特征" class="section level2">
 <h2 class="hasAnchor">
-<a href="#characterise-gene-set-clusters" class="anchor"></a>Characterise gene-set clusters</h2>
-<p>Having identified gene-set clusters, we would want to derive a biological explanation for each cluster. Since gene-sets from the MSigDB are appropriately named (even those that are not manually curated) and come with short descriptions, we can harness this information to evaluate the common biological theme for each cluster.</p>
+<a href="#%E6%8F%8F%E8%BF%B0%E5%9F%BA%E5%9B%A0%E9%9B%86%E8%81%9A%E7%B1%BB%E7%89%B9%E5%BE%81" class="anchor"></a>描述基因集聚类特征</h2>
+<p>在对基因集进行聚类之后，我们想对每个类群进行生物学解释。由于来自MSigDB的基因集有合适的命名（即使是那些没有人工校正的基因集）并带有简短的描述，我们可以利用这些信息来评估每个类群的共同生物学主题。</p>
 <div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#all gene-sets have names</span>
+<code class="sourceCode R"><span class="co">#所有基因集都有名字</span>
 <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">siggs</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, <span class="va">setName</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] "GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS"     
 ## [2] "GO_LABYRINTHINE_LAYER_MORPHOGENESIS"         
 ## [3] "GO_DNA_UNWINDING_INVOLVED_IN_DNA_REPLICATION"</code></pre>
 <div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#almost all gene-sets have short descriptions</span>
+<code class="sourceCode R"><span class="co">#几乎所有的基因集都有简短的描述</span>
 <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">siggs</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, <span class="va">description</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] "The chemical reactions and pathways involving dicarboxylic acids, any organic acid containing three carboxyl (COOH) groups or anions (COO-). [GOC:mah]"                                        
 ## [2] "The process in which the labyrinthine layer of the placenta is generated and organized. [GOC:dph]"                                                                                             
 ## [3] "The process in which interchain hydrogen bonds between two strands of DNA are broken or 'melted', generating unpaired template strands for DNA replication. [ISBN:071673706X, ISBN:0815316194]"</code></pre>
-<p>VissE automatically annotates each cluster by performing text mining analysis of either gene-set names or descriptions. Word frequencies weighted by the inverse document frequency (IDF) are computed within each cluster and visualised using the word clouds. These word clouds can be used to automatically annotate gene-sets</p>
+<p>VissE通过对基因集名或描述进行文本挖掘分析，自动对每个聚类进行注释。在每个类群内计算通过逆文档频率（IDF）加权的词频，并使用词云进行可视化。这些词云可以用来自动注释基因集。</p>
 <div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#compute and plot the results of text-mining: using gene-set name</span>
+<code class="sourceCode R"><span class="co">#计算并绘制文本挖掘的结果：使用基因集名</span>
 <span class="va">p2</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigWordcloud.html">plotMsigWordcloud</a></span><span class="op">(</span>msigGsc <span class="op">=</span> <span class="va">siggs</span>, groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'Name'</span><span class="op">)</span>
 <span class="va">p2</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-33-1.png" width="864"></p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-33-1.png" width="864"></p>
 <div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#compute and plot the results of text-mining: using gene-set short description</span>
+<code class="sourceCode R"><span class="co">#计算并绘制文本挖掘结果：使用基因集简短描述</span>
 <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigWordcloud.html">plotMsigWordcloud</a></span><span class="op">(</span>msigGsc <span class="op">=</span> <span class="va">siggs</span>, groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'Short'</span><span class="op">)</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-33-2.png" width="864"></p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-33-2.png" width="864"></p>
 </div>
-<div id="visualise-gene-level-statistics-for-gene-set-clusters" class="section level2">
+<div id="可视化基因集聚类的基因水平统计量" class="section level2">
 <h2 class="hasAnchor">
-<a href="#visualise-gene-level-statistics-for-gene-set-clusters" class="anchor"></a>Visualise gene-level statistics for gene-set clusters</h2>
-<p>After annotating gene-set clusters with biological themes, the next step is to further understand the individual contributing to the significance of these gene-set clusters. Here we link up the gene-level statistics (e.g., from a DE analysis) for each gene-set cluster identified. In addition to the statistic, it could be useful to assess the frequency of gene in the gene-set cluster, that is, the number of gene-sets within the cluster to which a gene belongs. In the <code><a href="https://DavisLaboratory.github.io/vissE/reference/plotGeneStats.html">plotGeneStats()</a></code> function, we plot gene-level statistic against gene frequencies. Genes with a high statistic and a high frequency could be though of as key genes in the biological process identified. To reduce over-plotting, a jitter is applied along the x-axis (due to its discrete nature).</p>
+<a href="#%E5%8F%AF%E8%A7%86%E5%8C%96%E5%9F%BA%E5%9B%A0%E9%9B%86%E8%81%9A%E7%B1%BB%E7%9A%84%E5%9F%BA%E5%9B%A0%E6%B0%B4%E5%B9%B3%E7%BB%9F%E8%AE%A1%E9%87%8F" class="anchor"></a>可视化基因集聚类的基因水平统计量</h2>
+<p>在用生物学主题注释基因集聚类之后，下一步是进一步了解对这些基因集类群的显著性做出贡献的个体。在这里，我们将每个已鉴定的基因集类群的基因水平统计数据（例如，来自DE分析）联系起来。除了这些统计量之外，评估基因集类群中的基因频率也可能有用，即基因所属的类群内基因集的数量。在函数<code><a href="https://DavisLaboratory.github.io/vissE/reference/plotGeneStats.html">plotGeneStats()</a></code>中，我们根据基因频率绘制基因水平统计量。具有高统计量和高频率的基因可以被认为是鉴定的生物学过程中的关键基因。为了减少过度绘制，对x轴使用了抖动（由于其离散性）。</p>
 <div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#plot the gene-level statistics (logFC)</span>
+<code class="sourceCode R"><span class="co">#绘制基因水平统计量（logFC）</span>
 <span class="va">p3</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotGeneStats.html">plotGeneStats</a></span><span class="op">(</span><span class="va">gStats</span>,
                    msigGsc <span class="op">=</span> <span class="va">siggs</span>,
                    groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>,
                    statName <span class="op">=</span> <span class="st">'logFC'</span><span class="op">)</span>
-<span class="co">#since all vissE plots are ggplot2 objects, they can be modified</span>
+<span class="co">#由于所有vissE的图都是ggplot2对象，因此可以对其进行修改</span>
 <span class="va">p3</span> <span class="op">=</span> <span class="va">p3</span> <span class="op">+</span> <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, colour <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
 <span class="va">p3</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-34-1.png" width="864"></p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-34-1.png" width="864"></p>
 </div>
-<div id="interpreting-biology-from-visse" class="section level2">
+<div id="由visse解读生物学意义" class="section level2">
 <h2 class="hasAnchor">
-<a href="#interpreting-biology-from-visse" class="anchor"></a>Interpreting biology from vissE</h2>
-<p>Now that we have generated the three plots, we can combine them to provide a holistic view of the data. This will provide an integrated view of biological themes identified by the analysis, as well as the underlying genes driving these gene-sets.</p>
+<a href="#%E7%94%B1visse%E8%A7%A3%E8%AF%BB%E7%94%9F%E7%89%A9%E5%AD%A6%E6%84%8F%E4%B9%89" class="anchor"></a>由vissE解读生物学意义</h2>
+<p>现在我们已经生成了三个图，我们可以将它们结合起来以提供数据的整体视图。这将提供一个由分析鉴定的生物学主题的综合视图，以及驱动这些基因集的潜在基因。</p>
 <div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
 
-<span class="co">#combine plots into a unified visualisation</span>
+<span class="co">#将图组合成统一的可视化效果</span>
 <span class="va">p2</span> <span class="op">+</span> <span class="va">p1</span> <span class="op">+</span> <span class="va">p3</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-35-1.png" width="1440"></p>
-<p>An expected result of this analysis is identified in cluster “90” that contains 9 gene-sets. We can generate the plot above specifically for cluster “90” and while doing so, annotate more genes in the gene-level statistics plot.</p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-35-1.png" width="1440"></p>
+<p>该分析的预期结果在包含9个基因集的类群“90”中确定。我们可以专门为类群“90”生成上面的图，同时在基因水平统计图中注释更多的基因。</p>
 <div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#investigate specific clusters</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#set seed for reproducible layout</span>
-<span class="co">#select group to plot</span>
+<code class="sourceCode R"><span class="co">#研究特定的类群</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#设置随机数以便于获得重复结果</span>
+<span class="co">#选择要绘图的类群</span>
 <span class="va">g</span> <span class="op">=</span> <span class="st">'90'</span>
 
-<span class="co"># extract cluster of interest</span>
+<span class="co">#提取感兴趣的类群</span>
 <span class="va">grps</span><span class="op">[</span><span class="st">'90'</span><span class="op">]</span></code></pre></div>
 <pre><code>## $`90`
 ## [1] "GO_KERATINIZATION"                           
@@ -979,7 +982,7 @@
 ## [8] "GO_EPIDERMIS_DEVELOPMENT"                    
 ## [9] "GO_SKIN_DEVELOPMENT"</code></pre>
 <div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#compute and plot vissE panels for the group</span>
+<code class="sourceCode R"><span class="co">#为指定类群计算并绘制vissE面板</span>
 <span class="va">p1_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span>, markGroups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="va">g</span><span class="op">]</span>, genesetStat <span class="op">=</span> <span class="va">gsStats</span><span class="op">)</span>
 <span class="va">p2_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigWordcloud.html">plotMsigWordcloud</a></span><span class="op">(</span>msigGsc <span class="op">=</span> <span class="va">siggs</span>, groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="va">g</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'Short'</span><span class="op">)</span>
 <span class="va">p3_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotGeneStats.html">plotGeneStats</a></span><span class="op">(</span>
@@ -990,19 +993,19 @@
   topN <span class="op">=</span> <span class="fl">25</span>
 <span class="op">)</span> <span class="op">+</span> <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">2</span>, colour <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
 <span class="va">p2_g</span> <span class="op">+</span> <span class="va">p1_g</span> <span class="op">+</span> <span class="va">p3_g</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_files/figure-html/unnamed-chunk-36-1.png" width="1440"></p>
-<p>The word cloud computed using gene-set names hints at a theme around keratinisation. This is further empahsised when annotating the cluster using gene-set descriptions. An additional line of evidence for this theme is the gene-level statistic plot that shows keratin genes (<em>KRT</em>s) having high logFCs and frequencies. Gene-sets in the gene-set cluster are tightly clustered suggesting they share many genes among themselves. This cluster is mainly composed of gene-sets that are being up-regulated in PMC42-LA compared to PMC42-ET. As was discussed in the background biology section of this document, keratin-rich adherens junctions are characteristics of an epithelial phenotype. This is consistent with the visualisations provided by the vissE analysis.</p>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-36-1.png" width="1440"></p>
+<p>使用基因集名称计算的词云暗示了一个围绕角化的主题。当使用基因集描述注释类群时，这一点进一步得到强调。这个主题的另一个证据是基因水平的统计图，它显示了角蛋白基因(<em>KRT</em>s)具有高logFC和频率。基因集类群中的基因集紧密聚集，表明它们之间共享许多基因。该类群主要由与PMC42-ET相比在PMC42-LA中上调的基因集组成。正如前文的背景生物学部分所讨论的，富含角蛋白的粘附连接是上皮表型的特征，这与vissE分析提供的可视化结果一致。</p>
 </div>
 </div>
-<div id="summary" class="section level1">
+<div id="总结" class="section level1">
 <h1 class="hasAnchor">
-<a href="#summary" class="anchor"></a>Summary</h1>
-<p>Functional analysis is an important component of a bioinformatics pipeline and is key point in connecting bioinformatics with biology. The tools presented in this workflow allow users to investigate molecular phenotypes in biological systems using gene-set enrichment analysis. These tools and the workflow put an emphasis on visualisation as this is an important factor in interacting with data and interpreting meaningful biology from molecular data.</p>
+<a href="#%E6%80%BB%E7%BB%93" class="anchor"></a>总结</h1>
+<p>功能性分析是生物信息学流程的重要组成部分，也是连接生物信息学与生物学的关键环节。此分析流程中提供的工具允许用户使用基因集富集分析来研究生物系统中的分子表型。这些工具和分析流程重点强调了可视化，因为这是与数据交互和从分子数据中阐释有意义的生物学过程的重要因素。</p>
 </div>
-<div id="packages-used" class="section level1 unnumbered">
+<div id="使用的包" class="section level1 unnumbered">
 <h1 class="hasAnchor">
-<a href="#packages-used" class="anchor"></a>Packages used</h1>
-<p>This workflow depends on various packages from version 3.14 of the Bioconductor project, running on R version 4.1.1 (2021-08-10) or higher. The complete list of the packages used for this workflow are shown below:</p>
+<a href="#%E4%BD%BF%E7%94%A8%E7%9A%84%E5%8C%85" class="anchor"></a>使用的包</h1>
+<p>本次分析流程依赖于Bioconductor项目的3.14中的各种包，它们在R version 4.1.1 (2021-08-10)或更高版本上运行。用于此流程的包的完整列表如下:</p>
 <div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## R version 4.1.1 (2021-08-10)
@@ -1101,10 +1104,10 @@
 ## [115] ggnewscale_0.4.5              ggforce_0.3.3                
 ## [117] NLP_0.2-1                     shiny_1.7.0</code></pre>
 </div>
-<div id="acknowledgments" class="section level1 unnumbered">
+<div id="致谢" class="section level1 unnumbered">
 <h1 class="hasAnchor">
-<a href="#acknowledgments" class="anchor"></a>Acknowledgments</h1>
-<p>We would like to thank Ahmed Mohamed for his ideas on improving text-mining.</p>
+<a href="#%E8%87%B4%E8%B0%A2" class="anchor"></a>致谢</h1>
+<p>我们要感谢Ahmed Mohamed关于改进文本挖掘的想法。</p>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
@@ -1118,9 +1121,6 @@ Bhuva, Dharmesh D, Joseph Cursons, and Melissa J Davis. 2020. <span>“Stable Ge
 </div>
 <div id="ref-bhuva19" class="csl-entry">
 Bhuva, Dharmesh D, Momeneh Foroutan, Yi Xie, Ruqian Lyu, Joseph Cursons, and Melissa J Davis. 2019. <span>“Using Singscore to Predict Mutation Status in Acute Myeloid Leukemia from Transcriptomic Signatures.”</span> <em>F1000Research</em> 8.
-</div>
-<div id="ref-R-edgeR" class="csl-entry">
-Chen, Yunshun, Aaron TL Lun, Davis J McCarthy, Matthew E Ritchie, Belinda Phipson, Yifang Hu, Xiaobei Zhou, Mark D Robinson, and Gordon K Smyth. 2021. <em>edgeR: Empirical Analysis of Digital Gene Expression Data in r</em>.
 </div>
 <div id="ref-chen16" class="csl-entry">
 Chen, Yunshun, Aaron TL Lun, and Gordon K Smyth. 2016. <span>“From Reads to Genes to Pathways: Differential Expression Analysis of RNA-Seq Experiments Using Rsubread and the edgeR Quasi-Likelihood Pipeline.”</span> <em>F1000Research</em> 5.
@@ -1157,9 +1157,6 @@ Qiu, Yixuan. 2021. <em>Prettydoc: Creating Pretty Documents from r Markdown</em>
 </div>
 <div id="ref-ribeiro2015" class="csl-entry">
 Ribeiro, Ana Sofia, and Joana Paredes. 2015. <span>“P-Cadherin Linking Breast Cancer Stem Cells and Invasion: A Promising Marker to Identify an ’Intermediate/Metastable’ EMT State.”</span> <em>Frontiers in Oncology</em> 4.
-</div>
-<div id="ref-robinson10" class="csl-entry">
-Robinson, Mark D, and Alicia Oshlack. 2010. <span>“A Scaling Normalization Method for Differential Expression Analysis of RNA-Seq Data.”</span> <em>Genome Biology</em> 11 (3): 1–9.
 </div>
 <div id="ref-subramanian05" class="csl-entry">
 Subramanian, Aravind, Pablo Tamayo, Vamsi K Mootha, Sayan Mukherjee, Benjamin L Ebert, Michael A Gillette, Amanda Paulovich, et al. 2005. <span>“Gene Set Enrichment Analysis: A Knowledge-Based Approach for Interpreting Genome-Wide Expression Profiles.”</span> <em>Proceedings of the National Academy of Sciences</em> 102 (43): 15545–50.
