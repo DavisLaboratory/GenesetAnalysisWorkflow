@@ -35,12 +35,12 @@ nocite: |
   @R-ggplot2, @R-knitr, @R-BiocWorkflowTools, @R-rmarkdown, @R-prettydoc
 bibliography: [bibliography.bib, packages.bib]
 vignette: >
-  %\VignetteIndexEntry{Molecular phenotyping and visualisation from individual samples using singscore, vissE and msigdb.}
+  %\VignetteIndexEntry{使用R包singscore，vissE和msigdb对单样本进行分子表型可视化。}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 keywords: single sample, gene set scoring, signature scoring, visualisation
 abstract: >
-  Abstract
+  摘要
 ---
 
 <p>
