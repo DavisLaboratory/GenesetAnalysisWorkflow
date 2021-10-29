@@ -950,17 +950,17 @@
 <span class="va">p3</span></code></pre></div>
 <p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-34-1.png" width="864"></p>
 </div>
-<div id="assessing-protein-protein-interactions-within-clusters" class="section level2">
+<div id="评估聚类中的蛋白质互作ppi" class="section level2">
 <h2 class="hasAnchor">
-<a href="#assessing-protein-protein-interactions-within-clusters" class="anchor"></a>Assessing protein-protein interactions within clusters</h2>
-<p>Like gene-sets, protein-protein interaction (PPI) networks can be used to assess functional roles of groups of genes. Genes associated via protein-protein interactions are likely involved in related functions. To assess this independent line of evidence, vissE provides a module to assess the protein-protein interactions between genes in a gene-set cluster.</p>
-<p>Before a network is generated for each cluster, the full human PPI network needs to be loaded. The <code>msigdb</code> R/Bioconductor package provides the processed PPI network from the international molecular exchange consortium (IMEx). Human and mouse PPIs are available and can be loaded using the <code><a href="https://rdrr.io/pkg/msigdb/man/getIMEX.html">getIMEX()</a></code> function. To expand coverage, PPIs can be borrowed from across organisms via a homology-based translation. This can be done by setting <code>inferred=TRUE</code>.</p>
+<a href="#%E8%AF%84%E4%BC%B0%E8%81%9A%E7%B1%BB%E4%B8%AD%E7%9A%84%E8%9B%8B%E7%99%BD%E8%B4%A8%E4%BA%92%E4%BD%9Cppi" class="anchor"></a>评估聚类中的蛋白质互作（PPI）</h2>
+<p>与基因集一样，蛋白质间相互作用（PPI）网络也可用于评估基因组合的功能作用。参与蛋白质间相互作用的相关的基因很可能也参与相关功能。为了评估这种独立的证据，vissE提供了一种模块，用来评估基因集类群中基因之间的蛋白质间相互作用。</p>
+<p>在为每个类群生成网络之前，需要加载完整的人类PPI网络。<code>msigdb</code>包提供了来自国际分子交换联盟(IMEx)处理过的PPI网络。人类和小鼠的PPIs是可用的，可以使用<code><a href="https://rdrr.io/pkg/msigdb/man/getIMEX.html">getIMEX()</a></code>函数加载。为了扩大覆盖范围，PPIs可以通过同源转换从不同的生物体中借用。这一点可以通过设置<code>inferred=TRUE</code>来实现。</p>
 <div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#find versions of IMEx stored</span>
+<code class="sourceCode R"><span class="co">#查找存储的IMEx版本</span>
 <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/getIMEXVersions.html">getIMEXVersions</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] "2021-07-06"</code></pre>
 <div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#load the human PPI data from the IMEx database using the msigdb package</span>
+<code class="sourceCode R"><span class="co">#使用msigdb包从IMEx数据库加载人类的PPI数据</span>
 <span class="va">ppi</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/getIMEX.html">getIMEX</a></span><span class="op">(</span>org <span class="op">=</span> <span class="st">'hs'</span>, inferred <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">ppi</span><span class="op">)</span></code></pre></div>
 <pre><code>##   EntrezA EntrezB Taxid InteractorA InteractorB SymbolA SymbolB
@@ -977,14 +977,14 @@
 ## 4 physical association      two hybrid  0.3678499    FALSE
 ## 5 physical association      two hybrid  0.3678499    FALSE
 ## 6 physical association      two hybrid  0.3678499    FALSE</code></pre>
-<p>Gene-level statistics are annotated onto each gene in the network to provide a holistic view. The network can be filtered using the following filters:</p>
+<p>使用基因水平统计量来注释网络中的每个基因，以提供整体视图。可以使用以下过滤条件对网络进行过滤：</p>
 <ol style="list-style-type: decimal">
 <li>
-<code>threshFrequency</code> - this selects nodes that have a specific frequency in a gene-set cluster, that is, the proportion of gene-sets in the cluster in which the gene belongs.</li>
+<code>threshFrequency</code> - 将选择在一个基因集类群中具有特定频率的节点，即该基因所属的基因集在类群中的比例。</li>
 <li>
-<code>threshConfidence</code> - this applies a filter on the PPI edges to select interactions that have a high confidence statistic.</li>
+<code>threshConfidence</code> - 将对PPI的边界进行过滤，以选择具有高置信度统计量的相互作用。</li>
 <li>
-<code>threshStatistic</code> - this selects genes that have a statistic of interest (e.g., lof fold-change) greater than the threshold.</li>
+<code>threshStatistic</code> - 将选择感兴趣的统计量(例如，倍数差异对数值)大于阈值的基因。</li>
 </ol>
 <div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p4</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigPPI.html">plotMsigPPI</a></span><span class="op">(</span>
@@ -992,10 +992,10 @@
   msigGsc <span class="op">=</span> <span class="va">siggs</span>,
   groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>,
   geneStat <span class="op">=</span> <span class="va">gStats</span>,
-  threshFrequency <span class="op">=</span> <span class="fl">0.25</span>, <span class="co">#threshold on gene frequency per cluster</span>
-  threshConfidence <span class="op">=</span> <span class="fl">0.2</span>, <span class="co">#threshold on PPI edge confidence</span>
-  threshStatistic <span class="op">=</span> <span class="fl">0.5</span>, <span class="co">#threshold on gene-level statistic</span>
-  threshUseAbsolute <span class="op">=</span> <span class="cn">TRUE</span> <span class="co">#apply threshold to absolute values</span>
+  threshFrequency <span class="op">=</span> <span class="fl">0.25</span>, <span class="co">#每个类群中基因频率阈值</span>
+  threshConfidence <span class="op">=</span> <span class="fl">0.2</span>, <span class="co">#PPI边界置信度阈值</span>
+  threshStatistic <span class="op">=</span> <span class="fl">0.5</span>, <span class="co">#基因水平统计量阈值</span>
+  threshUseAbsolute <span class="op">=</span> <span class="cn">TRUE</span> <span class="co">#对绝对值应用阈值</span>
 <span class="op">)</span>
 <span class="va">p4</span></code></pre></div>
 <p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-36-1.png" width="700"></p>
