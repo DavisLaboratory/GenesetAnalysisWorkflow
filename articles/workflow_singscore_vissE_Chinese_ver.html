@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">GenesetAnalysisWorkflow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2</span>
       </span>
     </div>
 
@@ -103,7 +103,7 @@
       Bioinformatics Division, Walter and Eliza Hall Institute of Medical Research, Parkville, VIC 3052, AustraliaDepartment of Medical Biology, University of Melbourne, Parkville, VIC 3010, AustraliaDepartment of Biochemistry and Molecular Biology, Faculty of Medicine, Dentistry and Health Sciences, University of Melbourne, Parkville, VIC, 3010, Australia<br><a class="author_email" href="mailto:#"></a><a href="mailto:davis.m@wehi.edu.au" class="email">davis.m@wehi.edu.au</a>
       </address>
                   
-            <h4 class="date">Sep 2021</h4>
+            <h4 class="date">Oct 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/DavisLaboratory/GenesetAnalysisWorkflow/blob/master/vignettes/workflow_singscore_vissE_Chinese_ver.Rmd"><code>vignettes/workflow_singscore_vissE_Chinese_ver.Rmd</code></a></small>
       <div class="hidden name"><code>workflow_singscore_vissE_Chinese_ver.Rmd</code></div>
@@ -118,7 +118,7 @@
     
 <p>
 </p>
-<p><strong>R version</strong>: R version 4.1.1 (2021-08-10) <br><strong>Bioconductor version</strong>: 3.14 <br><strong>Package version</strong>: 0.9.1</p>
+<p><strong>R version</strong>: R version 4.1.1 (2021-08-10) <br><strong>Bioconductor version</strong>: 3.14 <br><strong>Package version</strong>: 0.9.2</p>
 
 <div id="背景介绍" class="section level1">
 <h1 class="hasAnchor">
@@ -132,7 +132,7 @@
 <p>上皮-间充质转化（EMT）是一种细胞过程，描述了静态极化的上皮细胞转化为活动的间充质细胞表型的现象。它是涉及胚胎发生和组织分化的基础机制。而在癌症方面，它与癌症进展和转移有关。EMT导致上皮特征的逐渐丧失以及间充质特征的获得，使得癌症中的细胞获得了转移与侵袭的特性，诱导了细胞干性，从而避免了细胞凋亡和衰老，具备了免疫抗性。(<span class="citation">Ksiazkiewicz, Markiewicz, and Zaczek (2012)</span>)</p>
 <p>EMT的特征是上皮标志物（如E-钙粘蛋白和密封蛋白）的下调以及间充质标志物（如波形蛋白和N-钙粘蛋白）的上调。这些标志物的改变会导致细胞间的粘附力和细胞极性的丧失，以及迁移性和侵袭性的获得。而从富含角蛋白的粘连网络转换成富含波形蛋白的黏着斑网络则伴随着钙粘蛋白从E型转为N型<span class="citation">(Tomita et al. 2000)</span>。</p>
 <p>尽管癌细胞通过EMT促进转移扩散，但它们很少完全转化为间充质表型，而是表现出一种杂交表型，被宽泛地称为上皮间充质可塑性（EMP）。EMP与乳腺癌转移风险的增加以及不良预后相关<span class="citation">(Cursons et al. 2015)</span>。受限于缺乏可靠的进展读数以及由此导致的对EMT的过渡与进展状态的有限研究，目前针对这种瞬态/亚稳态表型提出的特定标志物有限。这种混合态的特定标志物的鉴定将为确定转移的干预措施，以及揭示潜在治疗方法的机制提供关键信息。<span class="citation">(Ribeiro and Paredes 2015)</span></p>
-<p>在本次分析流程中，我们使用来自<span class="citation">(Cursons et al. 2015)</span>研究的批量转录组数据，该研究在两种乳腺癌细胞系模型中，即PMC42 system（PMC42-ET和PMC42-LA亚株）和MDA-MB-468，对EMP进行研究。在该数据集中，PMC42-LA是一种源自波形蛋白阳性，E-钙粘蛋白阴性的亲本PMC42-ET细胞的上皮亚系，两者均被归类为具有“基底B”转录组（表达间充质基因，缺乏上皮标记基因表达）。</p>
+<p>在本次分析流程中，我们使用来自<span class="citation">(Cursons et al. 2015)</span>研究的批量转录组数据，该研究在两种乳腺癌细胞系模型中，即PMC42 system（PMC42-ET和PMC42-LA亚株）和MDA-MB-468，对EMP进行研究。在该数据集中，PMC42-LA是一种源自波形蛋白阳性，E-钙粘蛋白阴性的亲本PMC42-ET细胞的上皮亚系，两者均被归类为具有”基底B”转录组（表达间充质基因，缺乏上皮标记基因表达）。</p>
 </div>
 <div id="单个样本的分子表型" class="section level1">
 <h1 class="hasAnchor">
@@ -148,7 +148,7 @@
 <li>foroutan2017_se - 一份EMT诱导实验的汇编数据，结合并消除了批次效应<span class="citation">(Foroutan et al. 2017)</span>.</li>
 </ol>
 <p>本次分析流程中使用的数据为<span class="citation">(Cursons et al. 2015)</span>RNA-seq数据。从SRA下载RNA-seq数据，并使用Subread aligner<span class="citation">(Liao, Smyth, and Shi 2013)</span>和featureCounts<span class="citation">(Liao, Smyth, and Shi 2014)</span>对数据进行处理生成计数矩阵。随后使用<code><a href="https://rdrr.io/pkg/edgeR/man/filterByExpr.html">edgeR::filterByExpr()</a></code>函数过滤掉低表达基因。使用<code>edgeR</code> R/Bioconductor包中的相关函数，根据TMM计算得到标准化因子，并计算基因的每百万读数中每千碱基映射读数（RPKM）。随后数据被存储在SummarizedExperiment对象中，可以使用<code>emtdata</code> R/Bioconductor包从<code>ExperimentHub</code>中被检索到。</p>
-<p>来自<code>emtdata</code>包的数据可以使用包内的访问器或者<code>ExperimentHub</code>被检索到。以下的检索将搜索hub中与搜索词“emtdata”相关联的所有对象。检索到<code>emtdata</code>包中可用的三个数据集的信息。</p>
+<p>来自<code>emtdata</code>包的数据可以使用包内的访问器或者<code>ExperimentHub</code>被检索到。以下的检索将搜索hub中与搜索词”emtdata”相关联的所有对象。检索到<code>emtdata</code>包中可用的三个数据集的信息。</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">ExperimentHub</span><span class="op">)</span>
 
@@ -156,7 +156,7 @@
 <span class="va">res</span> <span class="op">=</span> <span class="fu">query</span><span class="op">(</span><span class="va">eh</span>, <span class="st">'emtdata'</span><span class="op">)</span>
 <span class="va">res</span></code></pre></div>
 <pre><code>## ExperimentHub with 3 records
-## # snapshotDate(): 2021-09-24
+## # snapshotDate(): 2021-10-18
 ## # $dataprovider: Walter and Eliza Hall Institute of Medical Research, Queens...
 ## # $species: Homo sapiens
 ## # $rdataclass: GSEABase::SummarizedExperiment
@@ -424,7 +424,7 @@
 <span class="va">msigdb.hs</span></code></pre></div>
 <pre><code>## GeneSetCollection
 ##   names: chr11q, chr6q, ..., KEGG_VIRAL_MYOCARDITIS (31508 total)
-##   unique identifiers: AP001767.2, SLC22A9, ..., AC023491.2 (40044 total)
+##   unique identifiers: AP001767.2, SLC22A9, ..., OR8U3 (40049 total)
 ##   types in collection:
 ##     geneIdType: SymbolIdentifier (1 total)
 ##     collectionType: BroadCollection (1 total)</code></pre>
@@ -638,10 +638,10 @@
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">msigdb_scores</span>, <span class="va">dim</span><span class="op">)</span></code></pre></div>
 <pre><code>## $Scores
-## [1] 12352    21
+## [1] 21043    21
 ## 
 ## $Dispersions
-## [1] 12352    21</code></pre>
+## [1] 21043    21</code></pre>
 <p>通过绘制所有基因集的得分vs离散度可以展示这两种值之间的一般趋势。这种趋势是预料之中的，因为只有当基因集中的基因都协调表达时才能获得强正或强负的得分。更有趣的是那些有着低离散度和评分接近0的基因集，这些基因集包含的协调表达基因相对于所有被测量基因平均表达。</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/smoothScatter.html">smoothScatter</a></span><span class="op">(</span><span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Scores</span>, <span class="va">msigdb_scores</span><span class="op">$</span><span class="va">Dispersions</span>, xlab <span class="op">=</span> <span class="st">'Score'</span>, ylab <span class="op">=</span> <span class="st">'Dispersion'</span>, main <span class="op">=</span> <span class="st">'Score vs Dispersion'</span><span class="op">)</span></code></pre></div>
@@ -662,8 +662,8 @@
 ##                                                                             -0.3041113 
 ##                                           GO_INTERMEDIATE_DENSITY_LIPOPROTEIN_PARTICLE 
 ##                                                                             -0.2954161 
-##                                                GO_NORADRENERGIC_NEURON_DIFFERENTIATION 
-##                                                                             -0.2788329</code></pre>
+##                                                 HP_DECREASED_SERUM_COMPLEMENT_FACTOR_I 
+##                                                                             -0.2910616</code></pre>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span><span class="op">(</span><span class="va">et_la_scores</span><span class="op">)</span></code></pre></div>
 <pre><code>##                            BIOCARTA_CYTOKINE_PATHWAY 
@@ -741,9 +741,7 @@
 <span class="va">genesigs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
   <span class="va">epi_sig</span>,
   <span class="va">mes_sig</span>,
-  <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection</a></span><span class="op">(</span><span class="va">msigdb.hs</span>, <span class="st">'h'</span><span class="op">)</span>,
-  <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection</a></span><span class="op">(</span><span class="va">msigdb.hs</span>, <span class="st">'c2'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'CP:KEGG'</span>, <span class="st">'CP:REACTOME'</span>, <span class="st">'CP:BIOCARTA'</span><span class="op">)</span><span class="op">)</span>,
-  <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection</a></span><span class="op">(</span><span class="va">msigdb.hs</span>, <span class="st">'c5'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'GO:BP'</span>, <span class="st">'GO:MF'</span>, <span class="st">'GO:CC'</span><span class="op">)</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/subsetCollection.html">subsetCollection</a></span><span class="op">(</span><span class="va">msigdb.hs</span>, <span class="st">'h'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'CP:KEGG'</span>, <span class="st">'CP:REACTOME'</span>, <span class="st">'CP:BIOCARTA'</span>, <span class="st">'GO:BP'</span>, <span class="st">'GO:MF'</span>, <span class="st">'GO:CC'</span><span class="op">)</span><span class="op">)</span>
 <span class="op">)</span>
 <span class="va">genesigs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GSEABase/man/GeneSetCollection-methods.html">GeneSetCollection</a></span><span class="op">(</span><span class="va">genesigs</span><span class="op">)</span>
 
@@ -791,7 +789,7 @@
 ## GO_DNA_POLYMERASE_COMPLEX                               6.086205e-06
 ## REACTOME_RA_BIOSYNTHESIS_PATHWAY                        3.192814e-06
 ##                                                            FDR.Mixed
-## GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS                 1.980857e-05
+## GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS                 1.981291e-05
 ## GO_LABYRINTHINE_LAYER_MORPHOGENESIS                     3.173336e-06
 ## GO_DNA_UNWINDING_INVOLVED_IN_DNA_REPLICATION            3.608736e-06
 ## GO_POSITIVE_REGULATION_OF_T_HELPER_CELL_DIFFERENTIATION 7.916704e-06
@@ -822,7 +820,7 @@
 <span class="va">siggs</span></code></pre></div>
 <pre><code>## GeneSetCollection
 ##   names: GO_TRICARBOXYLIC_ACID_METABOLIC_PROCESS, GO_LABYRINTHINE_LAYER_MORPHOGENESIS, ..., GO_PLATELET_ALPHA_GRANULE_LUMEN (1667 total)
-##   unique identifiers: CS, SIRT4, ..., CDY2A (13779 total)
+##   unique identifiers: CS, SIRT4, ..., CDY2A (13781 total)
 ##   types in collection:
 ##     geneIdType: SymbolIdentifier (1 total)
 ##     collectionType: BroadCollection, NullCollection (2 total)</code></pre>
@@ -952,18 +950,68 @@
 <span class="va">p3</span></code></pre></div>
 <p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-34-1.png" width="864"></p>
 </div>
+<div id="assessing-protein-protein-interactions-within-clusters" class="section level2">
+<h2 class="hasAnchor">
+<a href="#assessing-protein-protein-interactions-within-clusters" class="anchor"></a>Assessing protein-protein interactions within clusters</h2>
+<p>Like gene-sets, protein-protein interaction (PPI) networks can be used to assess functional roles of groups of genes. Genes associated via protein-protein interactions are likely involved in related functions. To assess this independent line of evidence, vissE provides a module to assess the protein-protein interactions between genes in a gene-set cluster.</p>
+<p>Before a network is generated for each cluster, the full human PPI network needs to be loaded. The <code>msigdb</code> R/Bioconductor package provides the processed PPI network from the international molecular exchange consortium (IMEx). Human and mouse PPIs are available and can be loaded using the <code><a href="https://rdrr.io/pkg/msigdb/man/getIMEX.html">getIMEX()</a></code> function. To expand coverage, PPIs can be borrowed from across organisms via a homology-based translation. This can be done by setting <code>inferred=TRUE</code>.</p>
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#find versions of IMEx stored</span>
+<span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/getIMEXVersions.html">getIMEXVersions</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1] "2021-07-06"</code></pre>
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#load the human PPI data from the IMEx database using the msigdb package</span>
+<span class="va">ppi</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/msigdb/man/getIMEX.html">getIMEX</a></span><span class="op">(</span>org <span class="op">=</span> <span class="st">'hs'</span>, inferred <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">ppi</span><span class="op">)</span></code></pre></div>
+<pre><code>##   EntrezA EntrezB Taxid InteractorA InteractorB SymbolA SymbolB
+## 1       1    1026  9606      P04217      P38936    A1BG  CDKN1A
+## 2       1   10549  9606      P04217      Q13162    A1BG   PRDX4
+## 3       1    2886  9606      P04217      Q14451    A1BG    GRB7
+## 4       1     310  9606      P04217      P20073    A1BG   ANXA7
+## 5       1     368  9606      P04217      O95255    A1BG   ABCC6
+## 6       1    6606  9606      P04217      Q16637    A1BG    SMN1
+##        InteractionType DetectionMethod Confidence Inferred
+## 1 physical association      two hybrid  0.3678499    FALSE
+## 2 physical association      two hybrid  0.3678499    FALSE
+## 3 physical association      two hybrid  0.3678499    FALSE
+## 4 physical association      two hybrid  0.3678499    FALSE
+## 5 physical association      two hybrid  0.3678499    FALSE
+## 6 physical association      two hybrid  0.3678499    FALSE</code></pre>
+<p>Gene-level statistics are annotated onto each gene in the network to provide a holistic view. The network can be filtered using the following filters:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code>threshFrequency</code> - this selects nodes that have a specific frequency in a gene-set cluster, that is, the proportion of gene-sets in the cluster in which the gene belongs.</li>
+<li>
+<code>threshConfidence</code> - this applies a filter on the PPI edges to select interactions that have a high confidence statistic.</li>
+<li>
+<code>threshStatistic</code> - this selects genes that have a statistic of interest (e.g., lof fold-change) greater than the threshold.</li>
+</ol>
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">p4</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigPPI.html">plotMsigPPI</a></span><span class="op">(</span>
+  ppidf <span class="op">=</span> <span class="va">ppi</span>,
+  msigGsc <span class="op">=</span> <span class="va">siggs</span>,
+  groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>,
+  geneStat <span class="op">=</span> <span class="va">gStats</span>,
+  threshFrequency <span class="op">=</span> <span class="fl">0.25</span>, <span class="co">#threshold on gene frequency per cluster</span>
+  threshConfidence <span class="op">=</span> <span class="fl">0.2</span>, <span class="co">#threshold on PPI edge confidence</span>
+  threshStatistic <span class="op">=</span> <span class="fl">0.5</span>, <span class="co">#threshold on gene-level statistic</span>
+  threshUseAbsolute <span class="op">=</span> <span class="cn">TRUE</span> <span class="co">#apply threshold to absolute values</span>
+<span class="op">)</span>
+<span class="va">p4</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-36-1.png" width="700"></p>
+</div>
 <div id="由visse解读生物学意义" class="section level2">
 <h2 class="hasAnchor">
 <a href="#%E7%94%B1visse%E8%A7%A3%E8%AF%BB%E7%94%9F%E7%89%A9%E5%AD%A6%E6%84%8F%E4%B9%89" class="anchor"></a>由vissE解读生物学意义</h2>
 <p>现在我们已经生成了三个图，我们可以将它们结合起来以提供数据的整体视图。这将提供一个由分析鉴定的生物学主题的综合视图，以及驱动这些基因集的潜在基因。</p>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
 
 <span class="co">#将图组合成统一的可视化效果</span>
-<span class="va">p2</span> <span class="op">+</span> <span class="va">p1</span> <span class="op">+</span> <span class="va">p3</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-35-1.png" width="1440"></p>
-<p>该分析的预期结果在包含9个基因集的类群“90”中确定。我们可以专门为类群“90”生成上面的图，同时在基因水平统计图中注释更多的基因。</p>
-<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
+<span class="va">p1</span> <span class="op">+</span> <span class="va">p2</span> <span class="op">+</span> <span class="va">p3</span> <span class="op">+</span> <span class="va">p4</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html">plot_layout</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-37-1.png" width="1440"></p>
+<p>该分析的预期结果在包含9个基因集的类群”90”中确定。我们可以专门为类群”90”生成上面的图，同时在基因水平统计图中注释更多的基因。</p>
+<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#研究特定的类群</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span> <span class="co">#设置随机数以便于获得重复结果</span>
 <span class="co">#选择要绘图的类群</span>
@@ -981,7 +1029,7 @@
 ## [7] "GO_KERATIN_FILAMENT"                         
 ## [8] "GO_EPIDERMIS_DEVELOPMENT"                    
 ## [9] "GO_SKIN_DEVELOPMENT"</code></pre>
-<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#为指定类群计算并绘制vissE面板</span>
 <span class="va">p1_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigNetwork.html">plotMsigNetwork</a></span><span class="op">(</span><span class="va">gs_ovnet</span>, markGroups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="va">g</span><span class="op">]</span>, genesetStat <span class="op">=</span> <span class="va">gsStats</span><span class="op">)</span>
 <span class="va">p2_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigWordcloud.html">plotMsigWordcloud</a></span><span class="op">(</span>msigGsc <span class="op">=</span> <span class="va">siggs</span>, groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="va">g</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'Short'</span><span class="op">)</span>
@@ -992,8 +1040,18 @@
   statName <span class="op">=</span> <span class="st">'logFC'</span>,
   topN <span class="op">=</span> <span class="fl">25</span>
 <span class="op">)</span> <span class="op">+</span> <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">2</span>, colour <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
-<span class="va">p2_g</span> <span class="op">+</span> <span class="va">p1_g</span> <span class="op">+</span> <span class="va">p3_g</span></code></pre></div>
-<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-36-1.png" width="1440"></p>
+<span class="va">p4_g</span> <span class="op">=</span> <span class="fu"><a href="https://DavisLaboratory.github.io/vissE/reference/plotMsigPPI.html">plotMsigPPI</a></span><span class="op">(</span>
+  ppidf <span class="op">=</span> <span class="va">ppi</span>,
+  msigGsc <span class="op">=</span> <span class="va">siggs</span>,
+  groups <span class="op">=</span> <span class="va">grps</span><span class="op">[</span><span class="va">g</span><span class="op">]</span>,
+  geneStat <span class="op">=</span> <span class="va">gStats</span>,
+  threshFrequency <span class="op">=</span> <span class="fl">0.25</span>, <span class="co">#threshold on gene frequency per cluster</span>
+  threshConfidence <span class="op">=</span> <span class="fl">0.2</span>, <span class="co">#threshold on PPI edge confidence</span>
+  threshStatistic <span class="op">=</span> <span class="fl">0.5</span>, <span class="co">#threshold on gene-level statistic</span>
+  threshUseAbsolute <span class="op">=</span> <span class="cn">TRUE</span> <span class="co">#apply threshold to absolute values</span>
+<span class="op">)</span>
+<span class="va">p1_g</span> <span class="op">+</span> <span class="va">p2_g</span> <span class="op">+</span> <span class="va">p3_g</span> <span class="op">+</span> <span class="va">p4_g</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html">plot_layout</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<p><img src="workflow_singscore_vissE_Chinese_ver_files/figure-html/unnamed-chunk-38-1.png" width="1440"></p>
 <p>使用基因集名称计算的词云暗示了一个围绕角化的主题。当使用基因集描述注释类群时，这一点进一步得到强调。这个主题的另一个证据是基因水平的统计图，它显示了角蛋白基因(<em>KRT</em>s)具有高logFC和频率。基因集类群中的基因集紧密聚集，表明它们之间共享许多基因。该类群主要由与PMC42-ET相比在PMC42-LA中上调的基因集组成。正如前文的背景生物学部分所讨论的，富含角蛋白的粘附连接是上皮表型的特征，这与vissE分析提供的可视化结果一致。</p>
 </div>
 </div>
@@ -1006,7 +1064,7 @@
 <h1 class="hasAnchor">
 <a href="#%E4%BD%BF%E7%94%A8%E7%9A%84%E5%8C%85" class="anchor"></a>使用的包</h1>
 <p>本次分析流程依赖于Bioconductor项目的3.14中的各种包，它们在R version 4.1.1 (2021-08-10)或更高版本上运行。用于此流程的包的完整列表如下:</p>
-<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## R version 4.1.1 (2021-08-10)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
@@ -1028,81 +1086,83 @@
 ## [8] base     
 ## 
 ## other attached packages:
-##  [1] igraph_1.2.6                  patchwork_1.1.1              
-##  [3] vissE_1.1.0                   msigdb_1.1.0                 
-##  [5] singscore_1.13.1              emtdata_1.1.0                
-##  [7] GSEABase_1.55.1               graph_1.71.2                 
-##  [9] annotate_1.71.0               XML_3.99-0.8                 
-## [11] AnnotationDbi_1.55.1          edgeR_3.35.1                 
-## [13] limma_3.49.4                  ExperimentHub_2.1.4          
-## [15] AnnotationHub_3.1.5           BiocFileCache_2.1.1          
-## [17] dbplyr_2.1.1                  SummarizedExperiment_1.23.4  
-## [19] Biobase_2.53.0                GenomicRanges_1.45.0         
-## [21] GenomeInfoDb_1.29.8           IRanges_2.27.2               
-## [23] S4Vectors_0.31.4              BiocGenerics_0.39.2          
-## [25] MatrixGenerics_1.5.4          matrixStats_0.61.0           
-## [27] ggplot2_3.3.5                 GenesetAnalysisWorkflow_0.9.1
+##  [1] igraph_1.2.7                  patchwork_1.1.1              
+##  [3] vissE_1.1.7                   msigdb_1.1.5                 
+##  [5] singscore_1.14.0              emtdata_1.1.0                
+##  [7] GSEABase_1.56.0               graph_1.72.0                 
+##  [9] annotate_1.72.0               XML_3.99-0.8                 
+## [11] AnnotationDbi_1.56.0          edgeR_3.36.0                 
+## [13] limma_3.50.0                  ExperimentHub_2.2.0          
+## [15] AnnotationHub_3.2.0           BiocFileCache_2.2.0          
+## [17] dbplyr_2.1.1                  SummarizedExperiment_1.24.0  
+## [19] Biobase_2.54.0                GenomicRanges_1.46.0         
+## [21] GenomeInfoDb_1.30.0           IRanges_2.28.0               
+## [23] S4Vectors_0.32.0              BiocGenerics_0.40.0          
+## [25] MatrixGenerics_1.6.0          matrixStats_0.61.0           
+## [27] ggplot2_3.3.5                 GenesetAnalysisWorkflow_0.9.2
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] systemfonts_1.0.2             plyr_1.8.6                   
+##   [1] systemfonts_1.0.3             plyr_1.8.6                   
 ##   [3] splines_4.1.1                 digest_0.6.28                
-##   [5] htmltools_0.5.2               fansi_0.5.0                  
-##   [7] magrittr_2.0.1                memoise_2.0.0                
-##   [9] tm_0.7-8                      Biostrings_2.61.2            
-##  [11] textshape_1.7.3               pkgdown_1.6.1                
-##  [13] colorspace_2.0-2              blob_1.2.2                   
-##  [15] rappdirs_0.3.3                ggrepel_0.9.1                
-##  [17] sylly_0.1-6                   textshaping_0.3.5            
-##  [19] xfun_0.26                     dplyr_1.0.7                  
-##  [21] crayon_1.4.1                  RCurl_1.98-1.5               
-##  [23] jsonlite_1.7.2                hexbin_1.28.2                
-##  [25] glue_1.4.2                    polyclip_1.10-0              
-##  [27] gtable_0.3.0                  zlibbioc_1.39.0              
-##  [29] XVector_0.33.0                DelayedArray_0.19.4          
-##  [31] scico_1.2.0                   scales_1.1.1                 
-##  [33] qdapRegex_0.7.2               DBI_1.1.1                    
-##  [35] Rcpp_1.0.7                    viridisLite_0.4.0            
-##  [37] xtable_1.8-4                  bit_4.0.4                    
-##  [39] textclean_0.9.3               httr_1.4.2                   
-##  [41] ggwordcloud_0.5.0             RColorBrewer_1.1-2           
-##  [43] ellipsis_0.3.2                pkgconfig_2.0.3              
-##  [45] farver_2.1.0                  sass_0.4.0                   
-##  [47] locfit_1.5-9.4                utf8_1.2.2                   
-##  [49] tidyselect_1.1.1              labeling_0.4.2               
-##  [51] rlang_0.4.11                  reshape2_1.4.4               
-##  [53] later_1.3.0                   munsell_0.5.0                
-##  [55] BiocVersion_3.14.0            tools_4.1.1                  
-##  [57] cachem_1.0.6                  generics_0.1.0               
-##  [59] RSQLite_2.2.8                 evaluate_0.14                
-##  [61] stringr_1.4.0                 fastmap_1.1.0                
-##  [63] yaml_2.2.1                    ragg_1.1.3                   
-##  [65] textstem_0.1.4                org.Hs.eg.db_3.14.0          
-##  [67] knitr_1.36                    bit64_4.0.5                  
-##  [69] fs_1.5.0                      purrr_0.3.4                  
-##  [71] KEGGREST_1.33.0               koRpus_0.13-8                
-##  [73] mime_0.12                     slam_0.1-48                  
-##  [75] xml2_1.3.2                    compiler_4.1.1               
-##  [77] filelock_1.0.2                curl_4.3.2                   
-##  [79] png_0.1-7                     interactiveDisplayBase_1.31.2
-##  [81] koRpus.lang.en_0.1-4          syuzhet_1.0.6                
-##  [83] tibble_3.1.4                  statmod_1.4.36               
-##  [85] tweenr_1.0.2                  bslib_0.3.0                  
-##  [87] stringi_1.7.4                 highr_0.9                    
-##  [89] desc_1.4.0                    lattice_0.20-45              
-##  [91] Matrix_1.3-4                  vctrs_0.3.8                  
-##  [93] pillar_1.6.3                  lifecycle_1.0.1              
-##  [95] BiocManager_1.30.16           jquerylib_0.1.4              
-##  [97] data.table_1.14.2             bitops_1.0-7                 
-##  [99] httpuv_1.6.3                  sylly.en_0.1-3               
-## [101] R6_2.5.1                      promises_1.2.0.1             
-## [103] KernSmooth_2.23-20            lexicon_1.2.1                
-## [105] MASS_7.3-54                   assertthat_0.2.1             
-## [107] rprojroot_2.0.2               withr_2.4.2                  
-## [109] GenomeInfoDbData_1.2.7        parallel_4.1.1               
-## [111] grid_4.1.1                    prettydoc_0.4.1              
-## [113] tidyr_1.1.4                   rmarkdown_2.11               
-## [115] ggnewscale_0.4.5              ggforce_0.3.3                
-## [117] NLP_0.2-1                     shiny_1.7.0</code></pre>
+##   [5] htmltools_0.5.2               viridis_0.6.2                
+##   [7] fansi_0.5.0                   magrittr_2.0.1               
+##   [9] memoise_2.0.0                 tm_0.7-8                     
+##  [11] Biostrings_2.62.0             graphlayouts_0.7.1           
+##  [13] textshape_1.7.3               pkgdown_1.6.1                
+##  [15] colorspace_2.0-2              blob_1.2.2                   
+##  [17] rappdirs_0.3.3                ggrepel_0.9.1                
+##  [19] sylly_0.1-6                   textshaping_0.3.6            
+##  [21] xfun_0.27                     dplyr_1.0.7                  
+##  [23] crayon_1.4.1                  RCurl_1.98-1.5               
+##  [25] jsonlite_1.7.2                hexbin_1.28.2                
+##  [27] glue_1.4.2                    polyclip_1.10-0              
+##  [29] gtable_0.3.0                  zlibbioc_1.40.0              
+##  [31] XVector_0.34.0                DelayedArray_0.20.0          
+##  [33] scico_1.2.0                   scales_1.1.1                 
+##  [35] qdapRegex_0.7.2               DBI_1.1.1                    
+##  [37] Rcpp_1.0.7                    viridisLite_0.4.0            
+##  [39] xtable_1.8-4                  bit_4.0.4                    
+##  [41] textclean_0.9.3               httr_1.4.2                   
+##  [43] ggwordcloud_0.5.0             RColorBrewer_1.1-2           
+##  [45] ellipsis_0.3.2                pkgconfig_2.0.3              
+##  [47] farver_2.1.0                  sass_0.4.0                   
+##  [49] locfit_1.5-9.4                utf8_1.2.2                   
+##  [51] tidyselect_1.1.1              labeling_0.4.2               
+##  [53] rlang_0.4.12                  reshape2_1.4.4               
+##  [55] later_1.3.0                   munsell_0.5.0                
+##  [57] BiocVersion_3.14.0            tools_4.1.1                  
+##  [59] cachem_1.0.6                  generics_0.1.1               
+##  [61] RSQLite_2.2.8                 evaluate_0.14                
+##  [63] stringr_1.4.0                 fastmap_1.1.0                
+##  [65] yaml_2.2.1                    ragg_1.1.3                   
+##  [67] textstem_0.1.4                org.Hs.eg.db_3.14.0          
+##  [69] knitr_1.36                    bit64_4.0.5                  
+##  [71] fs_1.5.0                      tidygraph_1.2.0              
+##  [73] purrr_0.3.4                   KEGGREST_1.34.0              
+##  [75] ggraph_2.0.5                  koRpus_0.13-8                
+##  [77] mime_0.12                     slam_0.1-48                  
+##  [79] xml2_1.3.2                    compiler_4.1.1               
+##  [81] filelock_1.0.2                curl_4.3.2                   
+##  [83] png_0.1-7                     interactiveDisplayBase_1.32.0
+##  [85] koRpus.lang.en_0.1-4          syuzhet_1.0.6                
+##  [87] tibble_3.1.5                  statmod_1.4.36               
+##  [89] tweenr_1.0.2                  bslib_0.3.1                  
+##  [91] stringi_1.7.5                 highr_0.9                    
+##  [93] desc_1.4.0                    lattice_0.20-45              
+##  [95] Matrix_1.3-4                  vctrs_0.3.8                  
+##  [97] pillar_1.6.4                  lifecycle_1.0.1              
+##  [99] BiocManager_1.30.16           jquerylib_0.1.4              
+## [101] data.table_1.14.2             bitops_1.0-7                 
+## [103] sylly.en_0.1-3                httpuv_1.6.3                 
+## [105] R6_2.5.1                      promises_1.2.0.1             
+## [107] KernSmooth_2.23-20            gridExtra_2.3                
+## [109] lexicon_1.2.1                 MASS_7.3-54                  
+## [111] assertthat_0.2.1              rprojroot_2.0.2              
+## [113] withr_2.4.2                   GenomeInfoDbData_1.2.7       
+## [115] parallel_4.1.1                grid_4.1.1                   
+## [117] prettydoc_0.4.1               tidyr_1.1.4                  
+## [119] rmarkdown_2.11                ggforce_0.3.3                
+## [121] NLP_0.2-1                     shiny_1.7.1</code></pre>
 </div>
 <div id="致谢" class="section level1 unnumbered">
 <h1 class="hasAnchor">
