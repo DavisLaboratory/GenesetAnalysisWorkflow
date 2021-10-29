@@ -631,25 +631,25 @@ p3 = p3 + geom_hline(yintercept = 0, colour = 2, lty = 2)
 p3
 ```
 
-## Assessing protein-protein interactions within clusters
+## 评估聚类中的蛋白质互作（PPI）
 
-Like gene-sets, protein-protein interaction (PPI) networks can be used to assess functional roles of groups of genes. Genes associated via protein-protein interactions are likely involved in related functions. To assess this independent line of evidence, vissE provides a module to assess the protein-protein interactions between genes in a gene-set cluster.
+与基因集一样，蛋白质间相互作用（PPI）网络也可用于评估基因组合的功能作用。参与蛋白质间相互作用的相关的基因很可能也参与相关功能。为了评估这种独立的证据，vissE提供了一种模块，用来评估基因集类群中基因之间的蛋白质间相互作用。
 
-Before a network is generated for each cluster, the full human PPI network needs to be loaded. The `msigdb` R/Bioconductor package provides the processed PPI network from the international molecular exchange consortium (IMEx). Human and mouse PPIs are available and can be loaded using the `getIMEX()` function. To expand coverage, PPIs can be borrowed from across organisms via a homology-based translation. This can be done by setting `inferred=TRUE`.
+在为每个类群生成网络之前，需要加载完整的人类PPI网络。`msigdb`包提供了来自国际分子交换联盟(IMEx)处理过的PPI网络。人类和小鼠的PPIs是可用的，可以使用`getIMEX()`函数加载。为了扩大覆盖范围，PPIs可以通过同源转换从不同的生物体中借用。这一点可以通过设置`inferred=TRUE`来实现。
 
 ```{r}
-#find versions of IMEx stored
+#查找存储的IMEx版本
 getIMEXVersions()
-#load the human PPI data from the IMEx database using the msigdb package
+#使用msigdb包从IMEx数据库加载人类的PPI数据
 ppi = getIMEX(org = 'hs', inferred = TRUE)
 head(ppi)
 ```
 
-Gene-level statistics are annotated onto each gene in the network to provide a holistic view. The network can be filtered using the following filters:
+使用基因水平统计量来注释网络中的每个基因，以提供整体视图。可以使用以下过滤条件对网络进行过滤：
 
-1. `threshFrequency` - this selects nodes that have a specific frequency in a gene-set cluster, that is, the proportion of gene-sets in the cluster in which the gene belongs.
-2. `threshConfidence` - this applies a filter on the PPI edges to select interactions that have a high confidence statistic.
-3. `threshStatistic` - this selects genes that have a statistic of interest (e.g., lof fold-change) greater than the threshold.
+1. `threshFrequency` - 将选择在一个基因集类群中具有特定频率的节点，即该基因所属的基因集在类群中的比例。
+2. `threshConfidence` - 将对PPI的边界进行过滤，以选择具有高置信度统计量的相互作用。
+3. `threshStatistic` - 将选择感兴趣的统计量(例如，倍数差异对数值)大于阈值的基因。
 
 ```{r}
 p4 = plotMsigPPI(
@@ -657,10 +657,10 @@ p4 = plotMsigPPI(
   msigGsc = siggs,
   groups = grps[1:12],
   geneStat = gStats,
-  threshFrequency = 0.25, #threshold on gene frequency per cluster
-  threshConfidence = 0.2, #threshold on PPI edge confidence
-  threshStatistic = 0.5, #threshold on gene-level statistic
-  threshUseAbsolute = TRUE #apply threshold to absolute values
+  threshFrequency = 0.25, #每个类群中基因频率阈值
+  threshConfidence = 0.2, #PPI边界置信度阈值
+  threshStatistic = 0.5, #基因水平统计量阈值
+  threshUseAbsolute = TRUE #对绝对值应用阈值
 )
 p4
 ```
