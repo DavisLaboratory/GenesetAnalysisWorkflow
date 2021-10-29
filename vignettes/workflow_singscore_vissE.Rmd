@@ -644,7 +644,7 @@ Gene-level statistics are annotated onto each gene in the network to provide a h
 
 1.  `threshFrequency` - this selects nodes that have a specific frequency in a gene-set cluster, that is, the proportion of gene-sets in the cluster in which the gene belongs.
 2.  `threshConfidence` - this applies a filter on the PPI edges to select interactions that have a high confidence statistic.
-3.  `threshStatistic` - this selects genes that have a statistic of interest (e.g., lof fold-change) greater than the threshold.
+3.  `threshStatistic` - this selects genes that have a statistic of interest (e.g., log fold-change) greater than the threshold.
 
 ```{r}
 p4 = plotMsigPPI(
