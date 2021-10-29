@@ -1,6 +1,6 @@
 Package: GenesetAnalysisWorkflow
 Title: Molecular phenotyping and visualisation from individual samples using singscore, vissE and msigdb
-Version: 0.9.1
+Version: 0.9.2
 Authors@R: 
     c(
       person(
@@ -36,7 +36,7 @@ Workflow: True
 biocViews: GeneExpressionWorkflow, Workflow
 VignetteBuilder: knitr
 Depends: 
-    R (>= 4.1.0)
+    R (>= 4.1.1)
 Imports: 
     Biobase,
     emtdata,

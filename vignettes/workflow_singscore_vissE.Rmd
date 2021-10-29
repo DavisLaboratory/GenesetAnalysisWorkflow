@@ -466,9 +466,7 @@ A common approach to gene-set testing using `limma::fry` is to perform the analy
 genesigs = c(
   epi_sig,
   mes_sig,
-  subsetCollection(msigdb.hs, 'h'),
-  subsetCollection(msigdb.hs, 'c2', c('CP:KEGG', 'CP:REACTOME', 'CP:BIOCARTA')),
-  subsetCollection(msigdb.hs, 'c5', c('GO:BP', 'GO:MF', 'GO:CC'))
+  subsetCollection(msigdb.hs, 'h', c('CP:KEGG', 'CP:REACTOME', 'CP:BIOCARTA', 'GO:BP', 'GO:MF', 'GO:CC'))
 )
 genesigs = GeneSetCollection(genesigs)
 
@@ -628,21 +626,54 @@ p3 = p3 + geom_hline(yintercept = 0, colour = 2, lty = 2)
 p3
 ```
 
+## Assessing protein-protein interactions within clusters
+
+Like gene-sets, protein-protein interaction (PPI) networks can be used to assess functional roles of groups of genes. Genes associated via protein-protein interactions are likely involved in related functions. To assess this independent line of evidence, vissE provides a module to assess the protein-protein interactions between genes in a gene-set cluster.
+
+Before a network is generated for each cluster, the full human PPI network needs to be loaded. The `msigdb` R/Bioconductor package provides the processed PPI network from the international molecular exchange consortium (IMEx). Human and mouse PPIs are available and can be loaded using the `getIMEX()` function. To expand coverage, PPIs can be borrowed from across organisms via a homology-based translation. This can be done by setting `inferred=TRUE`.
+
+```{r}
+#find versions of IMEx stored
+getIMEXVersions()
+#load the human PPI data from the IMEx database using the msigdb package
+ppi = getIMEX(org = 'hs', inferred = TRUE)
+head(ppi)
+```
+
+Gene-level statistics are annotated onto each gene in the network to provide a holistic view. The network can be filtered using the following filters:
+
+1.  `threshFrequency` - this selects nodes that have a specific frequency in a gene-set cluster, that is, the proportion of gene-sets in the cluster in which the gene belongs.
+2.  `threshConfidence` - this applies a filter on the PPI edges to select interactions that have a high confidence statistic.
+3.  `threshStatistic` - this selects genes that have a statistic of interest (e.g., lof fold-change) greater than the threshold.
+
+```{r}
+p4 = plotMsigPPI(
+  ppidf = ppi,
+  msigGsc = siggs,
+  groups = grps[1:12],
+  geneStat = gStats,
+  threshFrequency = 0.25, #threshold on gene frequency per cluster
+  threshConfidence = 0.2, #threshold on PPI edge confidence
+  threshStatistic = 0.5, #threshold on gene-level statistic
+  threshUseAbsolute = TRUE #apply threshold to absolute values
+)
+p4
+```
+
 ## Interpreting biology from vissE
 
 Now that we have generated the three plots, we can combine them to provide a holistic view of the data. This will provide an integrated view of biological themes identified by the analysis, as well as the underlying genes driving these gene-sets.
 
-```{r fig.height=7, fig.width=15}
+```{r fig.height=15, fig.width=15}
 library(patchwork)
 
 #combine plots into a unified visualisation
-p2 + p1 + p3
+p1 + p2 + p3 + p4 + plot_layout(2, 2)
 ```
 
 An expected result of this analysis is identified in cluster "90" that contains 9 gene-sets. We can generate the plot above specifically for cluster "90" and while doing so, annotate more genes in the gene-level statistics plot.
 
-```{r fig.height=7, fig.width=15}
-
+```{r fig.height=15, fig.width=15}
 #investigate specific clusters
 set.seed(21) #set seed for reproducible layout
 #select group to plot
@@ -661,7 +692,17 @@ p3_g = plotGeneStats(
   statName = 'logFC',
   topN = 25
 ) + geom_hline(yintercept = 0, lty = 2, colour = 2)
-p2_g + p1_g + p3_g
+p4_g = plotMsigPPI(
+  ppidf = ppi,
+  msigGsc = siggs,
+  groups = grps[g],
+  geneStat = gStats,
+  threshFrequency = 0.25, #threshold on gene frequency per cluster
+  threshConfidence = 0.2, #threshold on PPI edge confidence
+  threshStatistic = 0.5, #threshold on gene-level statistic
+  threshUseAbsolute = TRUE #apply threshold to absolute values
+)
+p1_g + p2_g + p3_g + p4_g + plot_layout(2, 2)
 ```
 
 The word cloud computed using gene-set names hints at a theme around keratinisation. This is further empahsised when annotating the cluster using gene-set descriptions. An additional line of evidence for this theme is the gene-level statistic plot that shows keratin genes (*KRT*s) having high logFCs and frequencies. Gene-sets in the gene-set cluster are tightly clustered suggesting they share many genes among themselves. This cluster is mainly composed of gene-sets that are being up-regulated in PMC42-LA compared to PMC42-ET. As was discussed in the background biology section of this document, keratin-rich adherens junctions are characteristics of an epithelial phenotype. This is consistent with the visualisations provided by the vissE analysis.

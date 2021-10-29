@@ -90,7 +90,7 @@ EMT的特征是上皮标志物（如E-钙粘蛋白和密封蛋白）的下调以
 
 尽管癌细胞通过EMT促进转移扩散，但它们很少完全转化为间充质表型，而是表现出一种杂交表型，被宽泛地称为上皮间充质可塑性（EMP）。EMP与乳腺癌转移风险的增加以及不良预后相关[@cursons15]。受限于缺乏可靠的进展读数以及由此导致的对EMT的过渡与进展状态的有限研究，目前针对这种瞬态/亚稳态表型提出的特定标志物有限。这种混合态的特定标志物的鉴定将为确定转移的干预措施，以及揭示潜在治疗方法的机制提供关键信息。[@ribeiro2015]
 
-在本次分析流程中，我们使用来自[@cursons15]研究的批量转录组数据，该研究在两种乳腺癌细胞系模型中，即PMC42 system（PMC42-ET和PMC42-LA亚株）和MDA-MB-468，对EMP进行研究。在该数据集中，PMC42-LA是一种源自波形蛋白阳性，E-钙粘蛋白阴性的亲本PMC42-ET细胞的上皮亚系，两者均被归类为具有“基底B”转录组（表达间充质基因，缺乏上皮标记基因表达）。
+在本次分析流程中，我们使用来自[@cursons15]研究的批量转录组数据，该研究在两种乳腺癌细胞系模型中，即PMC42 system（PMC42-ET和PMC42-LA亚株）和MDA-MB-468，对EMP进行研究。在该数据集中，PMC42-LA是一种源自波形蛋白阳性，E-钙粘蛋白阴性的亲本PMC42-ET细胞的上皮亚系，两者均被归类为具有"基底B"转录组（表达间充质基因，缺乏上皮标记基因表达）。
 
 # 单个样本的分子表型
 
@@ -106,7 +106,7 @@ EMT的特征是上皮标志物（如E-钙粘蛋白和密封蛋白）的下调以
 
 本次分析流程中使用的数据为[@cursons15]RNA-seq数据。从SRA下载RNA-seq数据，并使用Subread aligner[@liao13]和featureCounts[@liao14]对数据进行处理生成计数矩阵。随后使用`edgeR::filterByExpr()`函数过滤掉低表达基因。使用`edgeR` R/Bioconductor包中的相关函数，根据TMM计算得到标准化因子，并计算基因的每百万读数中每千碱基映射读数（RPKM）。随后数据被存储在SummarizedExperiment对象中，可以使用`emtdata` R/Bioconductor包从`ExperimentHub`中被检索到。
 
-来自`emtdata`包的数据可以使用包内的访问器或者`ExperimentHub`被检索到。以下的检索将搜索hub中与搜索词“emtdata”相关联的所有对象。检索到`emtdata`包中可用的三个数据集的信息。
+来自`emtdata`包的数据可以使用包内的访问器或者`ExperimentHub`被检索到。以下的检索将搜索hub中与搜索词"emtdata"相关联的所有对象。检索到`emtdata`包中可用的三个数据集的信息。
 
 ```{r}
 library(ExperimentHub)
@@ -123,7 +123,7 @@ res
 mcols(res)
 ```
 
-可以使用编号（“EH5441"）或者通过函数`cursons2015_se()`来检索对象。数据被存储为`SummarizedExperiment`对象，函数`rowData()`，`colData()`和`assay()`可用于与对象交互。我们能看见该数据测量了21个样本中约30,000个基因，基因的计数和logRPKM矩阵都被存储在对象中。
+可以使用编号（"EH5441"）或者通过函数`cursons2015_se()`来检索对象。数据被存储为`SummarizedExperiment`对象，函数`rowData()`，`colData()`和`assay()`可用于与对象交互。我们能看见该数据测量了21个样本中约30,000个基因，基因的计数和logRPKM矩阵都被存储在对象中。
 
 ```{r}
 library(SummarizedExperiment)
@@ -471,9 +471,7 @@ allg_list = as.data.frame(topTags(res, n = Inf)[,-(1:6)])
 genesigs = c(
   epi_sig,
   mes_sig,
-  subsetCollection(msigdb.hs, 'h'),
-  subsetCollection(msigdb.hs, 'c2', c('CP:KEGG', 'CP:REACTOME', 'CP:BIOCARTA')),
-  subsetCollection(msigdb.hs, 'c5', c('GO:BP', 'GO:MF', 'GO:CC'))
+  subsetCollection(msigdb.hs, 'h', c('CP:KEGG', 'CP:REACTOME', 'CP:BIOCARTA', 'GO:BP', 'GO:MF', 'GO:CC'))
 )
 genesigs = GeneSetCollection(genesigs)
 
@@ -633,20 +631,54 @@ p3 = p3 + geom_hline(yintercept = 0, colour = 2, lty = 2)
 p3
 ```
 
+## Assessing protein-protein interactions within clusters
+
+Like gene-sets, protein-protein interaction (PPI) networks can be used to assess functional roles of groups of genes. Genes associated via protein-protein interactions are likely involved in related functions. To assess this independent line of evidence, vissE provides a module to assess the protein-protein interactions between genes in a gene-set cluster.
+
+Before a network is generated for each cluster, the full human PPI network needs to be loaded. The `msigdb` R/Bioconductor package provides the processed PPI network from the international molecular exchange consortium (IMEx). Human and mouse PPIs are available and can be loaded using the `getIMEX()` function. To expand coverage, PPIs can be borrowed from across organisms via a homology-based translation. This can be done by setting `inferred=TRUE`.
+
+```{r}
+#find versions of IMEx stored
+getIMEXVersions()
+#load the human PPI data from the IMEx database using the msigdb package
+ppi = getIMEX(org = 'hs', inferred = TRUE)
+head(ppi)
+```
+
+Gene-level statistics are annotated onto each gene in the network to provide a holistic view. The network can be filtered using the following filters:
+
+1. `threshFrequency` - this selects nodes that have a specific frequency in a gene-set cluster, that is, the proportion of gene-sets in the cluster in which the gene belongs.
+2. `threshConfidence` - this applies a filter on the PPI edges to select interactions that have a high confidence statistic.
+3. `threshStatistic` - this selects genes that have a statistic of interest (e.g., lof fold-change) greater than the threshold.
+
+```{r}
+p4 = plotMsigPPI(
+  ppidf = ppi,
+  msigGsc = siggs,
+  groups = grps[1:12],
+  geneStat = gStats,
+  threshFrequency = 0.25, #threshold on gene frequency per cluster
+  threshConfidence = 0.2, #threshold on PPI edge confidence
+  threshStatistic = 0.5, #threshold on gene-level statistic
+  threshUseAbsolute = TRUE #apply threshold to absolute values
+)
+p4
+```
+
 ## 由vissE解读生物学意义
 
 现在我们已经生成了三个图，我们可以将它们结合起来以提供数据的整体视图。这将提供一个由分析鉴定的生物学主题的综合视图，以及驱动这些基因集的潜在基因。
 
-```{r fig.height=7, fig.width=15}
+```{r fig.height=15, fig.width=15}
 library(patchwork)
 
 #将图组合成统一的可视化效果
-p2 + p1 + p3
+p1 + p2 + p3 + p4 + plot_layout(2, 2)
 ```
 
-该分析的预期结果在包含9个基因集的类群“90”中确定。我们可以专门为类群“90”生成上面的图，同时在基因水平统计图中注释更多的基因。
+该分析的预期结果在包含9个基因集的类群"90"中确定。我们可以专门为类群"90"生成上面的图，同时在基因水平统计图中注释更多的基因。
 
-```{r fig.height=7, fig.width=15}
+```{r fig.height=15, fig.width=15}
 
 #研究特定的类群
 set.seed(21) #设置随机数以便于获得重复结果
@@ -666,7 +698,17 @@ p3_g = plotGeneStats(
   statName = 'logFC',
   topN = 25
 ) + geom_hline(yintercept = 0, lty = 2, colour = 2)
-p2_g + p1_g + p3_g
+p4_g = plotMsigPPI(
+  ppidf = ppi,
+  msigGsc = siggs,
+  groups = grps[g],
+  geneStat = gStats,
+  threshFrequency = 0.25, #threshold on gene frequency per cluster
+  threshConfidence = 0.2, #threshold on PPI edge confidence
+  threshStatistic = 0.5, #threshold on gene-level statistic
+  threshUseAbsolute = TRUE #apply threshold to absolute values
+)
+p1_g + p2_g + p3_g + p4_g + plot_layout(2, 2)
 ```
 
 使用基因集名称计算的词云暗示了一个围绕角化的主题。当使用基因集描述注释类群时，这一点进一步得到强调。这个主题的另一个证据是基因水平的统计图，它显示了角蛋白基因(*KRT*s)具有高logFC和频率。基因集类群中的基因集紧密聚集，表明它们之间共享许多基因。该类群主要由与PMC42-ET相比在PMC42-LA中上调的基因集组成。正如前文的背景生物学部分所讨论的，富含角蛋白的粘附连接是上皮表型的特征，这与vissE分析提供的可视化结果一致。
